@@ -1,0 +1,36 @@
+<configure
+        xmlns="http://namespaces.zope.org/zope"
+        xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+        i18n_domain="ace.lims">
+
+    <genericsetup:registerProfile
+            name="default"
+            title="ACE LIMS"
+            directory="profiles/default"
+            description='ACE LIMS installation profile'
+            provides="Products.GenericSetup.interfaces.EXTENSION"/>
+
+    <genericsetup:importStep
+            name="ace.lims.various"
+            title="ACE LIMS: custom python setup actions"
+            description="ace.lims.setuphandlers.setupVarious"
+            handler="ace.lims.setuphandlers.setupVarious">
+        <depends name="content"/>
+    </genericsetup:importStep>
+
+    <genericsetup:registerProfile
+            name="uninstall"
+            title="ace.lims uninstall profile"
+            directory="profiles/uninstall"
+            description="Uninstalls the ace.lims add-on"
+            provides="Products.GenericSetup.interfaces.EXTENSION"
+    />
+
+    <genericsetup:importStep
+            name="ace.lims-uninstall"
+            title="ace.lims uninstall handler"
+            description="Import step run during ininstalling ace.lims"
+            handler=".setuphandlers.uninstall">
+    </genericsetup:importStep>
+
+</configure>

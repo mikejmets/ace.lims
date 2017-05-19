@@ -1,0 +1,19 @@
+<configure
+        xmlns="http://namespaces.zope.org/zope"
+        xmlns:plone="http://namespaces.plone.org/plone"
+        i18n_domain="ace.lims">
+
+    <plone:static
+            directory="stickers"
+            type="stickers"
+            name="ace-stickers"
+    />
+
+<!--
+<plone:static
+            directory="reports"
+            type="reports"
+            name="ace-reports"
+    />
+-->
+</configure>
