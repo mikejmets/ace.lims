@@ -10,40 +10,12 @@ from plone.app.content.browser.interfaces import IFolderContentsView
 from zope.interface import implements
 
 
-class AnalysisRequestsView(ARV):
-    """Hide SamplingDate from listing views (if SWE is enabled)
-    """
+class AnalysisRequestPublishView(ARPV):
     implements(IFolderContentsView)
 
-    def __init__(self, context, request):
-        super(AnalysisRequestsView, self).__init__(context, request)
-        if context.bika_setup.getSamplingWorkflowEnabled():
-            for x in range(len(self.review_states)):
-                if 'SamplingDate' in self.review_states[x]['columns']:
-                    self.review_states[x]['columns'].remove('SamplingDate')
+    def __init__(self, context, request, publish=False):
+        import pdb; pdb.set_trace()
+        super(AnalysisRequestPublishView, self).__init__(context, request)
 
-
-class ClientAnalysisRequestsView(CARV):
-    """Hide SamplingDate from listing views (if SWE is enabled)
-    """
-    implements(IFolderContentsView)
-
-    def __init__(self, context, request):
-        super(ClientAnalysisRequestsView, self).__init__(context, request)
-        if context.bika_setup.getSamplingWorkflowEnabled():
-            for x in range(len(self.review_states)):
-                if 'SamplingDate' in self.review_states[x]['columns']:
-                    self.review_states[x]['columns'].remove('SamplingDate')
-
-
-class BatchAnalysisRequestsView(BARV):
-    """Hide SamplingDate from listing views (if SWE is enabled)
-    """
-    implements(IFolderContentsView)
-
-    def __init__(self, context, request):
-        super(BatchAnalysisRequestsView, self).__init__(context, request)
-        if context.bika_setup.getSamplingWorkflowEnabled():
-            for x in range(len(self.review_states)):
-                if 'SamplingDate' in self.review_states[x]['columns']:
-                    self.review_states[x]['columns'].remove('SamplingDate')
+    def __call__(self, context, request):
+        import pdb; pdb.set_trace()

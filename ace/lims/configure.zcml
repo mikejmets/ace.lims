@@ -19,13 +19,5 @@
   <include file="behaviours.zcml" />
   <include file="profiles.zcml" />
 
-  <!-- Comment out for now
-  <include package=".adapters"/>
-  <include package=".extenders"/>
-  -->
   <include package=".browser"/>
-  <include package=".static"/>
-  <include package=".subscribers"/>
-  <include package=".workflow"/>
-  <include package=".viewlets"/>
 </configure>
