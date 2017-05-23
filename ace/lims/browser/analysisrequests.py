@@ -13,9 +13,5 @@ from zope.interface import implements
 class AnalysisRequestPublishView(ARPV):
     implements(IFolderContentsView)
 
-    def __init__(self, context, request, publish=False):
-        import pdb; pdb.set_trace()
-        super(AnalysisRequestPublishView, self).__init__(context, request)
-
-    def __call__(self, context, request):
+    def publishFromHTML(self, aruid, results_html):
         import pdb; pdb.set_trace()

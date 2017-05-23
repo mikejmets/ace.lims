@@ -4,7 +4,7 @@
         i18n_domain="ace.lims">
 
     <browser:page
-      for="bika.lims.interfaces.IAnalysisRequestsFolder"
+      for="bika.lims.interfaces.IAnalysisRequest"
       name="publish"
       class="ace.lims.browser.analysisrequests.AnalysisRequestPublishView"
       permission="bika.lims.ManageAnalysisRequests"
