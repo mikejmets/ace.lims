@@ -9,6 +9,7 @@
     i18n_domain="ace.lims">
 
   <i18n:registerTranslations directory="locales" />
+
   <!-- Include dependencies listed in setup.py -->
   <includeDependencies package="." />
 

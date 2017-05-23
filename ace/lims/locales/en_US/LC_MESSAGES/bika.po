@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Bika-LIMS\n"
 "POT-Creation-Date: 2017-04-27 09:15+0000\n"
-"PO-Revision-Date: 2017-04-08 10:02+0000\n"
+"PO-Revision-Date: 2017-05-23 14:59+0200\n"
 "Last-Translator: Ramon Bartl <rb@ridingbytes.com>\n"
 "Language-Team: English (United States) (http://www.transifex.com/bikalabs/bika-lims/language/en_US/)\n"
 "MIME-Version: 1.0\n"
@@ -17,6 +17,7 @@ msgstr ""
 "Preferred-Encodings: utf-8 latin1\n"
 "Domain: bika\n"
 "Language: en_US\n"
+"X-Generator: Poedit 1.8.7.1\n"
 
 #: bika/lims/browser/templates/login_details.pt:32
 msgid "${contact_fullname} can log into the LIMS by using ${contact_username} as username. Contacts must change their own passwords. If a password is forgotten a contact can request a new password from the login form."
@@ -143,8 +144,7 @@ msgstr ""
 msgid "(Required)"
 msgstr ""
 
-#: bika/lims/browser/analyses.py:105
-#: bika/lims/browser/referencesample.py:121
+#: bika/lims/browser/analyses.py:105 bika/lims/browser/referencesample.py:121
 #: bika/lims/browser/worksheet/views/analyses.py:46
 msgid "+-"
 msgstr ""
@@ -243,8 +243,7 @@ msgstr ""
 msgid "Account Type"
 msgstr ""
 
-#: bika/lims/browser/accreditation.py:40
-#: bika/lims/content/laboratory.py:64
+#: bika/lims/browser/accreditation.py:40 bika/lims/content/laboratory.py:64
 msgid "Accreditation"
 msgstr ""
 
@@ -366,8 +365,7 @@ msgid "Agency"
 msgstr ""
 
 #: bika/lims/browser/accreditation.py:81
-#: bika/lims/browser/aggregatedanalyses.py:81
-#: bika/lims/browser/analyses.py:127
+#: bika/lims/browser/aggregatedanalyses.py:81 bika/lims/browser/analyses.py:127
 msgid "All"
 msgstr ""
 
@@ -531,8 +529,7 @@ msgstr ""
 msgid "Analysis Keyword"
 msgstr ""
 
-#: bika/lims/content/analysisrequest.py:483
-#: bika/lims/content/artemplate.py:165
+#: bika/lims/content/analysisrequest.py:483 bika/lims/content/artemplate.py:165
 msgid "Analysis Profile"
 msgstr ""
 
@@ -612,8 +609,7 @@ msgstr ""
 msgid "Analysis Service"
 msgstr ""
 
-#: bika/lims/config.py:44
-#: bika/lims/controlpanel/bika_analysisservices.py:147
+#: bika/lims/config.py:44 bika/lims/controlpanel/bika_analysisservices.py:147
 msgid "Analysis Services"
 msgstr ""
 
@@ -714,8 +710,7 @@ msgstr ""
 msgid "Analysis turnaround times over time"
 msgstr ""
 
-#: bika/lims/browser/analyses.py:83
-#: bika/lims/browser/batch/publish.py:98
+#: bika/lims/browser/analyses.py:83 bika/lims/browser/batch/publish.py:98
 #: bika/lims/browser/reports/productivity_analysestats_overtime.py:53
 msgid "Analyst"
 msgstr ""
@@ -781,8 +776,7 @@ msgstr ""
 msgid "Attach to"
 msgstr ""
 
-#: bika/lims/content/attachment.py:31
-#: bika/lims/content/samplepoint.py:88
+#: bika/lims/content/attachment.py:31 bika/lims/content/samplepoint.py:88
 #: bika/lims/skins/bika/attachments.pt:11
 msgid "Attachment"
 msgstr ""
@@ -887,8 +881,7 @@ msgid "Basis"
 msgstr ""
 
 #: bika/lims/browser/reports/templates/productivity_dataentrydaybook.pt:92
-#: bika/lims/content/analysisrequest.py:321
-#: bika/lims/content/arimport.py:130
+#: bika/lims/content/analysisrequest.py:321 bika/lims/content/arimport.py:130
 msgid "Batch"
 msgstr ""
 
@@ -898,8 +891,7 @@ msgstr ""
 msgid "Batch ID"
 msgstr ""
 
-#: bika/lims/content/batch.py:115
-#: bika/lims/controlpanel/bika_batchlabels.py:29
+#: bika/lims/content/batch.py:115 bika/lims/controlpanel/bika_batchlabels.py:29
 msgid "Batch Labels"
 msgstr ""
 
@@ -935,8 +927,7 @@ msgstr ""
 msgid "Bika LIMS front-page"
 msgstr ""
 
-#: bika/lims/config.py:88
-#: bika/lims/content/organisation.py:66
+#: bika/lims/config.py:88 bika/lims/content/organisation.py:66
 msgid "Billing address"
 msgstr ""
 
@@ -958,8 +949,7 @@ msgstr ""
 msgid "Bulk Discount"
 msgstr ""
 
-#: bika/lims/content/client.py:41
-#: bika/lims/content/pricelist.py:36
+#: bika/lims/content/client.py:41 bika/lims/content/pricelist.py:36
 msgid "Bulk discount applies"
 msgstr ""
 
@@ -980,8 +970,7 @@ msgstr ""
 msgid "CC Contacts"
 msgstr ""
 
-#: bika/lims/content/analysisrequest.py:211
-#: bika/lims/content/client.py:56
+#: bika/lims/content/analysisrequest.py:211 bika/lims/content/client.py:56
 msgid "CC Emails"
 msgstr ""
 
@@ -999,8 +988,7 @@ msgstr ""
 msgid "Calculation Formula"
 msgstr ""
 
-#: bika/lims/content/analysis.py:98
-#: bika/lims/content/analysisservice.py:705
+#: bika/lims/content/analysis.py:98 bika/lims/content/analysisservice.py:705
 #: bika/lims/content/calculation.py:49
 msgid "Calculation Interim Fields"
 msgstr ""
@@ -1049,8 +1037,7 @@ msgid "Cancel"
 msgstr ""
 
 #: bika/lims/browser/analysisrequest/analysisrequests.py:481
-#: bika/lims/browser/arimports.py:93
-#: bika/lims/browser/batchfolder.py:75
+#: bika/lims/browser/arimports.py:93 bika/lims/browser/batchfolder.py:75
 msgid "Cancelled"
 msgstr ""
 
@@ -1075,8 +1062,7 @@ msgstr ""
 msgid "Capacity"
 msgstr ""
 
-#: bika/lims/browser/analyses.py:116
-#: bika/lims/browser/referencesample.py:120
+#: bika/lims/browser/analyses.py:116 bika/lims/browser/referencesample.py:120
 #: bika/lims/browser/reports/qualitycontrol_referenceanalysisqc.py:134
 msgid "Captured"
 msgstr ""
@@ -1195,8 +1181,7 @@ msgstr ""
 msgid "Client Batch ID"
 msgstr ""
 
-#: bika/lims/browser/clientfolder.py:48
-#: bika/lims/content/arimport.py:85
+#: bika/lims/browser/clientfolder.py:48 bika/lims/content/arimport.py:85
 #: bika/lims/content/batch.py:91
 msgid "Client ID"
 msgstr ""
@@ -1214,8 +1199,7 @@ msgid "Client Order"
 msgstr ""
 
 #: bika/lims/browser/batch/batchbook.py:60
-#: bika/lims/content/analysisrequest.py:913
-#: bika/lims/content/arimport.py:93
+#: bika/lims/content/analysisrequest.py:913 bika/lims/content/arimport.py:93
 msgid "Client Order Number"
 msgstr ""
 
@@ -1224,15 +1208,13 @@ msgstr ""
 msgid "Client Ref"
 msgstr ""
 
-#: bika/lims/browser/sample/printform.py:281
-#: bika/lims/config.py:76
+#: bika/lims/browser/sample/printform.py:281 bika/lims/config.py:76
 #: bika/lims/content/analysisrequest.py:947
 msgid "Client Reference"
 msgstr ""
 
 #: bika/lims/browser/analysisrequest/analysisrequests.py:91
-#: bika/lims/browser/sample/view.py:93
-#: bika/lims/config.py:77
+#: bika/lims/browser/sample/view.py:93 bika/lims/config.py:77
 msgid "Client SID"
 msgstr ""
 
@@ -1364,8 +1346,7 @@ msgstr ""
 msgid "Container Title"
 msgstr ""
 
-#: bika/lims/content/analysisservice.py:103
-#: bika/lims/content/container.py:32
+#: bika/lims/content/analysisservice.py:103 bika/lims/content/container.py:32
 #: bika/lims/controlpanel/bika_containers.py:48
 msgid "Container Type"
 msgstr ""
@@ -1429,13 +1410,11 @@ msgstr ""
 msgid "Create a new User"
 msgstr ""
 
-#: bika/lims/content/analysisrequest.py:671
-#: bika/lims/content/artemplate.py:69
+#: bika/lims/content/analysisrequest.py:671 bika/lims/content/artemplate.py:69
 msgid "Create a new sample of this type"
 msgstr ""
 
-#: bika/lims/browser/instrument.py:280
-#: bika/lims/browser/invoicebatch.py:31
+#: bika/lims/browser/instrument.py:280 bika/lims/browser/invoicebatch.py:31
 #: bika/lims/browser/reports/__init__.py:132
 msgid "Created"
 msgstr ""
@@ -1504,8 +1483,7 @@ msgid "Data entry day book"
 msgstr ""
 
 #: bika/lims/browser/analysisrequest/published_results.py:47
-#: bika/lims/browser/batchfolder.py:46
-#: bika/lims/browser/instrument.py:538
+#: bika/lims/browser/batchfolder.py:46 bika/lims/browser/instrument.py:538
 msgid "Date"
 msgstr ""
 
@@ -1519,13 +1497,11 @@ msgstr ""
 msgid "Date Dispatched"
 msgstr ""
 
-#: bika/lims/content/referencesample.py:133
-#: bika/lims/content/sample.py:554
+#: bika/lims/content/referencesample.py:133 bika/lims/content/sample.py:554
 msgid "Date Disposed"
 msgstr ""
 
-#: bika/lims/content/referencesample.py:126
-#: bika/lims/content/sample.py:511
+#: bika/lims/content/referencesample.py:126 bika/lims/content/sample.py:511
 msgid "Date Expired"
 msgstr ""
 
@@ -1551,8 +1527,7 @@ msgid "Date Preserved"
 msgstr ""
 
 #: bika/lims/browser/analysisrequest/analysisrequests.py:134
-#: bika/lims/content/analysis.py:122
-#: bika/lims/content/analysisrequest.py:1374
+#: bika/lims/content/analysis.py:122 bika/lims/content/analysisrequest.py:1374
 msgid "Date Published"
 msgstr ""
 
@@ -1646,8 +1621,7 @@ msgstr ""
 msgid "Default"
 msgstr ""
 
-#: bika/lims/content/bikasetup.py:364
-#: bika/lims/content/client.py:108
+#: bika/lims/content/bikasetup.py:364 bika/lims/content/client.py:108
 msgid "Default AR Specifications"
 msgstr ""
 
@@ -1705,8 +1679,7 @@ msgstr ""
 msgid "Default containers: ${container_list}"
 msgstr ""
 
-#: bika/lims/content/bikasetup.py:221
-#: bika/lims/content/client.py:117
+#: bika/lims/content/bikasetup.py:221 bika/lims/content/client.py:117
 msgid "Default decimal mark"
 msgstr ""
 
@@ -1766,8 +1739,7 @@ msgstr ""
 msgid "Define the prefixes for the unique sequential IDs the system issues for objects. In the 'Padding' field, indicate with how many leading zeros the numbers must be padded. E.g. a prefix of WS for worksheets with padding of 4, will see them numbered from WS-0001 to WS-9999. Sequence Start indicates the number from which the next ID should start. This is set only if it is greater than existing id numbers. Note that the gap created by jumping IDs cannot be refilled. NB: Note that samples and analysis requests are prefixed with sample type abbreviations and are not configured in this table - their padding can be set in the specified fields below"
 msgstr ""
 
-#: bika/lims/content/analysisrequest.py:605
-#: bika/lims/content/sample.py:283
+#: bika/lims/content/analysisrequest.py:605 bika/lims/content/sample.py:283
 msgid "Define the sampler supposed to do the sample in the scheduled date"
 msgstr ""
 
@@ -1802,8 +1774,7 @@ msgstr ""
 msgid "Describes the method in layman terms. This information is made available to lab clients"
 msgstr ""
 
-#: bika/lims/adapters/identifiers.py:38
-#: bika/lims/browser/batchfolder.py:45
+#: bika/lims/adapters/identifiers.py:38 bika/lims/browser/batchfolder.py:45
 #: bika/lims/browser/client/views/analysisprofiles.py:42
 msgid "Description"
 msgstr ""
@@ -1892,28 +1863,23 @@ msgstr ""
 msgid "Division by zero"
 msgstr ""
 
-#: bika/lims/browser/instrument.py:541
-#: bika/lims/content/multifile.py:28
+#: bika/lims/browser/instrument.py:541 bika/lims/content/multifile.py:28
 msgid "Document"
 msgstr ""
 
-#: bika/lims/browser/multifile.py:42
-#: bika/lims/content/multifile.py:21
+#: bika/lims/browser/multifile.py:42 bika/lims/content/multifile.py:21
 msgid "Document ID"
 msgstr ""
 
-#: bika/lims/browser/multifile.py:45
-#: bika/lims/content/multifile.py:41
+#: bika/lims/browser/multifile.py:45 bika/lims/content/multifile.py:41
 msgid "Document Location"
 msgstr ""
 
-#: bika/lims/browser/multifile.py:46
-#: bika/lims/content/multifile.py:49
+#: bika/lims/browser/multifile.py:46 bika/lims/content/multifile.py:49
 msgid "Document Type"
 msgstr ""
 
-#: bika/lims/browser/multifile.py:44
-#: bika/lims/content/multifile.py:35
+#: bika/lims/browser/multifile.py:44 bika/lims/content/multifile.py:35
 msgid "Document Version"
 msgstr ""
 
@@ -1954,8 +1920,7 @@ msgstr ""
 msgid "Due"
 msgstr ""
 
-#: bika/lims/browser/analyses.py:120
-#: bika/lims/browser/late_analyses.py:52
+#: bika/lims/browser/analyses.py:120 bika/lims/browser/late_analyses.py:52
 #: bika/lims/browser/referencesample.py:122
 msgid "Due Date"
 msgstr ""
@@ -1965,8 +1930,7 @@ msgstr ""
 msgid "Dup Var"
 msgstr ""
 
-#: bika/lims/browser/worksheet/views/analyses.py:233
-#: bika/lims/config.py:52
+#: bika/lims/browser/worksheet/views/analyses.py:233 bika/lims/config.py:52
 #: bika/lims/controlpanel/bika_analysisservices.py:249
 msgid "Duplicate"
 msgstr ""
@@ -2018,8 +1982,7 @@ msgid "Email"
 msgstr ""
 
 #: bika/lims/browser/client/views/contacts.py:47
-#: bika/lims/browser/clientfolder.py:45
-#: bika/lims/browser/invoicebatch.py:35
+#: bika/lims/browser/clientfolder.py:45 bika/lims/browser/invoicebatch.py:35
 msgid "Email Address"
 msgstr ""
 
@@ -2047,8 +2010,7 @@ msgstr ""
 msgid "Enable the rejection workflow"
 msgstr ""
 
-#: bika/lims/browser/invoicebatch.py:43
-#: bika/lims/browser/invoicefolder.py:36
+#: bika/lims/browser/invoicebatch.py:43 bika/lims/browser/invoicefolder.py:36
 #: bika/lims/browser/pricelist.py:46
 msgid "End Date"
 msgstr ""
@@ -2070,8 +2032,7 @@ msgstr ""
 msgid "Enter discount percentage value"
 msgstr ""
 
-#: bika/lims/content/analysisservice.py:830
-#: bika/lims/content/labproduct.py:31
+#: bika/lims/content/analysisservice.py:830 bika/lims/content/labproduct.py:31
 msgid "Enter percentage value eg. 14.0"
 msgstr ""
 
@@ -2178,8 +2139,7 @@ msgstr ""
 msgid "Extension profile for the Bika LIMS"
 msgstr ""
 
-#: bika/lims/browser/clientfolder.py:47
-#: bika/lims/browser/supplier.py:68
+#: bika/lims/browser/clientfolder.py:47 bika/lims/browser/supplier.py:68
 #: bika/lims/content/organisation.py:41
 msgid "Fax"
 msgstr ""
@@ -2192,8 +2152,7 @@ msgstr ""
 msgid "Female"
 msgstr ""
 
-#: bika/lims/browser/worksheet/templates/results.pt:133
-#: bika/lims/config.py:34
+#: bika/lims/browser/worksheet/templates/results.pt:133 bika/lims/config.py:34
 msgid "Field"
 msgstr ""
 
@@ -2342,8 +2301,7 @@ msgstr ""
 msgid "ID Server URL"
 msgstr ""
 
-#: bika/lims/controlpanel/bika_idserver.py:63
-#: bika/lims/idserver.py:50
+#: bika/lims/controlpanel/bika_idserver.py:63 bika/lims/idserver.py:50
 msgid "ID Server unavailable"
 msgstr ""
 
@@ -2527,8 +2485,7 @@ msgstr ""
 msgid "InstallationDate"
 msgstr ""
 
-#: bika/lims/content/samplinground.py:193
-#: bika/lims/content/srtemplate.py:73
+#: bika/lims/content/samplinground.py:193 bika/lims/content/srtemplate.py:73
 msgid "Instructions"
 msgstr ""
 
@@ -2540,8 +2497,7 @@ msgstr ""
 msgid "Instructions for regular preventive and maintenance routines intended for analysts"
 msgstr ""
 
-#: bika/lims/browser/accreditation.py:71
-#: bika/lims/browser/analyses.py:79
+#: bika/lims/browser/accreditation.py:71 bika/lims/browser/analyses.py:79
 #: bika/lims/browser/referencesample.py:116
 msgid "Instrument"
 msgstr ""
@@ -2636,8 +2592,7 @@ msgstr ""
 msgid "Instrument's calibration certificate expired:"
 msgstr ""
 
-#: bika/lims/content/analysisservice.py:470
-#: bika/lims/content/method.py:58
+#: bika/lims/content/analysisservice.py:470 bika/lims/content/method.py:58
 #: bika/lims/controlpanel/bika_instruments.py:35
 msgid "Instruments"
 msgstr ""
@@ -2771,8 +2726,7 @@ msgstr ""
 msgid "Keywords"
 msgstr ""
 
-#: bika/lims/browser/analysisrequest/view.py:237
-#: bika/lims/config.py:35
+#: bika/lims/browser/analysisrequest/view.py:237 bika/lims/config.py:35
 #: bika/lims/content/analysisspec.py:135
 msgid "Lab"
 msgstr ""
@@ -2793,8 +2747,7 @@ msgstr ""
 msgid "Lab Preservation"
 msgstr ""
 
-#: bika/lims/config.py:45
-#: bika/lims/controlpanel/bika_labproducts.py:35
+#: bika/lims/config.py:45 bika/lims/controlpanel/bika_labproducts.py:35
 msgid "Lab Products"
 msgstr ""
 
@@ -2806,8 +2759,7 @@ msgstr ""
 msgid "Label"
 msgstr ""
 
-#: bika/lims/content/laboratory.py:127
-#: bika/lims/setuphandlers.py:115
+#: bika/lims/content/laboratory.py:127 bika/lims/setuphandlers.py:115
 msgid "Laboratory"
 msgstr ""
 
@@ -2917,13 +2869,11 @@ msgstr ""
 msgid "Location Type"
 msgstr ""
 
-#: bika/lims/content/analysisrequest.py:876
-#: bika/lims/content/sample.py:202
+#: bika/lims/content/analysisrequest.py:876 bika/lims/content/sample.py:202
 msgid "Location where sample is kept"
 msgstr ""
 
-#: bika/lims/content/analysisrequest.py:836
-#: bika/lims/content/artemplate.py:44
+#: bika/lims/content/analysisrequest.py:836 bika/lims/content/artemplate.py:44
 msgid "Location where sample was taken"
 msgstr ""
 
@@ -3061,13 +3011,11 @@ msgstr ""
 msgid "Maximum possible size or volume of samples."
 msgstr ""
 
-#: bika/lims/content/analysis.py:116
-#: bika/lims/content/analysisservice.py:717
+#: bika/lims/content/analysis.py:116 bika/lims/content/analysisservice.py:717
 msgid "Maximum time allowed for completion of the analysis. A late analysis alert is raised when this period elapses"
 msgstr ""
 
-#: bika/lims/content/analysis.py:115
-#: bika/lims/content/analysisservice.py:716
+#: bika/lims/content/analysis.py:115 bika/lims/content/analysisservice.py:716
 msgid "Maximum turn-around time"
 msgstr ""
 
@@ -3075,8 +3023,7 @@ msgstr ""
 msgid "Member Discount"
 msgstr ""
 
-#: bika/lims/content/analysisrequest.py:1428
-#: bika/lims/content/bikasetup.py:197
+#: bika/lims/content/analysisrequest.py:1428 bika/lims/content/bikasetup.py:197
 msgid "Member discount %"
 msgstr ""
 
@@ -3088,8 +3035,7 @@ msgstr ""
 msgid "Member registered and linked to the current Contact."
 msgstr ""
 
-#: bika/lims/browser/analyses.py:75
-#: bika/lims/browser/batch/publish.py:96
+#: bika/lims/browser/analyses.py:75 bika/lims/browser/batch/publish.py:96
 #: bika/lims/browser/referencesample.py:112
 msgid "Method"
 msgstr ""
@@ -3116,8 +3062,7 @@ msgstr ""
 msgid "Method: None"
 msgstr ""
 
-#: bika/lims/content/analysisservice.py:555
-#: bika/lims/content/instrument.py:137
+#: bika/lims/content/analysisservice.py:555 bika/lims/content/instrument.py:137
 #: bika/lims/content/methods.py:34
 msgid "Methods"
 msgstr ""
@@ -3208,8 +3153,7 @@ msgid "NIB"
 msgstr ""
 
 #: bika/lims/browser/clientfolder.py:44
-#: bika/lims/content/analysisrequest.py:151
-#: bika/lims/content/arimport.py:121
+#: bika/lims/content/analysisrequest.py:151 bika/lims/content/arimport.py:121
 msgid "Name"
 msgstr ""
 
@@ -3353,8 +3297,7 @@ msgstr ""
 msgid "No valid instruments found: ${invalid_list}"
 msgstr ""
 
-#: bika/lims/browser/analyses.py:207
-#: bika/lims/content/analysisservice.py:1272
+#: bika/lims/browser/analyses.py:207 bika/lims/content/analysisservice.py:1272
 #: bika/lims/content/bikasetup.py:93
 msgid "None"
 msgstr ""
@@ -3439,8 +3382,7 @@ msgstr ""
 msgid "Number of requests"
 msgstr ""
 
-#: bika/lims/content/analysisservice.py:1093
-#: bika/lims/content/bikasetup.py:421
+#: bika/lims/content/analysisservice.py:1093 bika/lims/content/bikasetup.py:421
 msgid "Number of required verifications"
 msgstr ""
 
@@ -3487,8 +3429,7 @@ msgstr ""
 msgid "Only to empty or zero fields"
 msgstr ""
 
-#: bika/lims/browser/batchfolder.py:54
-#: bika/lims/browser/instrument.py:69
+#: bika/lims/browser/batchfolder.py:54 bika/lims/browser/instrument.py:69
 #: bika/lims/browser/worksheet/views/folder.py:172
 msgid "Open"
 msgstr ""
@@ -3583,8 +3524,7 @@ msgstr ""
 msgid "Password lifetime"
 msgstr ""
 
-#: bika/lims/browser/arimports.py:71
-#: bika/lims/browser/supplyorderfolder.py:56
+#: bika/lims/browser/arimports.py:71 bika/lims/browser/supplyorderfolder.py:56
 #: bika/lims/profiles/default/workflows/bika_order_workflow/definition.xml
 msgid "Pending"
 msgstr ""
@@ -3619,8 +3559,7 @@ msgstr ""
 msgid "Permitted Error %"
 msgstr ""
 
-#: bika/lims/browser/clientfolder.py:46
-#: bika/lims/browser/invoicebatch.py:37
+#: bika/lims/browser/clientfolder.py:46 bika/lims/browser/invoicebatch.py:37
 #: bika/lims/browser/templates/batch_publish.pt:68
 msgid "Phone"
 msgstr ""
@@ -3646,8 +3585,7 @@ msgid "Photo of the instrument"
 msgstr ""
 
 #: bika/lims/browser/analysisrequest/templates/analysisrequest_retract_pdf.pt:86
-#: bika/lims/config.py:86
-#: bika/lims/content/organisation.py:54
+#: bika/lims/config.py:86 bika/lims/content/organisation.py:54
 msgid "Physical address"
 msgstr ""
 
@@ -3685,8 +3623,7 @@ msgstr ""
 msgid "Position"
 msgstr ""
 
-#: bika/lims/content/organisation.py:60
-#: bika/lims/content/person.py:114
+#: bika/lims/content/organisation.py:60 bika/lims/content/person.py:114
 msgid "Postal address"
 msgstr ""
 
@@ -3743,8 +3680,7 @@ msgstr ""
 msgid "Premium"
 msgstr ""
 
-#: bika/lims/content/analysisrequest.py:1535
-#: bika/lims/content/sample.py:337
+#: bika/lims/content/analysisrequest.py:1535 bika/lims/content/sample.py:337
 msgid "Preparation Workflow"
 msgstr ""
 
@@ -3906,8 +3842,7 @@ msgstr ""
 msgid "Publication Specification"
 msgstr ""
 
-#: bika/lims/content/contact.py:41
-#: bika/lims/content/labcontact.py:38
+#: bika/lims/content/contact.py:41 bika/lims/content/labcontact.py:38
 msgid "Publication preference"
 msgstr ""
 
@@ -3943,8 +3878,7 @@ msgstr ""
 msgid "QC Analyses"
 msgstr ""
 
-#: bika/lims/browser/analyses.py:907
-#: bika/lims/browser/instrument.py:389
+#: bika/lims/browser/analyses.py:907 bika/lims/browser/instrument.py:389
 #: bika/lims/browser/referencesample.py:107
 msgid "QC Sample ID"
 msgstr ""
@@ -4183,14 +4117,12 @@ msgstr ""
 msgid "Report ID"
 msgstr ""
 
-#: bika/lims/browser/reports/__init__.py:150
-#: bika/lims/content/report.py:29
+#: bika/lims/browser/reports/__init__.py:150 bika/lims/content/report.py:29
 msgid "Report Type"
 msgstr ""
 
 #: bika/lims/content/analysisrequest.py:1233
-#: bika/lims/content/analysisservice.py:373
-#: bika/lims/content/artemplate.py:94
+#: bika/lims/content/analysisservice.py:373 bika/lims/content/artemplate.py:94
 msgid "Report as Dry Matter"
 msgstr ""
 
@@ -4258,8 +4190,7 @@ msgstr ""
 msgid "Requests"
 msgstr ""
 
-#: bika/lims/browser/templates/login_details.pt:227
-#: bika/lims/config.py:59
+#: bika/lims/browser/templates/login_details.pt:227 bika/lims/config.py:59
 msgid "Required"
 msgstr ""
 
@@ -4297,13 +4228,11 @@ msgstr ""
 msgid "Result for ${analysis} could not be saved because it was already submitted by another user."
 msgstr ""
 
-#: bika/lims/browser/analysis.py:47
-#: bika/lims/browser/referenceanalysis.py:57
+#: bika/lims/browser/analysis.py:47 bika/lims/browser/referenceanalysis.py:57
 msgid "Result in shoulder range"
 msgstr ""
 
-#: bika/lims/browser/analysis.py:53
-#: bika/lims/browser/referenceanalysis.py:62
+#: bika/lims/browser/analysis.py:53 bika/lims/browser/referenceanalysis.py:62
 msgid "Result out of range"
 msgstr ""
 
@@ -4344,14 +4273,12 @@ msgstr ""
 msgid "Results per samplepoint and analysis service"
 msgstr ""
 
-#: bika/lims/content/preservation.py:34
-#: bika/lims/content/sampletype.py:33
+#: bika/lims/content/preservation.py:34 bika/lims/content/sampletype.py:33
 #: bika/lims/controlpanel/bika_sampletypes.py:59
 msgid "Retention Period"
 msgstr ""
 
-#: bika/lims/browser/analyses.py:109
-#: bika/lims/browser/referencesample.py:125
+#: bika/lims/browser/analyses.py:109 bika/lims/browser/referencesample.py:125
 #: bika/lims/browser/worksheet/views/analyses.py:48
 msgid "Retested"
 msgstr ""
@@ -4468,8 +4395,7 @@ msgstr ""
 msgid "Sample Points"
 msgstr ""
 
-#: bika/lims/content/analysisrequest.py:704
-#: bika/lims/content/sample.py:612
+#: bika/lims/content/analysisrequest.py:704 bika/lims/content/sample.py:612
 msgid "Sample Rejection"
 msgstr ""
 
@@ -4564,19 +4490,16 @@ msgid "Sampler"
 msgstr ""
 
 #: bika/lims/browser/sample/view.py:120
-#: bika/lims/content/analysisrequest.py:608
-#: bika/lims/content/sample.py:286
+#: bika/lims/content/analysisrequest.py:608 bika/lims/content/sample.py:286
 msgid "Sampler for scheduled sampling"
 msgstr ""
 
-#: bika/lims/browser/sample/view.py:69
-#: bika/lims/content/arimport.py:183
+#: bika/lims/browser/sample/view.py:69 bika/lims/content/arimport.py:183
 msgid "Samples"
 msgstr ""
 
 #: bika/lims/content/referencedefinition.py:58
-#: bika/lims/content/referencesample.py:59
-#: bika/lims/content/sampletype.py:43
+#: bika/lims/content/referencesample.py:59 bika/lims/content/sampletype.py:43
 msgid "Samples of this type should be treated as hazardous"
 msgstr ""
 
@@ -4610,8 +4533,7 @@ msgid "Sampling Deviations"
 msgstr ""
 
 #: bika/lims/browser/client/views/samplepoints.py:44
-#: bika/lims/content/samplepoint.py:51
-#: bika/lims/content/srtemplate.py:61
+#: bika/lims/content/samplepoint.py:51 bika/lims/content/srtemplate.py:61
 msgid "Sampling Frequency"
 msgstr ""
 
@@ -4898,8 +4820,7 @@ msgstr ""
 msgid "Services"
 msgstr ""
 
-#: bika/lims/content/analysisrequest.py:705
-#: bika/lims/content/sample.py:613
+#: bika/lims/content/analysisrequest.py:705 bika/lims/content/sample.py:613
 msgid "Set the Sample Rejection workflow and the reasons"
 msgstr ""
 
@@ -4999,8 +4920,7 @@ msgid "Some analyses use out-of-date or uncalibrated instruments. Results editio
 msgstr ""
 
 #: bika/lims/content/analysiscategory.py:63
-#: bika/lims/content/analysisservice.py:231
-#: bika/lims/content/arpriority.py:20
+#: bika/lims/content/analysisservice.py:231 bika/lims/content/arpriority.py:20
 msgid "Sort Key"
 msgstr ""
 
@@ -5020,8 +4940,7 @@ msgstr ""
 msgid "Specify the uncertainty value for a given range, e.g. for results in a range with minimum of 0 and maximum of 10, where the uncertainty value is 0.5 - a result of 6.67 will be reported as 6.67 +- 0.5. You can also specify the uncertainty value as a percentage of the result value, by adding a '%' to the value entered in the 'Uncertainty Value' column, e.g. for results in a range with minimum of 10.01 and a maximum of 100, where the uncertainty value is 2% - a result of 100 will be reported as 100 +- 2. Please ensure successive ranges are continuous, e.g. 0.00 - 10.00 is followed by 10.01 - 20.00, 20.01 - 30 .00 etc."
 msgstr ""
 
-#: bika/lims/browser/invoicebatch.py:41
-#: bika/lims/browser/invoicefolder.py:35
+#: bika/lims/browser/invoicebatch.py:41 bika/lims/browser/invoicefolder.py:35
 #: bika/lims/browser/pricelist.py:43
 msgid "Start Date"
 msgstr ""
@@ -5031,8 +4950,7 @@ msgid "Start date must be before End Date"
 msgstr ""
 
 #: bika/lims/browser/analysisrequest/analysisrequests.py:137
-#: bika/lims/browser/arimports.py:67
-#: bika/lims/browser/batch/batchbook.py:69
+#: bika/lims/browser/arimports.py:67 bika/lims/browser/batch/batchbook.py:69
 msgid "State"
 msgstr ""
 
@@ -5101,8 +5019,7 @@ msgstr ""
 msgid "Subtotal"
 msgstr ""
 
-#: bika/lims/browser/referencesample.py:315
-#: bika/lims/content/instrument.py:94
+#: bika/lims/browser/referencesample.py:315 bika/lims/content/instrument.py:94
 msgid "Supplier"
 msgstr ""
 
@@ -5297,8 +5214,7 @@ msgid "The lab is not accredited, or accreditation has not been configured. "
 msgstr ""
 
 #: bika/lims/content/analysiscategory.py:51
-#: bika/lims/content/analysisservice.py:862
-#: bika/lims/content/labcontact.py:59
+#: bika/lims/content/analysisservice.py:862 bika/lims/content/labcontact.py:59
 msgid "The laboratory department"
 msgstr ""
 
@@ -5358,8 +5274,7 @@ msgstr ""
 msgid "The number of days before a sample expires and cannot be analysed any more. This setting can be overwritten per individual sample type in the sample types setup"
 msgstr ""
 
-#: bika/lims/content/samplinground.py:175
-#: bika/lims/content/srtemplate.py:62
+#: bika/lims/content/samplinground.py:175 bika/lims/content/srtemplate.py:62
 msgid "The number of days between recurring field trips"
 msgstr ""
 
@@ -5489,8 +5404,7 @@ msgid "These reasons will be displayed for its selection during the rejection pr
 msgstr ""
 
 #: bika/lims/content/analysisrequest.py:1235
-#: bika/lims/content/analysisservice.py:374
-#: bika/lims/content/artemplate.py:95
+#: bika/lims/content/analysisservice.py:374 bika/lims/content/artemplate.py:95
 msgid "These results can be reported as dry matter"
 msgstr ""
 
@@ -5558,8 +5472,7 @@ msgstr ""
 msgid "Tip. Attached documents will not be loaded unless they are present in the instance."
 msgstr ""
 
-#: bika/lims/browser/arimports.py:60
-#: bika/lims/browser/batchfolder.py:43
+#: bika/lims/browser/arimports.py:60 bika/lims/browser/batchfolder.py:43
 #: bika/lims/browser/bika_listing.py:389
 msgid "Title"
 msgstr ""
@@ -5606,8 +5519,7 @@ msgstr ""
 msgid "To be published"
 msgstr ""
 
-#: bika/lims/browser/dashboard.py:164
-#: bika/lims/browser/sample/view.py:163
+#: bika/lims/browser/dashboard.py:164 bika/lims/browser/sample/view.py:163
 #: bika/lims/profiles/default/workflows/bika_analysis_workflow/definition.xml
 msgid "To be sampled"
 msgstr ""
@@ -5654,8 +5566,7 @@ msgid "Total data points"
 msgstr ""
 
 #: bika/lims/content/analysisprofile.py:125
-#: bika/lims/content/analysisservice.py:819
-#: bika/lims/content/labproduct.py:50
+#: bika/lims/content/analysisservice.py:819 bika/lims/content/labproduct.py:50
 msgid "Total price"
 msgstr ""
 
@@ -5723,8 +5634,7 @@ msgstr ""
 msgid "Unassigned"
 msgstr ""
 
-#: bika/lims/content/analysis.py:213
-#: bika/lims/content/analysisservice.py:900
+#: bika/lims/content/analysis.py:213 bika/lims/content/analysisservice.py:900
 #: bika/lims/content/referenceanalysis.py:132
 msgid "Uncertainty"
 msgstr ""
@@ -5853,8 +5763,7 @@ msgid "VAT"
 msgstr ""
 
 #: bika/lims/content/analysisprofile.py:105
-#: bika/lims/content/analysisservice.py:829
-#: bika/lims/content/bikasetup.py:209
+#: bika/lims/content/analysisservice.py:829 bika/lims/content/bikasetup.py:209
 msgid "Tax %"
 msgstr ""
 
@@ -5868,7 +5777,7 @@ msgstr ""
 
 #: bika/lims/content/organisation.py:31
 msgid "VAT number"
-msgstr ""
+msgstr "Tax ID"
 
 #: bika/lims/profiles/default/workflows/bika_arimport_workflow/definition.xml
 msgid "Valid"
@@ -6074,8 +5983,7 @@ msgid "Validator"
 msgstr ""
 
 #: bika/lims/browser/worksheet/templates/results.pt:146
-#: bika/lims/content/calculation.py:102
-#: bika/lims/content/instrument.py:196
+#: bika/lims/content/calculation.py:102 bika/lims/content/instrument.py:196
 msgid "Value"
 msgstr ""
 
@@ -6143,8 +6051,7 @@ msgstr ""
 msgid "Workflow"
 msgstr ""
 
-#: bika/lims/browser/aggregatedanalyses.py:76
-#: bika/lims/browser/analyses.py:909
+#: bika/lims/browser/aggregatedanalyses.py:76 bika/lims/browser/analyses.py:909
 #: bika/lims/browser/referencesample.py:110
 msgid "Worksheet"
 msgstr ""
@@ -6261,7 +6168,7 @@ msgstr ""
 #. For example: "${A} ${d}. ${B} ${Y}, ${H}:${M} ${Z}"
 #. In english speaking countries default is:
 #. ${b} ${d}, ${Y} ${I}:${M} ${p}
-#: ./TranslationServiceTool.py
+#: TranslationServiceTool.py
 msgid "date_format_long"
 msgstr ""
 
@@ -6272,7 +6179,7 @@ msgstr ""
 #. For example: "${A} ${d}. ${B} ${Y}, ${H}:${M} ${Z}"
 #. In english speaking countries default is:
 #. ${b} ${d}, ${Y}
-#: ./TranslationServiceTool.py
+#: TranslationServiceTool.py
 msgid "date_format_short"
 msgstr ""
 
@@ -6309,13 +6216,11 @@ msgstr ""
 msgid "label_specification"
 msgstr ""
 
-#: bika/lims/browser/analysis.py:43
-#: bika/lims/browser/referenceanalysis.py:51
+#: bika/lims/browser/analysis.py:43 bika/lims/browser/referenceanalysis.py:51
 msgid "max"
 msgstr ""
 
-#: bika/lims/browser/analysis.py:42
-#: bika/lims/browser/referenceanalysis.py:50
+#: bika/lims/browser/analysis.py:42 bika/lims/browser/referenceanalysis.py:50
 msgid "min"
 msgstr ""
 
@@ -6401,7 +6306,7 @@ msgstr ""
 #. For example: "${A} ${d}. ${B} ${Y}, ${H}:${M} ${Z}"
 #. In english speaking countries default is:
 #. ${I}:${M} ${p}
-#: ./TranslationServiceTool.py
+#: TranslationServiceTool.py
 msgid "time_format"
 msgstr ""
 
