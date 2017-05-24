@@ -15,11 +15,13 @@
 
   <five:registerPackage package="." initialize=".initialize" />
 
+
   <i18n:registerTranslations directory="locales"/>
 
   <include file="permissions.zcml" />
   <include file="behaviours.zcml" />
   <include file="profiles.zcml" />
 
+  <include package=".static" />
   <include package=".browser"/>
 </configure>
