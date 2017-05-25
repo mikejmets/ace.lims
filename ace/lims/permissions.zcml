@@ -2,4 +2,13 @@
            xmlns:zcml="http://namespaces.zope.org/zcml"
            i18n_domain="ace.lims">
 
+
+<!--
+	All permissions are defined here.
+	They are also defined in permissions.py.
+	The two files must be kept in sync.
+-->
+
+<permission id="ace.lims.permissions.AddStrain" title="ace.lims: Add Strain"/>
+
 </configure>

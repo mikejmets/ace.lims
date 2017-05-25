@@ -16,6 +16,7 @@
             description="ace.lims.setuphandlers.setupVarious"
             handler="ace.lims.setuphandlers.setupVarious">
         <depends name="content"/>
+        <depends name="toolset"/>
     </genericsetup:importStep>
 
     <genericsetup:registerProfile

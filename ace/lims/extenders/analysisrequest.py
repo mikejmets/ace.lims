@@ -1,66 +1,137 @@
+import sys
 from archetypes.schemaextender.interfaces import IOrderableSchemaExtender
 from archetypes.schemaextender.interfaces import ISchemaModifier
-from bika.lims.interfaces import IAnalysisRequest
-from bika.lims.fields import ExtStringField
-from Products.Archetypes.public import *
 from bika.lims import bikaMessageFactory as _
+from bika.lims.browser.widgets import ReferenceWidget as bikaReferenceWidget
+from bika.lims.fields import ExtReferenceField
+from bika.lims.interfaces import IAnalysisRequest
+from bika.lims.permissions import EditARContact
+from Products.Archetypes.atapi import StringField
+from Products.Archetypes.public import *
+from Products.Archetypes.references import HoldingReference
+from Products.CMFCore import permissions
 from zope.component import adapts
 from zope.interface import implements
 
-
-
-
-
-class SampleConditionTextField(ExtStringField):
+class StrainField(ExtReferenceField):
     """A computed field which sets and gets a value from Sample
     """
 
     def get(self, instance):
         sample = instance.getSample()
-        value = False
         if sample:
-            value = sample.Schema()['SampleConditionText'].get(sample)
-        if not value:
-            value = self.getDefault(instance)
-        return value
+            return sample.Schema()['Strain'].get(sample)
 
     def set(self, instance, value):
         sample = instance.getSample()
         if sample and value:
-            return sample.Schema()['SampleConditionText'].set(sample, value)
-
-SampleConditionText =  SampleConditionTextField(
-        'SampleConditionText',
-        widget=StringWidget(
-            label=_("Sample Condition"),
-            description= "",
-            visible={'view': 'visible',
-                     'edit': 'visible',
-                     'add': 'edit'},
-            render_own_label=True,
-            size=20
-        )
-    )
+            sample.Schema()['Strain'].set(sample, value)
 
 class AnalysisRequestSchemaExtender(object):
     adapts(IAnalysisRequest)
     implements(IOrderableSchemaExtender)
 
     fields = [
-        SampleConditionText,
+        StringField(
+            'Lot',
+            widget=StringWidget(
+                label=_("Lot"),
+                description= "",
+                visible={'view': 'visible',
+                         'edit': 'visible',
+                         'header_table': 'visible',
+                         'add': 'edit'},
+                render_own_label=True,
+                size=20
+            )
+        ),
+        StringField(
+            'CultivationBatch',
+            widget=StringWidget(
+                label=_("Cultivation Batch"),
+                description= "",
+                visible={'view': 'visible',
+                         'edit': 'visible',
+                         'header_table': 'visible',
+                         'add': 'edit'},
+                render_own_label=True,
+                size=20
+            )
+        ),
+        StrainField(
+            'Strain',
+            required=0,
+            allowed_types=['Strain'],
+            relationship='SampleTypeStrain',
+            format='select',
+            widget=bikaReferenceWidget(
+                label="Strain",
+                render_own_label=True,
+                size=20,
+                catalog_name='bika_setup_catalog',
+                base_query={'inactive_state': 'active'},
+                showOn=True,
+                search_fields=('Title', 'description', 'Code'),
+                colModel=[
+                    {'columnName': 'Code',
+                     'width': '20', 'label': _('Code'),
+                     'align': 'left'},
+                    {'columnName': 'Title',
+                     'width': '25', 'label': _('Title'),
+                     'align': 'left'},
+                    {'columnName': 'Description',
+                     'width': '55',
+                     'label': _('Description'),
+                     'align': 'left'},
+                    # UID is required in colModel
+                    {'columnName': 'UID', 'hidden': True},
+                ],
+                visible={
+                    'edit': 'visible',
+                    'view': 'visible',
+                    'add': 'edit',
+                    'secondary': 'disabled',
+                    'header_table': 'visible',
+                    'sample_registered': {
+                        'view': 'visible',
+                        'edit': 'visible',
+                        'add': 'edit'},
+                    'to_be_sampled': {'view': 'visible',
+                                      'edit': 'invisible'},
+                    'sampled': {'view': 'visible',
+                                'edit': 'invisible'},
+                    'to_be_preserved': {'view': 'visible',
+                                        'edit': 'invisible'},
+                    'sample_due': {'view': 'visible',
+                                   'edit': 'invisible'},
+                    'sample_received': {'view': 'visible',
+                                        'edit': 'invisible'},
+                    'attachment_due': {'view': 'visible',
+                                       'edit': 'invisible'},
+                    'to_be_verified': {'view': 'visible',
+                                       'edit': 'invisible'},
+                    'verified': {'view': 'visible',
+                                 'edit': 'invisible'},
+                    'published': {'view': 'visible',
+                                  'edit': 'invisible'},
+                    'invalid': {'view': 'visible',
+                                'edit': 'invisible'},
+                },
+            ),
+        ),
+
     ]
 
     def __init__(self, context):
         self.context = context
 
     def getOrder(self, schematas):
-        index = schematas["default"].index("SamplePoint") + 1
-        schematas["default"].insert(index, "SampleConditionText")
+        schematas["default"].append("Lot")
+        schematas["default"].append("CultivationBatch")
         return schematas
 
     def getFields(self):
         return self.fields
-
 
 class AnalysisRequestSchemaModifier(object):
     adapts(IAnalysisRequest)
@@ -69,58 +140,11 @@ class AnalysisRequestSchemaModifier(object):
     def __init__(self, context):
         self.context = context
 
-    def hide_fields(self, schema, fieldnames):
-        """Hide fields ACE doesn't care to see
-        """
-
     def fiddle(self, schema):
         """
         """
-        # hide field from view and edit views
-        hidefromviewedit = [
-            'SubGroup',
-            'StorageLocation',
-            'ClientOrderNumber',
-            'ClientReference',
-            'ReportDryMatter',
-            'Composite',
-            'SamplingDate',
-            'DefaultContainerType',
-            # ACE uses only DateSampled and Sampler fields
-            # SamplingDate is just confusing them and us.
-            'SamplingDate',
-        ]
 
-        for fn in hidefromviewedit:
-            if fn in schema:
-                schema[fn].widget.visible = {
-                    'view': 'invisible',
-                    'edit': 'invisible'}
-
-        # hide field from AR add
-        hidefromadd = [
-            'Sample',
-            'SamplingRound',
-            'SamplingDeviation',
-            'EnvironmentalConditions',
-            'AdHoc',
-            'InvoiceExclude',
-            'PreparationWorkflow',
-            'SampleCondition'
-        ]
-
-        for fn in hidefromadd:
-            if fn in schema:
-                schema[fn].widget.visible = {
-                'add': 'invisible',
-                'edit': 'invisible',
-                'view': 'invisible'}
-                schema[fn].required = False
-
-        # Sampler and DateSampled are now visible on AR Add.
-        schema['Sampler'].widget.visible['add'] = 'edit'
-        schema['DateSampled'].widget.visible['add'] = 'edit'
-
-        schema.moveField("SampleConditionText", after="SamplePoint")
+        #schema.moveField("Lot", after="SamplePoint")
 
         return schema
+

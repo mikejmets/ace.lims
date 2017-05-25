@@ -23,12 +23,18 @@ setup(name='ace.lims',
           "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
       ],
       keywords=['lims', 'opensource'],
+      author='Bika Laboratory Systems',
+      author_email='support@bikalabs.com',
+      url='www.bikalabs.com',
+      license='AGPL',
       packages=find_packages(exclude=['ez_setup']),
       namespace_packages=['ace'],
       include_package_data=True,
       zip_safe=False,
       install_requires=[
           'setuptools',
+          'bika.lims',
+          'archetypes.schemaextender',
       ],
       extras_require={
           'test': [

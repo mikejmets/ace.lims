@@ -19,9 +19,12 @@
   <i18n:registerTranslations directory="locales"/>
 
   <include file="permissions.zcml" />
-  <include file="behaviours.zcml" />
-  <include file="profiles.zcml" />
 
+  <include package=".content" />
+  <include package=".controlpanel" />
+  <include package=".extenders" />
   <include package=".static" />
   <include package=".browser"/>
+
+  <include file="profiles.zcml" />
 </configure>
