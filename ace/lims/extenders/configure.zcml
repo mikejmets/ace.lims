@@ -7,6 +7,6 @@
     <adapter name='ace.lims' factory=".analysisrequest.AnalysisRequestSchemaExtender" />
     <adapter name='ace.lims' factory=".analysisrequest.AnalysisRequestSchemaModifier" />
 
-    <adapter factory=".sample.SampleSchemaExtender" />
-    <adapter factory=".sample.SampleSchemaModifier" />
+    <adapter name='ace.lims' factory=".sample.SampleSchemaExtender" />
+    <adapter name='ace.lims' factory=".sample.SampleSchemaModifier" />
 </configure>

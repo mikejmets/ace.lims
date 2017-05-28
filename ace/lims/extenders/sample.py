@@ -1,10 +1,11 @@
 from archetypes.schemaextender.interfaces import IOrderableSchemaExtender
 from archetypes.schemaextender.interfaces import ISchemaModifier
 from ace.lims import aceMessageFactory as _
-from bika.lims.fields import ExtReferenceField
+from bika.lims.fields import ExtReferenceField, ExtStringField
 from bika.lims.browser.widgets import ReferenceWidget as bikaReferenceWidget
 from bika.lims.interfaces import ISample
 from Products.Archetypes.public import *
+from Products.CMFCore import permissions
 from Products.CMFCore.utils import getToolByName
 from zope.component import adapts
 from zope.interface import implements
@@ -50,7 +51,39 @@ class SampleSchemaExtender(object):
                                      'edit': 'invisible'},
                          },
             ),
-        )
+        ),
+        ExtStringField(
+            'Lot',
+            mode="rw",
+            read_permission=permissions.View,
+            write_permission=permissions.ModifyPortalContent,
+            widget=StringWidget(
+                label=_("Lot"),
+                description= "",
+                visible={'view': 'visible',
+                         'edit': 'visible',
+                         'header_table': 'visible',
+                         'add': 'edit'},
+                render_own_label=True,
+                size=20
+            )
+        ),
+        ExtStringField(
+            'CultivationBatch',
+            mode="rw",
+            read_permission=permissions.View,
+            write_permission=permissions.ModifyPortalContent,
+            widget=StringWidget(
+                label=_("Cultivation Batch"),
+                description= "",
+                visible={'view': 'visible',
+                         'edit': 'visible',
+                         'header_table': 'visible',
+                         'add': 'edit'},
+                render_own_label=True,
+                size=20
+            )
+        ),
     ]
 
     def __init__(self, context):
@@ -59,6 +92,8 @@ class SampleSchemaExtender(object):
     def getOrder(self, schematas):
         default = schematas['default']
         default.append('Strain')
+        default.append('Lot')
+        default.append('CultivationBatch')
         return schematas
 
     def getFields(self):
