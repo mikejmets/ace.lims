@@ -74,8 +74,12 @@
 .ar_table {
     padding-top:10px;
     font-size: 82.5%;
+    /*
     border-top:1px solid #cdcdcd;
     border-left:1px solid #cdcdcd;
+    */
+    width:40% !important;
+    float: left;
 }
 .ar_table .header_th {
     font-weight:bold;
@@ -87,8 +91,8 @@
     padding:2px;
 }
 .ar_table .th {
-    background: #eeeeee;
-    color: #444444;
+    background: grey;
+    color: white;
     padding:1px;
     border-bottom:1px solid #cdcdcd;
     border-right:1px solid #cdcdcd;
