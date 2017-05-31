@@ -153,8 +153,9 @@ class AnalysisRequestPublishView(ARPV):
             filename = attachment.getAttachmentFile().filename 
             extension = filename.split('.')[-1]
             if extension in ['png', 'jpg']: #Check other image extensions
-                file_url =  attachment.getAttachmentFile().absolute_url()
-                data['attachment_src'] = '{}/{}'.format(file_url, filename)
+                file_url =  attachment.absolute_url()
+                data['attachment_src'] = '{}/at_download/AttachmentFile'.format(file_url)
+                break
 
         # Categorize analyses
         data['categorized_analyses'] = {}
