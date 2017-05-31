@@ -31,11 +31,11 @@
           <table>
             <tr>
               <th i18n:translate="" class="label">MME</th>
-              <td tal:content="python:client.Title()"/>
+              <td>To be confirmed</td>
             </tr>
             <tr>
               <th i18n:translate="" class="label">MME ID</th>
-              <td tal:content="python:contact.getFullname()"/>
+              <td>To be confirmed</td>
             </tr>
             <tr>
               <th i18n:translate="" class="label">Strain</th>
@@ -122,8 +122,6 @@
         </div>
       </div>
 
-        <img style="width:40%;float:left; margin-right:10px; height:70px" 
-            tal:condition="analysisrequest/attachment_src" tal:attributes="src analysisrequest/attachment_src"/>
       <!-- Analysis Requests table -->
       <tal:def tal:define="transposed python:view.getAnaysisBasedTransposedMatrix(ars);
                            cat_titles python:sorted(transposed.keys());
@@ -135,12 +133,20 @@
                            arcol_width python:float(rightcol_width)/len(ars);">
 
         <!-- AR Group headers -->
-
+        <div class="table">
+            <div class="row">
+                <span class="td">
+                    <img style="width:40%;float:left; margin-right:10px; height:70px" 
+                        tal:condition="analysisrequest/attachment_src" tal:attributes="src analysisrequest/attachment_src"/>
+                </span>
+             </div>
+        </div>
         <tal:category tal:repeat="cat_title cat_titles">
           <!-- Service details for each result and results for each AR -->
           <div class="table ar_table" style="margin:0;float:left">
             <div class="row">
               <span class="th" tal:content="cat_title"/>
+              <span class="th">Unit</span>
               <tal:ar repeat="ar ars">
                 <span class="th"
                       >Result</span>
@@ -156,6 +162,9 @@
                        class="accredited-ico"/>
                 </span>
 
+                <span class="td unit"
+                      tal:attributes="style string:width:${unitcol_width}%"
+                      tal:content="python:transposed[cat_title][service_title]['service'].getUnit()"></span>
                 <tal:ar repeat="ar ars">
                   <span class="td result"
                         tal:content="structure python:transposed[cat_title][service_title]['ars'].get(ar.id,'')"/>
