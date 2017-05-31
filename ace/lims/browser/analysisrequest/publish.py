@@ -117,8 +117,8 @@ class AnalysisRequestPublishView(ARPV):
                 'child_analysisrequest': None,
                 'parent_analysisrequest': None,
                 'resultsinterpretation':ar.getResultsInterpretation(),
-                'lot': ar.Lot,
-                'strain': '',
+                'lot': ar['Lot'],#To be fixed
+                'strain': 'Test Strain', #ar['Strain'], # To be fixed
                 'attachment_src': None,}
 
         # Sub-objects

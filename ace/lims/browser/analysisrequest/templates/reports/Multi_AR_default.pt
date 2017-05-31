@@ -5,7 +5,7 @@
     print multiple ARs.
 </tal:comment>
 
-<tal:report tal:define="num_ars_per_page python:4;
+<tal:report tal:define="num_ars_per_page python:5;
                         argroup python:view.getAnalysisRequestGroup();
                         arspage python:[argroup[i:i+num_ars_per_page] for i in range(0,len(argroup),num_ars_per_page)];
                         coanr python:view.next_certificate_number();">
@@ -39,9 +39,7 @@
             </tr>
             <tr>
               <th i18n:translate="" class="label">Strain</th>
-              <td id="client-email">
-                <a tal:content="python:contact.getEmailAddress()"
-                   tal:attributes="url python:'mailto:%s' % contact.getEmailAddress()"/>
+              <td tal:content="analysisrequest/strain">
               </td>
             </tr>
             <tr>
@@ -143,7 +141,7 @@
         </div>
         <tal:category tal:repeat="cat_title cat_titles">
           <!-- Service details for each result and results for each AR -->
-          <div class="table ar_table" style="margin:0;float:left">
+          <div class="table ar_table">
             <div class="row">
               <span class="th" tal:content="cat_title"/>
               <span class="th">Unit</span>

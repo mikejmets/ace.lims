@@ -14,6 +14,7 @@
                   portal portal_state/portal;">
 <head>
     <div tal:replace="structure provider:plone.resourceregistries.scripts" />
+    <script type="text/javascript" src="++resource++ace.lims.js/bika.lims.ace.analysisrequest.publish.js"></script>
 </head>
 <body class="A4" data-layout="A4">
     <div id='ar_publish_container'>
