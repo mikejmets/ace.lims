@@ -6,7 +6,7 @@
         purge="True">
  <property name="title" i18n:translate="">Strain</property>
  <property name="description"></property>
- <property name="content_icon">++resource++bika.lims.images/strain.png</property>
+ <property name="content_icon">++resource++ace.lims.images/strain.png</property>
  <property name="content_meta_type">Strain</property>
  <property name="product">ace.lims</property>
  <property name="factory">addStrain</property>
