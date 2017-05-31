@@ -10,6 +10,13 @@ def setupVarious(context):
     if context.readDataFile('acelims_default.txt') is None:
         return
 
+    def addIndex(cat, *args):
+        try:
+            cat.addIndex(*args)
+        except:
+            pass
+
+
     portal = getSite()
     
     setup_default_permissions(portal)
@@ -21,9 +28,15 @@ def setupVarious(context):
             obj.unmarkCreationFlag()
             obj.reindexObject()
 
-    # modify bika_setup_catalog
+    # update bika_setup_catalog
     at = getToolByName(portal, 'archetype_tool')
     at.setCatalogsByType('Strain', ['bika_setup_catalog', ])
+    # update bika_catalog
+    bc = getToolByName(portal, 'bika_catalog')
+    addIndex(bc, 'getStrain', 'FieldIndex')
+    addIndex(bc, 'getLot', 'FieldIndex')
+    addIndex(bc, 'getCultivationBatch', 'FieldIndex')
+
 
 def uninstall(context):
     """Uninstall script"""

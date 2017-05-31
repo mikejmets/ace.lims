@@ -2,10 +2,13 @@ import sys
 from archetypes.schemaextender.interfaces import IOrderableSchemaExtender
 from archetypes.schemaextender.interfaces import ISchemaModifier
 from bika.lims import bikaMessageFactory as _
-from bika.lims.browser.widgets import ReferenceWidget as bikaReferenceWidget
-from bika.lims.fields import ExtReferenceField
+from bika.lims.browser.widgets import SelectionWidget as BikaSelectionWidget
+from bika.lims.browser.widgets import ReferenceWidget as BikaReferenceWidget
+from bika.lims.browser.fields import ProxyField
+from bika.lims.fields import ExtReferenceField, ExtStringField
 from bika.lims.interfaces import IAnalysisRequest
 from bika.lims.permissions import EditARContact
+from bika.lims.permissions import SampleSample
 from Products.Archetypes.atapi import StringField
 from Products.Archetypes.public import *
 from Products.Archetypes.references import HoldingReference
@@ -27,44 +30,55 @@ class StrainField(ExtReferenceField):
         if sample and value:
             sample.Schema()['Strain'].set(sample, value)
 
+class LotField(ExtStringField):
+    """A computed field which sets and gets a value from Sample
+    """
+
+    def get(self, instance):
+        sample = instance.getSample()
+        value = False
+        if sample:
+            value = sample.Schema()['Lot'].get(sample)
+        if not value:
+            value = self.getDefault(instance)
+        return value
+
+    def set(self, instance, value):
+        sample = instance.getSample()
+        if sample and value:
+            return sample.Schema()['Lot'].set(sample, value)
+
+class CultivationBatchField(ExtStringField):
+    """A computed field which sets and gets a value from Sample
+    """
+
+    def get(self, instance):
+        sample = instance.getSample()
+        value = False
+        if sample:
+            value = sample.Schema()['CultivationBatch'].get(sample)
+        if not value:
+            value = self.getDefault(instance)
+        return value
+
+    def set(self, instance, value):
+        sample = instance.getSample()
+        if sample and value:
+            return sample.Schema()['CultivationBatch'].set(sample, value)
+
+
 class AnalysisRequestSchemaExtender(object):
     adapts(IAnalysisRequest)
     implements(IOrderableSchemaExtender)
 
     fields = [
-        StringField(
-            'Lot',
-            widget=StringWidget(
-                label=_("Lot"),
-                description= "",
-                visible={'view': 'visible',
-                         'edit': 'visible',
-                         'header_table': 'visible',
-                         'add': 'edit'},
-                render_own_label=True,
-                size=20
-            )
-        ),
-        StringField(
-            'CultivationBatch',
-            widget=StringWidget(
-                label=_("Cultivation Batch"),
-                description= "",
-                visible={'view': 'visible',
-                         'edit': 'visible',
-                         'header_table': 'visible',
-                         'add': 'edit'},
-                render_own_label=True,
-                size=20
-            )
-        ),
         StrainField(
             'Strain',
             required=0,
             allowed_types=['Strain'],
             relationship='SampleTypeStrain',
             format='select',
-            widget=bikaReferenceWidget(
+            widget=BikaReferenceWidget(
                 label="Strain",
                 render_own_label=True,
                 size=20,
@@ -119,6 +133,76 @@ class AnalysisRequestSchemaExtender(object):
                 },
             ),
         ),
+        LotField(
+            'Lot',
+            searchable=True,
+            mode="rw",
+            read_permission=permissions.View,
+            write_permission=permissions.ModifyPortalContent,
+            widget=StringWidget(
+                label=_("Lot"),
+                size=20,
+                render_own_label=True,
+                visible={
+                    'edit': 'visible',
+                    'view': 'visible',
+                    'add': 'edit',
+                    'secondary': 'disabled',
+                    'header_table': 'visible',
+                    'sample_registered':
+                        {'view': 'visible', 'edit': 'visible', 'add': 'edit'},
+                    'to_be_sampled': {'view': 'visible', 'edit': 'visible'},
+                    'scheduled_sampling': {'view': 'visible', 'edit': 'visible'},
+                    'sampled': {'view': 'visible', 'edit': 'visible'},
+                    'to_be_preserved': {'view': 'visible', 'edit': 'visible'},
+                    'sample_due': {'view': 'visible', 'edit': 'visible'},
+                    'sample_prep': {'view': 'visible', 'edit': 'invisible'},
+                    'sample_received': {'view': 'visible', 'edit': 'visible'},
+                    'attachment_due': {'view': 'visible', 'edit': 'visible'},
+                    'to_be_verified': {'view': 'visible', 'edit': 'visible'},
+                    'verified': {'view': 'visible', 'edit': 'visible'},
+                    'published': {'view': 'visible', 'edit': 'invisible'},
+                    'invalid': {'view': 'visible', 'edit': 'invisible'},
+                    'rejected': {'view': 'visible', 'edit': 'invisible'},
+                },
+            ),
+        ),
+        CultivationBatchField(
+            'CultivationBatch',
+            proxy="context.getSample()",
+            searchable=True,
+            mode="rw",
+            read_permission=permissions.View,
+            write_permission=permissions.ModifyPortalContent,
+            widget=StringWidget(
+                label=_("Cultivation Batch"),
+                size=20,
+                render_own_label=True,
+                visible={
+                    'edit': 'visible',
+                    'view': 'visible',
+                    'add': 'edit',
+                    'secondary': 'disabled',
+                    'header_table': 'visible',
+                    'sample_registered':
+                        {'view': 'visible', 'edit': 'visible', 'add': 'edit'},
+                    'to_be_sampled': {'view': 'visible', 'edit': 'visible'},
+                    'scheduled_sampling': {'view': 'visible', 'edit': 'visible'},
+                    'sampled': {'view': 'visible', 'edit': 'visible'},
+                    'to_be_preserved': {'view': 'visible', 'edit': 'visible'},
+                    'sample_due': {'view': 'visible', 'edit': 'visible'},
+                    'sample_prep': {'view': 'visible', 'edit': 'invisible'},
+                    'sample_received': {'view': 'visible', 'edit': 'visible'},
+                    'attachment_due': {'view': 'visible', 'edit': 'visible'},
+                    'to_be_verified': {'view': 'visible', 'edit': 'visible'},
+                    'verified': {'view': 'visible', 'edit': 'visible'},
+                    'published': {'view': 'visible', 'edit': 'invisible'},
+                    'invalid': {'view': 'visible', 'edit': 'invisible'},
+                    'rejected': {'view': 'visible', 'edit': 'invisible'},
+                },
+            ),
+        ),
+
 
     ]
 
@@ -126,6 +210,7 @@ class AnalysisRequestSchemaExtender(object):
         self.context = context
 
     def getOrder(self, schematas):
+        schematas["default"].append("Strain")
         schematas["default"].append("Lot")
         schematas["default"].append("CultivationBatch")
         return schematas
