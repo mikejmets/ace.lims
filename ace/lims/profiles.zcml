@@ -7,7 +7,7 @@
             name="default"
             title="ACE LIMS"
             directory="profiles/default"
-            description='ACE LIMS installation profile'
+            description='Extension profile to Bika LIMS for Ace'
             provides="Products.GenericSetup.interfaces.EXTENSION"/>
 
     <genericsetup:importStep
