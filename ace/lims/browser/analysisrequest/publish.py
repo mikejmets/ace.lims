@@ -248,5 +248,3 @@ class AnalysisRequestPublishView(ARPV):
                 'lab_manager': to_utf8(lab_manager),
                 'today':self.ulocalized_time(DateTime(), long_format=0),}
 
-    def publishFromHTML(self, aruid, results_html):
-        import pdb; pdb.set_trace()
