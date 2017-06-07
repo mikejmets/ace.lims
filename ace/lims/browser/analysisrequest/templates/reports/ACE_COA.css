@@ -71,6 +71,27 @@
     width: 100%;
 }
 
+.lab-manager{
+    width:41%; 
+    float: right;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.lab-manager-name{
+    width:50%;
+    float:left;
+}
+.lab-manager-date{
+    float:right;
+}
+
+.lab-manager-terms{
+    clear: both;
+    font-size: 8px; 
+    text-align: right;
+}
+
 .ar_table {
     font-size: 82.5%;
     /*
@@ -118,6 +139,12 @@
     font-size:7pt;
 }
 
+.ar-image{
+    width:40%;
+    float:left;
+    margin-right:10px;
+    height:70px;
+}
 div.resultsinterpretation {
     border: 1px solid #cdcdcd;
 }
