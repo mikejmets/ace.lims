@@ -98,7 +98,7 @@
     border-top:1px solid #cdcdcd;
     border-left:1px solid #cdcdcd;
     */
-    width:40% !important;
+    width:45% !important;
     float: left;
     padding: 10px 10px 10px 0px;
 }
@@ -140,10 +140,9 @@
 }
 
 .ar-image{
-    width:40%;
     float:left;
-    margin-right:10px;
-    height:70px;
+    width:80%;
+    height:100px;
 }
 div.resultsinterpretation {
     border: 1px solid #cdcdcd;
@@ -161,7 +160,7 @@ div.resultsinterpretation_heading {
 
 /* this is to reproduce table-like structure
    for the sake of table-less layout. */
-.table { display:table; table-layout:fixed; width:100%; }
+.table { display:table; table-layout:fixed; width:45%; }
 .row { display:table-row; }
 .th { display:table-cell; font-weight:bold; }
 .td { display:table-cell; }

@@ -25,7 +25,7 @@
 
     <table width="100%" cellpadding="0" cellspacing="0">
       <tr>
-        <td>
+        <td style="width: 50%">
           <!-- Client -->
           <table>
             <tr>
@@ -51,7 +51,7 @@
             </tr>
           </table>
         </td>
-        <td>
+        <td style="width: 50%">
           <!-- Laboratory -->
           <table>
             <tr>
@@ -129,7 +129,7 @@
                            arcol_width python:float(rightcol_width)/len(ars);">
 
         <!-- AR Group headers -->
-        <div class="table">
+        <div class="table ar_table">
             <div class="row">
                 <span class="td">
                     <img class="ar-image" 
