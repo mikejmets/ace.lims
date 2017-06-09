@@ -61,15 +61,12 @@ class AnalysisRequestPublishView(ARPV):
         """
         templates_dir = 'templates/reports'
         embedt = self.request.form.get('template', self._DEFAULT_TEMPLATE)
-        #embedt = 'defuuuuu.pt'
         if embedt.find(':') >= 0:
             prefix, template = embedt.split(':')
             templates_dir = queryResourceDirectory('reports', prefix).directory
             embedt = template
         this_dir = os.path.dirname(os.path.abspath(__file__))
-        #embed = ViewPageTemplateFile(os.path.join(this_dir, templates_dir, embedt))
         embed = ViewPageTemplateFile(os.path.join(templates_dir, embedt))
-        #import pdb; pdb.set_trace()
         return embedt, embed(self)
 
     def getAvailableFormats(self):
@@ -90,6 +87,13 @@ class AnalysisRequestPublishView(ARPV):
         """
         if ar.UID() in self._cache['_ar_data']:
             return self._cache['_ar_data'][ar.UID()]
+        #Not sure why the following 2 lines are need, doing ar.getStrain or ar.getSample().getStrain does not work
+        strain = ''
+        bsc =  self.bika_setup_catalog
+        strains = bsc(UID=ar.getSample()['Strain'])
+        if strains:
+             strain = strains[0].Title
+
         data = {'obj': ar,
                 'id': ar.getRequestID(),
                 'client_order_num': ar.getClientOrderNumber(),
@@ -99,7 +103,10 @@ class AnalysisRequestPublishView(ARPV):
                 'composite': ar.getComposite(),
                 'report_drymatter': ar.getReportDryMatter(),
                 'invoice_exclude': ar.getInvoiceExclude(),
-                'date_received': self.ulocalized_time(ar.getDateReceived(), long_format=1),
+                'sampling_date': self.ulocalized_time(
+                    ar.getSamplingDate(), long_format=1),
+                'date_received': self.ulocalized_time(
+                    ar.getDateReceived(), long_format=1),
                 'member_discount': ar.getMemberDiscount(),
                 'date_sampled': self.ulocalized_time(
                     ar.getDateSampled(), long_format=1),
@@ -118,7 +125,8 @@ class AnalysisRequestPublishView(ARPV):
                 'parent_analysisrequest': None,
                 'resultsinterpretation':ar.getResultsInterpretation(),
                 'lot': ar['Lot'],#To be fixed
-                'strain': 'Test Strain', #ar['Strain'], # To be fixed
+                'strain': strain, # To be fixed
+                'cultivation_batch': ar['CultivationBatch'],
                 'attachment_src': None,}
 
         # Sub-objects
@@ -137,6 +145,7 @@ class AnalysisRequestPublishView(ARPV):
         data['contact'] = self._contact_data(ar)
         data['client'] = self._client_data(ar)
         data['sample'] = self._sample_data(ar)
+        data['product'] = data['sample']['sample_type']['title']
         data['batch'] = self._batch_data(ar)
         data['specifications'] = self._specs_data(ar)
         data['analyses'] = self._analyses_data(ar, ['verified', 'published'])
@@ -250,3 +259,58 @@ class AnalysisRequestPublishView(ARPV):
                 'lab_manager': to_utf8(lab_manager),
                 'today':self.ulocalized_time(DateTime(), long_format=0),}
 
+    def getAnaysisBasedTransposedMatrix(self, ars):
+        """ Returns a dict with the following structure:
+            {'category_1_name':
+                {'service_1_title':
+                    {'service_1_uid':
+                        {'service': <AnalysisService-1>,
+                         'ars': {'ar1_id': [<Analysis (for as-1)>,
+                                           <Analysis (for as-1)>],
+                                 'ar2_id': [<Analysis (for as-1)>]
+                                },
+                        },
+                    },
+                {'_data':
+                    {'footnotes': service.getCategory().Comments()',
+                     'unit': service.getUnit}
+                },
+                {'service_2_title':
+                     {'service_2_uid':
+                        {'service': <AnalysisService-2>,
+                         'ars': {'ar1_id': [<Analysis (for as-2)>,
+                                           <Analysis (for as-2)>],
+                                 'ar2_id': [<Analysis (for as-2)>]
+                                },
+                        },
+                    },
+                ...
+                },
+            }
+        """
+        analyses = {}
+        count = 0
+        for ar in ars:
+            ans = [an.getObject() for an in ar.getAnalyses()]
+            for an in ans:
+                service = an.getService()
+                cat = service.getCategoryTitle()
+                if cat not in analyses:
+                    analyses[cat] = {}
+                if service.title not in analyses[cat]:
+                    analyses[cat][service.title] = {}
+
+                d = analyses[cat][service.title]
+                d['ars'] = {ar.id: an.getFormattedResult()}
+                d['accredited'] = service.getAccredited()
+                d['service'] = service
+                analyses[cat][service.title] = d
+                if '_data' not in analyses[cat]:
+                    analyses[cat]['_data'] = {}
+                analyses[cat]['_data']['footnotes'] = service.getCategory().Comments()
+                if 'unit' not in analyses[cat]['_data']:
+                    analyses[cat]['_data']['unit'] = []
+                unit = to_utf8(service.getUnit())
+                if unit not in analyses[cat]['_data']['unit']:
+                    analyses[cat]['_data']['unit'].append(unit)
+        return analyses
