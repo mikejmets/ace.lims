@@ -30,11 +30,11 @@
           <table>
             <tr>
               <th i18n:translate="" class="label">MME</th>
-              <td>To be confirmed</td>
+              <td tal:content="python:client.Title()">To be confirmed</td>
             </tr>
             <tr>
               <th i18n:translate="" class="label">MME ID</th>
-              <td>To be confirmed</td>
+              <td tal:content="python:client.id">To be confirmed</td>
             </tr>
             <tr>
               <th i18n:translate="" class="label">Strain</th>
@@ -43,7 +43,7 @@
             </tr>
             <tr>
               <th i18n:translate="" class="label">Batch</th>
-              <td tal:condition="batch" tal:content="batch/title"/>
+              <td tal:content="analysisrequest/cultivation_batch"/>
             </tr>
             <tr>
               <th i18n:translate="" class="label">LOT</th>
@@ -63,13 +63,13 @@
             <tr>
               <th i18n:translate="" class="label">Product
               </th>
-              <td tal:content="python:sample.Title()"/>
+              <td tal:content="analysisrequest/product"/>
             </tr>
             <tr>
               <th i18n:translate="" class="label">
-                Collection Date
+                Sampling Date
               </th>
-              <td>To be confirmed</td>
+              <td tal:content="analysisrequest/sampling_date"></td>
             </tr>
             <tr>
               <th i18n:translate="" class="label">
@@ -150,7 +150,7 @@
             </div>
 
             <tal:cat_analyses tal:repeat="service_title python:sorted(transposed[cat_title].keys())">
-              <div class="row">
+              <div class="row" tal:condition="python:service_title != '_data'" >
                 <span class="td service_title">
                   <span tal:content="service_title"/>
                   <img tal:attributes='src python:portal["url"]+"/++resource++bika.lims.images/accredited.png";'
@@ -167,6 +167,11 @@
                 </tal:ar>
               </div>
             </tal:cat_analyses>
+            <tal:cat_data tal:repeat="data python:sorted(transposed[cat_title].keys())">
+              <div tal:condition="python: data=='_data' and len(transposed[cat_title][data]['footnotes']) > 0"
+                  tal:content="python:transposed[cat_title][data]['footnotes']">
+              </div>
+            </tal:cat_data>
           </div>
         </tal:category>
 
