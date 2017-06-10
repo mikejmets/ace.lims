@@ -4,14 +4,14 @@ from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode, _createObjectByType
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 
+from ace.lims.utils import attachCSV
 from ace.lims.vocabularies import  getACEARReportTemplates
 from bika.lims.browser.analysisrequest.publish import \
     AnalysisRequestPublishView as ARPV
 from bika.lims.idserver import renameAfterCreation
 from bika.lims import bikaMessageFactory as _, t
 from bika.lims import logger
-from bika.lims.utils import to_utf8, encode_header, createPdf, attachPdf, \
-        attachCSV
+from bika.lims.utils import to_utf8, encode_header, createPdf, attachPdf
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.Utils import formataddr
@@ -160,7 +160,7 @@ class AnalysisRequestPublishView(ARPV):
         data['contact'] = self._contact_data(ar)
         data['client'] = self._client_data(ar)
         data['sample'] = self._sample_data(ar)
-        data['product'] = data['sample']['sample_type']['title']
+        data['product'] = self._sample_type(ar).get('title', '')
         data['batch'] = self._batch_data(ar)
         data['specifications'] = self._specs_data(ar)
         data['analyses'] = self._analyses_data(ar, ['verified', 'published'])
