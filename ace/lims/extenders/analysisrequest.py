@@ -74,7 +74,7 @@ class AnalysisRequestSchemaExtender(object):
     fields = [
         StrainField(
             'Strain',
-            required=0,
+            required=1,
             allowed_types=['Strain'],
             relationship='SampleTypeStrain',
             format='select',
