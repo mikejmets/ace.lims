@@ -1,5 +1,5 @@
 @page {
-    size: 44mm 34mm;
+    size: 77mm 26mm;
     margin: 0mm 0mm 0mm 0mm !important;
     padding: 0mm 0mm 0mm 0mm !important;
 }
@@ -12,8 +12,8 @@
 .sticker {
     font-family: Helvetica, Arial;
     font-size:6pt;
-    width: 44mm; max-width: 44mm;
-    height: 34mm; max-height: 34mm;
+    width: 76.2mm; max-width: 76.2mm;
+    height: 25.4mm; max-height: 25.4mm;
 }
 
 .large-font {
@@ -25,9 +25,12 @@
 }
 
 .row {
-  padding-top: 1px;
+  padding-top: 0px;
 }
 
+.row-priority {
+  padding-bottom: 4px;
+}
 .barcode {
-  margin-bottom: 3px;
+  margin-bottom: 0px;
 }
