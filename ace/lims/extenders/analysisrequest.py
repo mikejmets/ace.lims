@@ -232,8 +232,8 @@ class AnalysisRequestSchemaModifier(object):
         hide_fields = (
                 'SubGroup', 
                 'SamplingRound',
-                'Specification',
-                'ClientOrderNumber',
+                #'Specification',
+                #'ClientOrderNumber',
                 'AdHoc',
                 'InvoiceExclude',
                 'EnvironmentalConditions',
