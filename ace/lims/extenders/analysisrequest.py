@@ -229,7 +229,23 @@ class AnalysisRequestSchemaModifier(object):
         """
         """
 
-        #schema.moveField("Lot", after="SamplePoint")
+        hide_fields = (
+                'SubGroup', 
+                'SamplingRound',
+                'Specification',
+                'ClientOrderNumber',
+                'AdHoc',
+                'InvoiceExclude',
+                'EnvironmentalConditions',
+                'SampleCondition'
+            )
+        for fn in hide_fields:
+            if fn in schema:
+                schema[fn].widget.visible = {
+                'add': 'invisible',
+                'edit': 'invisible',
+                'view': 'invisible'}
+                schema[fn].required = False
 
         return schema
 
