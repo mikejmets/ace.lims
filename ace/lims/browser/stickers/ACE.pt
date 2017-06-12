@@ -12,8 +12,8 @@
     <!-- Strain Barcode -->
     <div class="barcode"
          tal:attributes="data-id strain;"
-         data-code="code39"
-         data-barHeight="20"
+         data-code="code128"
+         data-barHeight="22"
          addQuietZone="false"
          showHRI="false">
     </div>
@@ -35,8 +35,8 @@
     <!-- Barcode -->
     <div class="barcode"
          tal:attributes="data-id sid;"
-         data-code="code39"
-         data-barHeight="25"
+         data-code="code128"
+         data-barHeight="43"
          addQuietZone="false"
          showHRI="false">
     </div>
