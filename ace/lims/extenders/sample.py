@@ -18,7 +18,7 @@ class SampleSchemaExtender(object):
     fields = [
         ExtReferenceField(
             'Strain',
-            required=0,
+            required=True,
             allowed_types=('Strain'),
             relationship='SampleTypeStrain',
             format='select',

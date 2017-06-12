@@ -19,6 +19,7 @@ from zope.interface import implements
 class StrainField(ExtReferenceField):
     """A computed field which sets and gets a value from Sample
     """
+    required = True
 
     def get(self, instance):
         sample = instance.getSample()
@@ -74,7 +75,7 @@ class AnalysisRequestSchemaExtender(object):
     fields = [
         StrainField(
             'Strain',
-            required=0,
+            required=True,
             allowed_types=['Strain'],
             relationship='SampleTypeStrain',
             format='select',
@@ -246,6 +247,8 @@ class AnalysisRequestSchemaModifier(object):
                 'edit': 'invisible',
                 'view': 'invisible'}
                 schema[fn].required = False
+
+        schema['Priority'].required = True
 
         return schema
 
