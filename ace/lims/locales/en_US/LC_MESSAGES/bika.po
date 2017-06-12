@@ -955,7 +955,7 @@ msgstr ""
 
 #: bika/lims/content/analysisservice.py:798
 msgid "Bulk price (excluding VAT)"
-msgstr ""
+msgstr "Bulk price (excluding Tax)"
 
 #: bika/lims/browser/client/views/contacts.py:48
 #: bika/lims/browser/supplier.py:66
@@ -2038,7 +2038,7 @@ msgstr ""
 
 #: bika/lims/content/analysisprofile.py:106
 msgid "Enter percentage value eg. 12.0. This percentage is applied on the Analysis Profile only, overriding the systems VAT"
-msgstr ""
+msgstr "Enter percentage value eg. 12.0. This percentage is applied on the Analysis Profile only, overriding the systems Tax"
 
 #: bika/lims/content/bikasetup.py:210
 msgid "Enter percentage  value eg. 12.0. This percentage is applied system wide but can be overwrittem on individual items"
@@ -3747,7 +3747,7 @@ msgstr ""
 #: bika/lims/content/analysisprofile.py:95
 #: bika/lims/content/analysisservice.py:788
 msgid "Price (excluding VAT)"
-msgstr ""
+msgstr "Price (excluding Tax)"
 
 #: bika/lims/content/arpriority.py:26
 msgid "Price Premium Percentage"
@@ -3755,7 +3755,7 @@ msgstr ""
 
 #: bika/lims/content/labproduct.py:37
 msgid "Price excluding VAT"
-msgstr ""
+msgstr "Price excluding Tax"
 
 #: bika/lims/content/pricelist.py:30
 msgid "Pricelist for"
@@ -5760,20 +5760,20 @@ msgstr ""
 #: bika/lims/browser/templates/supplyorder_edit.pt:41
 #: bika/lims/browser/templates/supplyorder_view.pt:39
 msgid "VAT"
-msgstr ""
+msgstr "Tax"
 
 #: bika/lims/content/analysisprofile.py:105
 #: bika/lims/content/analysisservice.py:829 bika/lims/content/bikasetup.py:209
-msgid "Tax %"
-msgstr ""
+msgid "VAT %"
+msgstr "Tax %"
 
 #: bika/lims/controlpanel/bika_labproducts.py:56
 msgid "VAT Amount"
-msgstr ""
+msgstr "Tax Amount"
 
 #: bika/lims/content/invoice.py:69
 msgid "VAT Total"
-msgstr ""
+msgstr "Tax Total"
 
 #: bika/lims/content/organisation.py:31
 msgid "VAT number"
@@ -6031,7 +6031,7 @@ msgstr ""
 
 #: bika/lims/content/analysisprofile.py:85
 msgid "When it's set, the system uses the analysis profile's price to quote and the system's VAT is overridden by the analysis profile's specific VAT"
-msgstr ""
+msgstr "When it's set, the system uses the analysis profile's price to quote and the system's Tax is overridden by the analysis profile's specific Tax"
 
 #: bika/lims/content/analysisservice.py:728
 msgid "When the results of duplicate analyses on worksheets, carried out on the same sample, differ with more than this percentage, an alert is raised"

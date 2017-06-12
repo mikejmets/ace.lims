@@ -6,7 +6,7 @@
     <browser:page
       for="bika.lims.interfaces.IAnalysisRequest"
       name="publish"
-      class="ace.lims.browser.analysisrequests.AnalysisRequestPublishView"
+      class="ace.lims.browser.analysisrequest.publish.AnalysisRequestPublishView"
       permission="bika.lims.ManageAnalysisRequests"
       layer="bika.lims.interfaces.IBikaLIMS"
     />
