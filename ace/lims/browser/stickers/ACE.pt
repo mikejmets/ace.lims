@@ -19,7 +19,7 @@
     </div>
 
     <!-- Strain -->
-    <div class="row">
+    <div class="row small-font">
         <span tal:content="python:strain">
             BSID-0001
         </span>
