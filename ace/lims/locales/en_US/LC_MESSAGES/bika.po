@@ -437,12 +437,6 @@ msgstr ""
 msgid "Amount"
 msgstr ""
 
-#: bika/lims/browser/analysisrequest/templates/analysisrequest_analyses.pt:106
-#: bika/lims/browser/analysisrequest/templates/analysisrequest_manage_results.pt:57
-#: bika/lims/browser/dashboard.py:581
-msgid "Test Analyses"
-msgstr ""
-
 #: bika/lims/browser/reports/qualitycontrol_resultspersamplepoint.py:305
 msgid "Analyses in error shoulder range"
 msgstr ""
@@ -2032,16 +2026,16 @@ msgstr ""
 msgid "Enter discount percentage value"
 msgstr ""
 
-#: bika/lims/content/analysisservice.py:830 bika/lims/content/labproduct.py:31
-msgid "Enter percentage value eg. 14.0"
+#: bika/lims/content/bikasetup.py:210
+msgid "Enter percentage  value eg. 12.0. This percentage is applied system wide but can be overwrittem on individual items"
 msgstr ""
 
 #: bika/lims/content/analysisprofile.py:106
 msgid "Enter percentage value eg. 12.0. This percentage is applied on the Analysis Profile only, overriding the systems VAT"
 msgstr "Enter percentage value eg. 12.0. This percentage is applied on the Analysis Profile only, overriding the systems Tax"
 
-#: bika/lims/content/bikasetup.py:210
-msgid "Enter percentage  value eg. 12.0. This percentage is applied system wide but can be overwrittem on individual items"
+#: bika/lims/content/analysisservice.py:830 bika/lims/content/labproduct.py:31
+msgid "Enter percentage value eg. 14.0"
 msgstr ""
 
 #: bika/lims/content/analysisrequest.py:1429
@@ -5081,6 +5075,12 @@ msgstr ""
 #: bika/lims/browser/analysisrequest/templates/analysisrequest_publish.pt:23
 #: bika/lims/browser/sample/templates/print_form.pt:24
 msgid "Template"
+msgstr ""
+
+#: bika/lims/browser/analysisrequest/templates/analysisrequest_analyses.pt:106
+#: bika/lims/browser/analysisrequest/templates/analysisrequest_manage_results.pt:57
+#: bika/lims/browser/dashboard.py:581
+msgid "Test Analyses"
 msgstr ""
 
 #: bika/lims/content/calculation.py:107
