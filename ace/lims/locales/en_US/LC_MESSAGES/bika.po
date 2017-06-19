@@ -465,7 +465,7 @@ msgstr ""
 #: bika/lims/browser/reports/productivity_analysespersampletype.py:34
 #: bika/lims/browser/reports/templates/productivity.pt:211
 msgid "Analyses per sample type"
-msgstr ""
+msgstr "Analyses per product"
 
 #: bika/lims/browser/reports/templates/productivity.pt:165
 msgid "Analyses per service"
@@ -1737,7 +1737,7 @@ msgstr ""
 
 #: bika/lims/content/bikasetup.py:638
 msgid "Define the prefixes for the unique sequential IDs the system issues for objects. In the 'Padding' field, indicate with how many leading zeros the numbers must be padded. E.g. a prefix of WS for worksheets with padding of 4, will see them numbered from WS-0001 to WS-9999. Sequence Start indicates the number from which the next ID should start. This is set only if it is greater than existing id numbers. Note that the gap created by jumping IDs cannot be refilled. NB: Note that samples and analysis requests are prefixed with sample type abbreviations and are not configured in this table - their padding can be set in the specified fields below"
-msgstr ""
+msgstr "Define the prefixes for the unique sequential IDs the system issues for objects. In the 'Padding' field, indicate with how many leading zeros the numbers must be padded. E.g. a prefix of WS for worksheets with padding of 4, will see them numbered from WS-0001 to WS-9999. Sequence Start indicates the number from which the next ID should start. This is set only if it is greater than existing id numbers. Note that the gap created by jumping IDs cannot be refilled. NB: Note that samples and analysis requests are prefixed with product abbreviations and are not configured in this table - their padding can be set in the specified fields below"
 
 #: bika/lims/content/analysisrequest.py:605 bika/lims/content/sample.py:283
 msgid "Define the sampler supposed to do the sample in the scheduled date"
@@ -3363,7 +3363,7 @@ msgstr ""
 
 #: bika/lims/browser/reports/productivity_analysespersampletype.py:35
 msgid "Number of analyses requested per sample type"
-msgstr ""
+msgstr "Number of analyses requested per product"
 
 #: bika/lims/browser/reports/administration_arsnotinvoiced.py:117
 #: bika/lims/browser/reports/qualitycontrol_analysesrepeated.py:147
@@ -3412,7 +3412,7 @@ msgstr ""
 
 #: bika/lims/content/preservation.py:35
 msgid "Once preserved, the sample must be disposed of within this time period.  If not specified, the sample type retention period will be used."
-msgstr ""
+msgstr "Once preserved, the sample must be disposed of within this time period.  If not specified, the product retention period will be used."
 
 #: bika/lims/utils/analysis.py:410
 msgid "Only instrument entry for this analysis is allowed, but there is no instrument assigned"
@@ -3603,7 +3603,7 @@ msgstr ""
 
 #: bika/lims/content/analysisservice.py:1048
 msgid "Please specify preservations that differ from the analysis service's default preservation per sample type here."
-msgstr ""
+msgstr "Please specify preservations that differ from the analysis service's default preservation per product here."
 
 #: bika/lims/content/laboratory.py:80
 msgid "Please upload the logo you are authorised to use on your website and results reports by your accreditation body. Maximum size is 175 x 175 pixels."
@@ -4031,7 +4031,7 @@ msgstr ""
 
 #: bika/lims/controlpanel/bika_referencedefinitions.py:36
 msgid "ReferenceDefinition represents a Reference Definition or sample type used for quality control testing"
-msgstr ""
+msgstr "ReferenceDefinition represents a Reference Definition or product used for quality control testing"
 
 #: bika/lims/browser/analysisrequest/publish.py:1038
 msgid "Refs: ${references}"
@@ -4403,25 +4403,25 @@ msgstr ""
 #: bika/lims/browser/batch/batchbook.py:52
 #: bika/lims/browser/batch/publish.py:93
 msgid "Sample Type"
-msgstr ""
+msgstr "Product"
 
 #: bika/lims/content/sampletype.py:60
 msgid "Sample Type Prefix"
-msgstr ""
+msgstr "Product Prefix"
 
 #: bika/lims/config.py:66
 msgid "Sample Type Specifications (Client)"
-msgstr ""
+msgstr "Product Specifications (Client)"
 
 #: bika/lims/config.py:65
 msgid "Sample Type Specifications (Lab)"
-msgstr ""
+msgstr "Product Specifications (Lab)"
 
 #: bika/lims/browser/client/views/samplepoints.py:42
 #: bika/lims/browser/templates/analysisservice_popup.pt:255
 #: bika/lims/browser/worksheet/views/folder.py:105
 msgid "Sample Types"
-msgstr ""
+msgstr "Products"
 
 #: bika/lims/content/analysisrequest.py:1058
 msgid "Sample condition"
@@ -4467,7 +4467,7 @@ msgstr ""
 #: bika/lims/browser/reports/productivity_analysespersampletype.py:97
 #: bika/lims/browser/reports/qualitycontrol_analysesoutofrange.py:102
 msgid "Sample type"
-msgstr ""
+msgstr "Product"
 
 #: bika/lims/controlpanel/bika_sampletypes.py:61
 msgid "SampleMatrix"
@@ -4636,7 +4636,7 @@ msgstr ""
 
 #: bika/lims/content/analysisservice.py:1011
 msgid "Select a default preservation for this analysis service. If the preservation depends on the sample type combination, specify a preservation per sample type in the table below"
-msgstr ""
+msgstr "Select a default preservation for this analysis service. If the preservation depends on the product combination, specify a preservation per product in the table below"
 
 #: bika/lims/browser/worksheet/views/add_duplicate.py:32
 msgid "Select a destinaton position and the AR to duplicate."
@@ -4722,7 +4722,7 @@ msgstr ""
 
 #: bika/lims/content/analysisservice.py:1032
 msgid "Select the default container to be used for this analysis service. If the container to be used depends on the sample type and preservation combination, specify the container in the sample type table below"
-msgstr ""
+msgstr "Select the default container to be used for this analysis service. If the container to be used depends on the product and preservation combination, specify the container in the product table below"
 
 #: bika/lims/profiles/default/registry.xml
 msgid "Select the default landing page. This is used when a Client user logs into the system, or when a client is selected from the client folder listing."
@@ -5232,11 +5232,11 @@ msgstr ""
 
 #: bika/lims/content/sampletype.py:93
 msgid "The list of sample points from which this sample type can be collected.  If no sample points are selected, then all sample points are available."
-msgstr ""
+msgstr "The list of sample points from which this product can be collected.  If no sample points are selected, then all sample points are available."
 
 #: bika/lims/content/samplepoint.py:63
 msgid "The list of sample types that can be collected at this sample point.  If no sample types are selected, then all sample types are available."
-msgstr ""
+msgstr "The list of products that can be collected at this sample point.  If no products are selected, then all products are available."
 
 #: bika/lims/content/analysisservice.py:253
 msgid "The measurement units for this analysis service' results, e.g. mg/l, ppm, dB, mV, etc."
@@ -5264,7 +5264,7 @@ msgstr ""
 
 #: bika/lims/browser/reports/templates/productivity.pt:214
 msgid "The number of analyses requested per sample type"
-msgstr ""
+msgstr "The number of analyses requested per product"
 
 #: bika/lims/content/bikasetup.py:107
 msgid "The number of days before a password expires. 0 disables password expiry"
@@ -5272,7 +5272,7 @@ msgstr ""
 
 #: bika/lims/content/bikasetup.py:503
 msgid "The number of days before a sample expires and cannot be analysed any more. This setting can be overwritten per individual sample type in the sample types setup"
-msgstr ""
+msgstr "The number of days before a sample expires and cannot be analysed any more. This setting can be overwritten per individual product in the products setup"
 
 #: bika/lims/content/samplinground.py:175 bika/lims/content/srtemplate.py:62
 msgid "The number of days between recurring field trips"
