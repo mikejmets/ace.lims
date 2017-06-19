@@ -1,22 +1,42 @@
 <tal:sticker define="
     item              python:view.current_item;
     ar                python:item[0];
+    priority          python:ar.getPriority().Title() if ar else '';
     sample            python:item[1];
-    part              python:item[2];
-    client            python:sample.aq_parent;
-    ar_id             python:ar.getId() if ar else '';
+    bsc               python:view.bika_setup_catalog;
+    strains           python:bsc(UID=sample['Strain']);
+    strain            python:strains[0].Title if strains else '';
     sid               python:sample.getId() if sample else '';
-    csid              python:sample.getClientSampleID() if hasattr(sample, 'getClientSampleID') else '';
-    profile           python:ar.getProfiles()[0].Title() if ar and ar.getProfiles() else '';
-    date              python:ar.getDateSampled();
-    date              python:date if date else ar.getDateReceived();
-    date              python:date if date else ar.created();">
+    ">
+
+    <!-- Strain Barcode -->
+    <div class="barcode"
+         tal:attributes="data-id strain;"
+         data-code="code128"
+         data-barHeight="22"
+         addQuietZone="false"
+         showHRI="false">
+    </div>
+
+    <!-- Strain -->
+    <div class="row small-font">
+        <span tal:content="python:strain">
+            BSID-0001
+        </span>
+    </div>
+
+    <!-- Priority -->
+    <div class="row-priority">
+        <span tal:content="python:priority">
+            BSID-0001
+        </span>
+    </div>
 
     <!-- Barcode -->
     <div class="barcode"
          tal:attributes="data-id sid;"
-         data-code="code39"
-         data-barHeight="14"
+         data-code="code128"
+         data-barHeight="43"
          addQuietZone="false"
          showHRI="false">
     </div>
@@ -25,34 +45,6 @@
     <div class="row large-font">
         <span tal:content="python:sid">
             BSID-0001
-        </span>
-    </div>
-
-    <!-- Client Name -->
-    <div class="row small-font">
-        <span tal:content="python:client.Title()">
-            Client Name Here
-        </span>
-    </div>
-
-    <!-- Client Sample ID -->
-    <div class="row large-font">
-        <span tal:content="python:csid">
-            CSID-0001
-        </span>
-    </div>
-
-    <!-- Profile -->
-    <div class="row large-font">
-        <span tal:content="python:profile">
-            Sample Analysis Mask
-        </span>
-    </div>
-
-    <!-- Date Sampled (or recieved, or created, if none) -->
-    <div class="row small-font">
-        <span tal:content="python:view.ulocalized_time(date)">
-            Date
         </span>
     </div>
 

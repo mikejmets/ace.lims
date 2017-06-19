@@ -20,6 +20,8 @@ from plone.app.content.browser.interfaces import IFolderContentsView
 from plone.resource.utils import  queryResourceDirectory
 from zope.interface import implements
 
+from plone import api
+
 import App
 import StringIO
 import csv
@@ -329,6 +331,14 @@ class AnalysisRequestPublishView(ARPV):
                 if unit not in analyses[cat]['_data']['unit']:
                     analyses[cat]['_data']['unit'].append(unit)
         return analyses
+
+    def current_certificate_number(self):
+        """Return the last written ID from the registry
+        """
+        key = 'bika.lims.current_coa_number'
+        val = api.portal.get_registry_record(key)
+        year = str(time.localtime(time.time())[0])[-2:]
+        return "COA%s-%05d"%(year, int(val))
 
     def publishFromHTML(self, aruid, results_html):
         # The AR can be published only and only if allowed
