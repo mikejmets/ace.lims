@@ -1,0 +1,125 @@
+<!--
+    Default template used to render a coc
+-->
+<tal:sticker define="
+    portal_state      context/@@plone_portal_state;
+    portal_url        portal_state/portal_url;
+    item              view/current_item;
+    ar                python:item[0];
+    ar_id             python:ar.getId() if ar else '';
+    sample            python:item[1];
+    part              python:item[2];
+    partnr            python:part.getId().split('-')[1];
+    sampler           python:sample.getSampler();
+    sample_id         python:sample.getId();
+    sample_point      python:sample.getSamplePoint() and sample.getSamplePoint().Title() or '';
+    sample_type       python:sample.getSampleType().Title();
+    sd                python:sample.getSamplingDate();
+    sampling_date     python:sd.Date() if sd else '';
+    client_sample_id  python:sample.getClientSampleID();
+    preservation      python:part.getPreservation() and part.getPreservation().Title() or '';
+    container         python:part.getContainer() and part.getContainer().Title() or '';
+    date_sampled      python:sample.getDateSampled() and sample.getDateSampled().Date();
+    analyses          python:part.getBackReferences('AnalysisSamplePartition');
+    field_analyses    python:[analysis for analysis in analyses if analysis.getService().getPointOfCapture()=='field'];
+    show_partitions   python:context.bika_setup.getShowPartitions();
+    smart_id          python:part.getId() if show_partitions else sample.getId();
+    hazardous         python:sample.getSampleType().getHazardous();">
+
+
+    <div class="A4">
+        <h1 class="title">Chain of Custody</h1>
+        <div class="coc_body">
+            <table cellpadding="0" cellspacing="0" border="0">
+                <tr class="grey_background">
+                    <th class='label' i18n:translate="" colspan="2">Client Information:</th>
+                    <th class='label' i18n:translate="">Project Information:</th>
+                    <th class='label' i18n:translate="" colspan="2">Lab Use Only:</th>
+                </tr>
+                <tr class="">
+                    <td class='label td_top' i18n:translate="">
+                           <p>Client:</p>
+                           <p style="padding-left:3px">hello</p>
+                   </td>
+                    <td class='label td_top' i18n:translate="">MME Registration Number:</td>
+                    <td class='label td_top' i18n:translate="">Site Contact:</td>
+                    <td class='label td_top' i18n:translate="" colspan="2">Lab Contact:</td>
+                </tr>
+                <tr class="">
+                    <td class='label td_top' i18n:translate="">
+                           <p>Profile:</p>
+                           <p style="padding-left:3px">hello</p>
+                   </td>
+                    <td class='label td_top' i18n:translate="">E-mail:</td>
+                    <td class='label td_top' i18n:translate="">Phone:</td>
+                    <td class='label td_top' i18n:translate="" style="width:12.5px">Email:</td>
+                    <td class='label td_top' i18n:translate="" style="width:12.5px">Phone:</td>
+                </tr>
+                <tr class="">
+                    <td class='label td_top' i18n:translate="">
+                           <p>Street Address:</p>
+                           <p style="padding-left:3px">hello</p>
+                   </td>
+                    <td class='label td_top' i18n:translate="">City, State, Zip:</td>
+                    <td class='label td_top' i18n:translate=""></td>
+                    <td class='label td_top' i18n:translate="" style="width:12.5px">Lab ID:</td>
+                    <td class='label td_top' i18n:translate="" style="width:12.5px">Lab Storage Location:</td>
+                </tr>
+            </table>
+            <table cellpadding="0" cellspacing="0" border="0" style="height:150px">
+            <tr>
+                <td>Item</td>
+                <td rowspan="2"> H1</td>
+                <td colspan="2">Collection</td>
+                <td>Analysis Required</td>
+                <td>Collection Weight</td>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>2</td>
+                <td>3</td>
+                <td>4</td>
+                <td>5</td>
+            </tr>
+            <tr>
+                <td>6</td>
+                <td>7</td>
+                <td>8</td>
+                <td>9</td>
+                <td>10</td>
+                <td>11</td>
+            </tr>
+            </table>
+            <table cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                    <th colspan="7" style="text-align:left">Field Comment:</th>
+                </tr>
+                <tr>
+                    <td>Transfers:</td>
+                    <td>Relinquished By</td>
+                    <td>Date / Time</td>
+                    <td>Received By</td>
+                    <td>Date / Time</td>
+                    <td>Attestation Statement</td>
+                </tr>
+                <tr>
+                    <td>Transfers:</td>
+                    <td>Relinquished By</td>
+                    <td>Date / Time</td>
+                    <td>Received By</td>
+                    <td colspan="2">Date / Time</td>
+                </tr>
+                <tr>
+                    <td>Transfers:</td>
+                    <td>Relinquished By</td>
+                    <td>Date / Time</td>
+                    <td>Received By</td>
+                    <td colspan="2">Date / Time</td>
+                </tr>
+            </table>
+        </div>
+        <div class="footer">
+            Hello Footer
+        </div>
+    </div>
+</tal:sticker>
