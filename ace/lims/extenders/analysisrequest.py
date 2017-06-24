@@ -250,5 +250,14 @@ class AnalysisRequestSchemaModifier(object):
 
         schema['Priority'].required = True
 
+        sampler_fields = (
+                'Sampler', 
+                'DateSampled',
+            )
+        for fn in sampler_fields:
+            if fn in schema:
+                schema[fn].widget.visible['sample_registered'] = {
+                    'view': 'visible', 'edit': 'visible', 'add': 'edit'}
+
         return schema
 
