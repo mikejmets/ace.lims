@@ -230,7 +230,34 @@ class AnalysisRequestSchemaModifier(object):
         """
         """
 
+        hide_fields = (
+                'SubGroup', 
+                'SamplingRound',
+                #'Specification',
+                #'ClientOrderNumber',
+                'AdHoc',
+                'InvoiceExclude',
+                'EnvironmentalConditions',
+                'SampleCondition'
+            )
+        for fn in hide_fields:
+            if fn in schema:
+                schema[fn].widget.visible = {
+                'add': 'invisible',
+                'edit': 'invisible',
+                'view': 'invisible'}
+                schema[fn].required = False
+
         schema['Priority'].required = True
+
+        sampler_fields = (
+                'Sampler', 
+                'DateSampled',
+            )
+        for fn in sampler_fields:
+            if fn in schema:
+                schema[fn].widget.visible['sample_registered'] = {
+                    'view': 'visible', 'edit': 'visible', 'add': 'edit'}
 
         return schema
 
