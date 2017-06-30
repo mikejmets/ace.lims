@@ -13,7 +13,8 @@
     font-family: Helvetica, Arial;
     font-size:6pt;
     width: 76.2mm; max-width: 76.2mm;
-    height: 25.4mm; max-height: 25.4mm;
+    height: 25.0mm; max-height: 25.0mm;
+    padding-top: 5px;
 }
 
 .large-font {
