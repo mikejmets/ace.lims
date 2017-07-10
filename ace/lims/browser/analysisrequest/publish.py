@@ -144,6 +144,9 @@ class AnalysisRequestPublishView(ARPV):
                 'lot': ar['Lot'],#To be fixed
                 'strain': strain, # To be fixed
                 'cultivation_batch': ar['CultivationBatch'],
+                'resultsinterpretation':ar.getResultsInterpretation(),
+                'ar_attachments': self._get_ar_attachments(ar),
+                'an_attachments': self._get_an_attachments(ar),
                 'attachment_src': None,}
 
         # Sub-objects
