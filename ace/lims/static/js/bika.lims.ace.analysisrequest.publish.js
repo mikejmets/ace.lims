@@ -35,7 +35,7 @@
       'A4': {
         size: 'A4',
         dimensions: [210, 297],
-        margins: [10, 10, 10, 10]
+        margins: [10, 10, 30, 10]
       },
       'letter': {
         size: 'letter',
@@ -205,7 +205,7 @@
             }
             pagenum += 1;
           }
-          div.css('width', '100%');
+          //div.css('width', '100%');
           elCurrent = div;
         });
         if (elCurrent !== null) {
