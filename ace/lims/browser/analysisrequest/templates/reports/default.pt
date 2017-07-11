@@ -74,23 +74,23 @@
                     <!-- Client -->
                     <div class="table table_header" >
                         <div class="row">
-                          <div class="td" i18n:translate="" class="label">MME</div>
+                          <div class="td label" i18n:translate="">MME</div>
                           <div class="td" tal:content="python:client['name']">To be confirmed</div>
                         </div>
                         <div class="row">
-                          <div class="td" i18n:translate="" class="label">MME ID</div>
+                          <div class="td label" i18n:translate="">MME ID</div>
                           <div class="td" tal:content="python:client['id']">To be confirmed</div>
                         </div>
                         <div class="row">
-                          <div class="td" i18n:translate="" class="label">Strain</div>
+                          <div class="td label" i18n:translate="">Strain</div>
                           <div class="td" tal:content="analysisrequest/strain"> </div>
                         </div>
                         <div class="row">
-                          <div class="td" i18n:translate="" class="label">Batch</div>
+                          <div class="td label" i18n:translate="">Batch</div>
                           <div class="td" tal:content="analysisrequest/cultivation_batch"> </div>
                         </div>
                         <div class="row">
-                          <div class="td" i18n:translate="" class="label">LOT</div>
+                          <div class="td label" i18n:translate="">LOT</div>
                           <div class="td" tal:content="analysisrequest/lot"> </div>
                         </div>
                     </div>
@@ -99,23 +99,23 @@
                     <!-- Laboratory -->
                     <div class="table table_header" >
                         <div class="row">
-                          <div class="td" i18n:translate="" class="label">Laboratory</div>
+                          <div class="td label" i18n:translate="">Laboratory</div>
                           <div class="td" tal:content="laboratory/title"/>
                         </div>
                         <div class="row">
-                          <div class="td" i18n:translate="" class="label">Product</div>
+                          <div class="td label" i18n:translate="">Product</div>
                           <div class="td" tal:content="analysisrequest/product"/>
                         </div>
                         <div class="row">
-                          <div class="td" i18n:translate="" class="label">Sampling Date</div>
+                          <div class="td label" i18n:translate="">Sampling Date</div>
                           <div class="td" tal:content="analysisrequest/sampling_date"> </div>
                         </div>
                         <div class="row">
-                          <div class="td" i18n:translate="" class="label">Received Date</div>
+                          <div class="td label" i18n:translate="">Received Date</div>
                           <div class="td" tal:content="analysisrequest/date_received"> </div>
                         </div>
                         <div class="row">
-                          <div class="td" i18n:translate="" class="label">LOT</div>
+                          <div class="td label" i18n:translate="">LOT</div>
                           <div class="td" tal:content="analysisrequest/lot"> </div>
                         </div>
                     </div>
@@ -142,23 +142,14 @@
   </div>
 
   <!-- Results section -->
-  <tal:def tal:define="transposed python:view.getAnaysisBasedTransposedMatrix([analysisrequest['obj']]);
-                       cat_titles python:sorted(transposed.keys());
-                       leftcol_width python:50 + divmod(50, len(analysisrequest['obj']))[1];
-                       rightcol_width python:100 - leftcol_width;
-                       methodcol_width python:float(leftcol_width)/100*40;
-                       servicecol_width python:float(leftcol_width)/100*50;
-                       unitcol_width python:leftcol_width-(methodcol_width+servicecol_width);
-                       arcol_width python:float(rightcol_width)/len(analysisrequest['obj']);">
-
-        <div class="table an_table">
-            <div class="row">
-                <span class="td">
-                    <img class="ar-image" style="with:100%"
-                        tal:condition="analysisrequest/attachment_src" tal:attributes="src analysisrequest/attachment_src"/>
-                </span>
-             </div>
+  <tal:def tal:define="transposed python:view.getARAnaysis(analysisrequest['obj']);
+                       cat_titles python:sorted(transposed.keys());">
+        <div class="an_table">
+            <img class="ar-image" style="with:100%"
+                tal:condition="analysisrequest/attachment_src"
+                tal:attributes="src analysisrequest/attachment_src"/>
         </div>
+
         <tal:category tal:repeat="cat_title cat_titles">
             <div class="table an_table">
                 <div class="row">
@@ -175,7 +166,6 @@
                                    class="accredited-ico"/>
                         </span>
                         <span class="td unit"
-                          tal:attributes="style string:width:${unitcol_width}%"
                           tal:content="python:transposed[cat_title][service_title]['service'].getUnit()"></span>
                         <span class="td result"
                           tal:content="structure python:transposed[cat_title][service_title]['ars'].get(analysisrequest['obj'].id,'')"/>

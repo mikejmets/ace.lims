@@ -279,6 +279,60 @@ class AnalysisRequestPublishView(ARPV):
                 'lab_manager': to_utf8(lab_manager),
                 'today':self.ulocalized_time(DateTime(), long_format=0),}
 
+    def getARAnaysis(self, ar):
+        """ Returns a dict with the following structure:
+            {'category_1_name':
+                {'service_1_title':
+                    {'service_1_uid':
+                        {'service': <AnalysisService-1>,
+                         'ars': {'ar1_id': [<Analysis (for as-1)>,
+                                           <Analysis (for as-1)>],
+                                 'ar2_id': [<Analysis (for as-1)>]
+                                },
+                        },
+                    },
+                {'_data':
+                    {'footnotes': service.getCategory().Comments()',
+                     'unit': service.getUnit}
+                },
+                {'service_2_title':
+                     {'service_2_uid':
+                        {'service': <AnalysisService-2>,
+                         'ars': {'ar1_id': [<Analysis (for as-2)>,
+                                           <Analysis (for as-2)>],
+                                 'ar2_id': [<Analysis (for as-2)>]
+                                },
+                        },
+                    },
+                ...
+                },
+            }
+        """
+        analyses = {}
+        count = 0
+        ans = [an.getObject() for an in ar.getAnalyses()]
+        for an in ans:
+            service = an.getService()
+            cat = service.getCategoryTitle()
+            if cat not in analyses:
+                analyses[cat] = {}
+            if service.title not in analyses[cat]:
+                analyses[cat][service.title] = {}
+
+            d = analyses[cat][service.title]
+            d['ars'] = {ar.id: an.getFormattedResult()}
+            d['accredited'] = service.getAccredited()
+            d['service'] = service
+            analyses[cat][service.title] = d
+            if '_data' not in analyses[cat]:
+                analyses[cat]['_data'] = {}
+            analyses[cat]['_data']['footnotes'] = service.getCategory().Comments()
+            if 'unit' not in analyses[cat]['_data']:
+                analyses[cat]['_data']['unit'] = []
+            unit = to_utf8(service.getUnit())
+            if unit not in analyses[cat]['_data']['unit']:
+                analyses[cat]['_data']['unit'].append(unit)
+        return analyses
     def getAnaysisBasedTransposedMatrix(self, ars):
         """ Returns a dict with the following structure:
             {'category_1_name':
