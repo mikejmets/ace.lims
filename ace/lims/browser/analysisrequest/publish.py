@@ -279,6 +279,13 @@ class AnalysisRequestPublishView(ARPV):
                 'lab_manager': to_utf8(lab_manager),
                 'today':self.ulocalized_time(DateTime(), long_format=0),}
 
+    def sorted_by_sort_key(self, category_keys):
+        """ Sort categories via catalog lookup on title. """
+        bsc = getToolByName(self.context, "bika_setup_catalog")
+        analysis_categories = bsc(portal_type="AnalysisCategory", sort_on="sortable_title")
+        sort_keys = dict([(b.Title, "{:04}".format(a)) for a, b in enumerate(analysis_categories)])
+        return sorted(category_keys, key=lambda title, sk=sort_keys: sk.get(title))
+
     def getARAnaysis(self, ar):
         """ Returns a dict with the following structure:
             {'category_1_name':
@@ -333,6 +340,7 @@ class AnalysisRequestPublishView(ARPV):
             if unit not in analyses[cat]['_data']['unit']:
                 analyses[cat]['_data']['unit'].append(unit)
         return analyses
+
     def getAnaysisBasedTransposedMatrix(self, ars):
         """ Returns a dict with the following structure:
             {'category_1_name':

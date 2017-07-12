@@ -74,12 +74,16 @@
                     <!-- Client -->
                     <div class="table table_header" >
                         <div class="row">
-                          <div class="td label" i18n:translate="">MME</div>
+                          <div class="td label" i18n:translate="">MME Name</div>
                           <div class="td" tal:content="python:client['name']">To be confirmed</div>
                         </div>
                         <div class="row">
                           <div class="td label" i18n:translate="">MME ID</div>
-                          <div class="td" tal:content="python:client['id']">To be confirmed</div>
+                          <div class="td">To be confirmed</div>
+                        </div>
+                        <div class="row">
+                          <div class="td label" i18n:translate="">State ID</div>
+                          <div class="td">To be confirmed</div>
                         </div>
                         <div class="row">
                           <div class="td label" i18n:translate="">Strain</div>
@@ -114,10 +118,6 @@
                           <div class="td label" i18n:translate="">Received Date</div>
                           <div class="td" tal:content="analysisrequest/date_received"> </div>
                         </div>
-                        <div class="row">
-                          <div class="td label" i18n:translate="">LOT</div>
-                          <div class="td" tal:content="analysisrequest/lot"> </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -143,7 +143,7 @@
 
   <!-- Results section -->
   <tal:def tal:define="transposed python:view.getARAnaysis(analysisrequest['obj']);
-                       cat_titles python:sorted(transposed.keys());">
+                       cat_titles python:view.sorted_by_sort_key(transposed.keys());">
         <div class="an_table">
             <img class="ar-image" style="with:100%"
                 tal:condition="analysisrequest/attachment_src"
