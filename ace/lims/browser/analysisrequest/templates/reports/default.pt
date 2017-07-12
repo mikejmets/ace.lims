@@ -58,7 +58,7 @@
                     <div class="td td_coa"> <h1>CERTIFICATE OF ANALYSIS</h1> </div>
                     <div class="td td_numbering">
                         <div class="page-number">Page <span class="page-current-num"></span> of <span class="page-total-count"></span></div>
-                        <p tal:content="string: Report No. ${coanr}"/>
+                        <p tal:content="string: TBConfirmed No. ${coanr}"/>
                     </div> 
                 </div>
             </div>
