@@ -4,14 +4,14 @@ from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode, _createObjectByType
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 
-from ace.lims.utils import attachCSV
+from ace.lims.utils import attachCSV, createPdf
 from ace.lims.vocabularies import  getACEARReportTemplates
 from bika.lims.browser.analysisrequest.publish import \
     AnalysisRequestPublishView as ARPV
 from bika.lims.idserver import renameAfterCreation
 from bika.lims import bikaMessageFactory as _, t
 from bika.lims import logger
-from bika.lims.utils import to_utf8, encode_header, createPdf, attachPdf
+from bika.lims.utils import to_utf8, encode_header, attachPdf
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.Utils import formataddr
