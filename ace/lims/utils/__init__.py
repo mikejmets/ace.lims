@@ -3,6 +3,7 @@ import re
 import tempfile
 from bika.lims.utils import to_utf8, encode_header
 from email.MIMEBase import MIMEBase
+from pkg_resources import resource_filename
 from weasyprint import HTML, CSS
 from zope.component.hooks import getSite
 
@@ -91,7 +92,18 @@ def localize_images(html):
     for match in re.finditer("""src.*\=.*(http[^'"]*)""", _html, re.I):
         url = match.group(1)
         filename = url.split("/")[-1]
-        if '++' in url:
+        if filename == 'logo_print.png':
+            attachment = portal.unrestrictedTraverse('portal_skins/custom/logo.png')
+            filename = attachment.filename
+            extension = "." + filename.split(".")[-1]
+            outfile, outfilename = tempfile.mkstemp(suffix=extension)
+            outfile = open(outfilename, 'wb')
+            data = str(attachment._data)
+            outfile.write(data)
+            outfile.close()
+            cleanup.append(outfilename)
+
+        elif '++' in url:
             # Resource directories
             outfilename = resource_filename(
                 'bika.lims', 'browser/images/' + filename)
