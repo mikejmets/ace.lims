@@ -145,7 +145,7 @@
   <tal:def tal:define="transposed python:view.getARAnaysis(analysisrequest['obj']);
                        cat_titles python:view.sorted_by_sort_key(transposed.keys());">
         <div class="an_table">
-            <img class="ar-image" style="width:100%"
+            <img class="ar-image" 
                 tal:condition="analysisrequest/attachment_src"
                 tal:attributes="src analysisrequest/attachment_src"/>
         </div>
