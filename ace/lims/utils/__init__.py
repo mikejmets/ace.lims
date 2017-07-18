@@ -98,8 +98,8 @@ def localize_images(html):
                 filename = logo.filename
                 data = str(logo._data)
             else:
-                filename = attachment.__name__
-                data = str(attachment.data)
+                filename = logo.__name__
+                data = str(logo.data)
             extension = "." + filename.split(".")[-1]
             outfile, outfilename = tempfile.mkstemp(suffix=extension)
             outfile = open(outfilename, 'wb')
