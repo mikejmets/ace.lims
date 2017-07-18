@@ -93,12 +93,16 @@ def localize_images(html):
         url = match.group(1)
         filename = url.split("/")[-1]
         if filename == 'logo_print.png':
-            attachment = portal.unrestrictedTraverse('portal_skins/custom/logo.png')
-            filename = attachment.filename
+            logo = portal.unrestrictedTraverse('portal_skins/custom/logo_print.png')
+            if hasattr(logo, 'filename'):
+                filename = logo.filename
+                data = str(logo._data)
+            else:
+                filename = attachment.__name__
+                data = str(attachment.data)
             extension = "." + filename.split(".")[-1]
             outfile, outfilename = tempfile.mkstemp(suffix=extension)
             outfile = open(outfilename, 'wb')
-            data = str(attachment._data)
             outfile.write(data)
             outfile.close()
             cleanup.append(outfilename)
