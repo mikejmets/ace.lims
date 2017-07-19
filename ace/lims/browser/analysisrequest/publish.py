@@ -113,10 +113,10 @@ class AnalysisRequestPublishView(ARPV):
 
         data = {'obj': ar,
                 'id': ar.getRequestID(),
-                'client_order_num': ar.getClientOrderNumber(),
-                'client_reference': ar.getClientReference(),
-                'client_sampleid': ar.getClientSampleID(),
-                'adhoc': ar.getAdHoc(),
+                #'client_order_num': ar.getClientOrderNumber(),
+                #'client_reference': ar.getClientReference(),
+                #'client_sampleid': ar.getClientSampleID(),
+                #'adhoc': ar.getAdHoc(),
                 'composite': ar.getComposite(),
                 'report_drymatter': ar.getReportDryMatter(),
                 'invoice_exclude': ar.getInvoiceExclude(),
@@ -256,13 +256,15 @@ class AnalysisRequestPublishView(ARPV):
     def _lab_data(self):
         portal = self.context.portal_url.getPortalObject()
         lab = self.context.bika_setup.laboratory
-        mtool = getToolByName(self, 'portal_membership')
-        users = mtool.searchForMembers(roles=['LabManager'])
+        supervisor = lab.getLaboratorySupervisor()
+        bsc = getToolByName(self.context, "bika_setup_catalog")
+        labcontact = bsc(portal_type="LabContact", id=supervisor)
+        signature = None
         lab_manager = ''
-        for user in users:
-            uid = user.getId()
-            lab_manager = user.getProperty('fullname')
-            break
+        if len(labcontact) == 1:
+            labcontact = labcontact[0].getObject()
+            lab_manager = to_utf8(self.user_fullname(labcontact.getUsername()))
+            signature = '%s/Signature' % labcontact.getSignature().absolute_url()
 
 
         return {'obj': lab,
@@ -277,6 +279,7 @@ class AnalysisRequestPublishView(ARPV):
                 'accreditation_logo': lab.getAccreditationBodyLogo(),
                 'logo': "%s/logo_print.png" % portal.absolute_url(),
                 'lab_manager': to_utf8(lab_manager),
+                'signature': signature,
                 'today':self.ulocalized_time(DateTime(), long_format=0),}
 
     def sorted_by_sort_key(self, category_keys):

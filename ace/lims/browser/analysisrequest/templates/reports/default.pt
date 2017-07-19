@@ -182,6 +182,9 @@
   </tal:def>
       <div class='page-footer' style="height:60px">
         <div class="lab-manager">
+            <img class="signature"
+                tal:condition="laboratory/signature"
+                tal:attributes="src laboratory/signature"/>
             <hr style="width:100%"/>
             <div class="lab-manager-name" tal:content="laboratory/lab_manager"></div>
             <div class="lab-manager-date" tal:content="laboratory/today"></div>

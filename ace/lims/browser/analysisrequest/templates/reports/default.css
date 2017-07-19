@@ -232,7 +232,7 @@
 .lab-manager-terms{
     clear: both;
     font-size: 8px; 
-    text-align: right;
+    text-align: left;
 }
 
 .an_table {
@@ -295,4 +295,8 @@
 
 .ar-image{
     float:left;
+}
+.signature{
+    height:30px;
+    width:100%
 }
