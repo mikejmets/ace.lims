@@ -269,6 +269,7 @@ class AnalysisRequestPublishView(ARPV):
 
         return {'obj': lab,
                 'title': to_utf8(lab.Title()),
+                'lab_license_id': to_utf8(lab.getLaboratoryLicenseID()),
                 'url': to_utf8(lab.getLabURL()),
                 'phone': to_utf8(lab.getPhone()),
                 'address': to_utf8(self._lab_address(lab)),
