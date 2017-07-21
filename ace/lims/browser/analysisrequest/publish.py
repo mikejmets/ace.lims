@@ -475,6 +475,10 @@ class AnalysisRequestPublishView(ARPV):
             )
             report.unmarkCreationFlag()
             renameAfterCreation(report)
+            # Set blob properties for fields containing file data
+            fld = report.getField('Pdf')
+            fld.get(report).setFilename(pdf_fn+ ".pdf")
+            fld.get(report).setContentType('application/pdf')
 
             # Set status to prepublished/published/republished
             status = wf.getInfoFor(ar, 'review_state')
