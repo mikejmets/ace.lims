@@ -449,6 +449,13 @@ class AnalysisRequestPublishView(ARPV):
 
         # BIKA Cannabis hack.  Create the CSV they desire here now
         csvdata = self.create_cannabis_csv(ars)
+        pdf_fn = to_utf8(lab.getLaboratoryLicenseID())
+        bsc =  self.bika_setup_catalog
+        strains = bsc(UID=ar.getSample()['Strain'])
+        if strains:
+             strain = strains[0].Title
+             pdf_fn = '{}-{}'.format(pdf_fn, strain)
+
         if pdf_report:
             if contact:
                 recipients = [{
@@ -502,7 +509,7 @@ class AnalysisRequestPublishView(ARPV):
             if len(to) > 0:
                 # Send the email to the managers
                 mime_msg['To'] = ','.join(to)
-                attachPdf(mime_msg, pdf_report, ar.id)
+                attachPdf(mime_msg, pdf_report, pdf_fn)
 
                 # BIKA Cannabis hack.  Create the CSV they desire here now
                 fn = self.current_certificate_number()
@@ -540,7 +547,7 @@ class AnalysisRequestPublishView(ARPV):
 
             # Attach the pdf to the email if requested
             if pdf_report and 'pdf' in recip.get('pubpref'):
-                attachPdf(mime_msg, pdf_report, ar.id)
+                attachPdf(mime_msg, pdf_report, pdf_fn)
                 # BIKA Cannabis hack.  Create the CSV they desire here now
                 fn = self.current_certificate_number()
                 attachCSV(mime_msg,csvdata,fn)
