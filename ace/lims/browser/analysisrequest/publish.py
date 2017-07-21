@@ -144,6 +144,9 @@ class AnalysisRequestPublishView(ARPV):
                 'lot': ar['Lot'],#To be fixed
                 'strain': strain, # To be fixed
                 'cultivation_batch': ar['CultivationBatch'],
+                'resultsinterpretation':ar.getResultsInterpretation(),
+                'ar_attachments': self._get_ar_attachments(ar),
+                'an_attachments': self._get_an_attachments(ar),
                 'attachment_src': None,}
 
         # Sub-objects
@@ -275,6 +278,68 @@ class AnalysisRequestPublishView(ARPV):
                 'logo': "%s/logo_print.png" % portal.absolute_url(),
                 'lab_manager': to_utf8(lab_manager),
                 'today':self.ulocalized_time(DateTime(), long_format=0),}
+
+    def sorted_by_sort_key(self, category_keys):
+        """ Sort categories via catalog lookup on title. """
+        bsc = getToolByName(self.context, "bika_setup_catalog")
+        analysis_categories = bsc(portal_type="AnalysisCategory", sort_on="sortable_title")
+        sort_keys = dict([(b.Title, "{:04}".format(a)) for a, b in enumerate(analysis_categories)])
+        return sorted(category_keys, key=lambda title, sk=sort_keys: sk.get(title))
+
+    def getARAnaysis(self, ar):
+        """ Returns a dict with the following structure:
+            {'category_1_name':
+                {'service_1_title':
+                    {'service_1_uid':
+                        {'service': <AnalysisService-1>,
+                         'ars': {'ar1_id': [<Analysis (for as-1)>,
+                                           <Analysis (for as-1)>],
+                                 'ar2_id': [<Analysis (for as-1)>]
+                                },
+                        },
+                    },
+                {'_data':
+                    {'footnotes': service.getCategory().Comments()',
+                     'unit': service.getUnit}
+                },
+                {'service_2_title':
+                     {'service_2_uid':
+                        {'service': <AnalysisService-2>,
+                         'ars': {'ar1_id': [<Analysis (for as-2)>,
+                                           <Analysis (for as-2)>],
+                                 'ar2_id': [<Analysis (for as-2)>]
+                                },
+                        },
+                    },
+                ...
+                },
+            }
+        """
+        analyses = {}
+        count = 0
+        ans = [an.getObject() for an in ar.getAnalyses()]
+        for an in ans:
+            service = an.getService()
+            cat = service.getCategoryTitle()
+            if cat not in analyses:
+                analyses[cat] = {}
+            if service.title not in analyses[cat]:
+                analyses[cat][service.title] = {}
+
+            d = analyses[cat][service.title]
+            d['ars'] = {ar.id: an.getFormattedResult()}
+            d['accredited'] = service.getAccredited()
+            d['service'] = service
+            analyses[cat][service.title] = d
+            if '_data' not in analyses[cat]:
+                analyses[cat]['_data'] = {}
+            analyses[cat]['_data']['footnotes'] = service.getCategory().Comments()
+            if 'unit' not in analyses[cat]['_data']:
+                analyses[cat]['_data']['unit'] = []
+            unit = to_utf8(service.getUnit())
+            if unit not in analyses[cat]['_data']['unit']:
+                analyses[cat]['_data']['unit'].append(unit)
+        return analyses
 
     def getAnaysisBasedTransposedMatrix(self, ars):
         """ Returns a dict with the following structure:
