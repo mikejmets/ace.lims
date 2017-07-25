@@ -4,14 +4,14 @@ from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode, _createObjectByType
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 
-from ace.lims.utils import attachCSV
+from ace.lims.utils import attachCSV, createPdf
 from ace.lims.vocabularies import  getACEARReportTemplates
 from bika.lims.browser.analysisrequest.publish import \
     AnalysisRequestPublishView as ARPV
 from bika.lims.idserver import renameAfterCreation
 from bika.lims import bikaMessageFactory as _, t
 from bika.lims import logger
-from bika.lims.utils import to_utf8, encode_header, createPdf, attachPdf
+from bika.lims.utils import to_utf8, encode_header, attachPdf
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.Utils import formataddr
@@ -20,7 +20,7 @@ from plone.app.content.browser.interfaces import IFolderContentsView
 from plone.resource.utils import  queryResourceDirectory
 from zope.interface import implements
 
-from plone import api
+from plone import api as ploneapi
 
 import App
 import StringIO
@@ -113,10 +113,10 @@ class AnalysisRequestPublishView(ARPV):
 
         data = {'obj': ar,
                 'id': ar.getRequestID(),
-                'client_order_num': ar.getClientOrderNumber(),
-                'client_reference': ar.getClientReference(),
-                'client_sampleid': ar.getClientSampleID(),
-                'adhoc': ar.getAdHoc(),
+                #'client_order_num': ar.getClientOrderNumber(),
+                #'client_reference': ar.getClientReference(),
+                #'client_sampleid': ar.getClientSampleID(),
+                #'adhoc': ar.getAdHoc(),
                 'composite': ar.getComposite(),
                 'report_drymatter': ar.getReportDryMatter(),
                 'invoice_exclude': ar.getInvoiceExclude(),
@@ -256,17 +256,20 @@ class AnalysisRequestPublishView(ARPV):
     def _lab_data(self):
         portal = self.context.portal_url.getPortalObject()
         lab = self.context.bika_setup.laboratory
-        mtool = getToolByName(self, 'portal_membership')
-        users = mtool.searchForMembers(roles=['LabManager'])
+        supervisor = lab.getLaboratorySupervisor()
+        bsc = getToolByName(self.context, "bika_setup_catalog")
+        labcontact = bsc(portal_type="LabContact", id=supervisor)
+        signature = None
         lab_manager = ''
-        for user in users:
-            uid = user.getId()
-            lab_manager = user.getProperty('fullname')
-            break
+        if len(labcontact) == 1:
+            labcontact = labcontact[0].getObject()
+            lab_manager = to_utf8(self.user_fullname(labcontact.getUsername()))
+            signature = '%s/Signature' % labcontact.getSignature().absolute_url()
 
 
         return {'obj': lab,
                 'title': to_utf8(lab.Title()),
+                'lab_license_id': to_utf8(lab.getLaboratoryLicenseID()),
                 'url': to_utf8(lab.getLabURL()),
                 'phone': to_utf8(lab.getPhone()),
                 'address': to_utf8(self._lab_address(lab)),
@@ -277,6 +280,7 @@ class AnalysisRequestPublishView(ARPV):
                 'accreditation_logo': lab.getAccreditationBodyLogo(),
                 'logo': "%s/logo_print.png" % portal.absolute_url(),
                 'lab_manager': to_utf8(lab_manager),
+                'signature': signature,
                 'today':self.ulocalized_time(DateTime(), long_format=0),}
 
     def sorted_by_sort_key(self, category_keys):
@@ -315,6 +319,14 @@ class AnalysisRequestPublishView(ARPV):
                 },
             }
         """
+        def convert_unit(result, formula):
+            formula = formula.replace('Value', '%f')
+            return eval(formula % float(result))
+
+        def get_sample_type_uid(analysis):
+            if getattr(analysis.aq_parent, 'getSample'):
+                return analysis.aq_parent.getSample().getSampleType().UID()
+
         analyses = {}
         count = 0
         ans = [an.getObject() for an in ar.getAnalyses()]
@@ -323,22 +335,41 @@ class AnalysisRequestPublishView(ARPV):
             cat = service.getCategoryTitle()
             if cat not in analyses:
                 analyses[cat] = {}
-            if service.title not in analyses[cat]:
-                analyses[cat][service.title] = {}
+            cat_dict = analyses[cat]
+            if service.title not in cat_dict:
+                cat_dict[service.title] = {}
 
-            d = analyses[cat][service.title]
-            d['ars'] = {ar.id: an.getFormattedResult()}
-            d['accredited'] = service.getAccredited()
-            d['service'] = service
-            analyses[cat][service.title] = d
-            if '_data' not in analyses[cat]:
-                analyses[cat]['_data'] = {}
-            analyses[cat]['_data']['footnotes'] = service.getCategory().Comments()
-            if 'unit' not in analyses[cat]['_data']:
-                analyses[cat]['_data']['unit'] = []
+            an_dict = cat_dict[service.title]
+            an_dict['ars'] = an.getFormattedResult()
+            an_dict['accredited'] = service.getAccredited()
+            an_dict['service'] = service
+            an_dict['unit'] = service.getUnit()
+            # add unit conversion information
+            sample_type_ui = get_sample_type_uid(an)
+            if sample_type_ui:
+                i = 0
+                for unit_conversion in service.getUnitConversions():
+                    if unit_conversion.get('SampleType') and \
+                       unit_conversion.get('Unit') and \
+                       unit_conversion.get('SampleType') == sample_type_ui:
+                        i += 1
+                        new = dict(an_dict)
+                        unit_conversion = ploneapi.content.get(
+                                            UID=unit_conversion['Unit'])
+                        new['unit'] = unit_conversion.converted_unit
+                        new['ars'] = convert_unit(
+                                        an.getResult(), unit_conversion.formula)
+                        key = '%s (%s)' % (service['title'], new['unit'])
+                        cat_dict[key] = new
+
+            if '_data' not in cat_dict:
+                cat_dict['_data'] = {}
+            cat_dict['_data']['footnotes'] = service.getCategory().Comments()
+            if 'unit' not in cat_dict['_data']:
+                cat_dict['_data']['unit'] = []
             unit = to_utf8(service.getUnit())
-            if unit not in analyses[cat]['_data']['unit']:
-                analyses[cat]['_data']['unit'].append(unit)
+            if unit not in cat_dict['_data']['unit']:
+                cat_dict['_data']['unit'].append(unit)
         return analyses
 
     def getAnaysisBasedTransposedMatrix(self, ars):
@@ -401,7 +432,7 @@ class AnalysisRequestPublishView(ARPV):
         """Return the last written ID from the registry
         """
         key = 'bika.lims.current_coa_number'
-        val = api.portal.get_registry_record(key)
+        val = ploneapi.portal.get_registry_record(key)
         year = str(time.localtime(time.time())[0])[-2:]
         return "COA%s-%05d"%(year, int(val))
 
@@ -445,6 +476,13 @@ class AnalysisRequestPublishView(ARPV):
 
         # BIKA Cannabis hack.  Create the CSV they desire here now
         csvdata = self.create_cannabis_csv(ars)
+        pdf_fn = to_utf8(lab.getLaboratoryLicenseID())
+        bsc =  self.bika_setup_catalog
+        strains = bsc(UID=ar.getSample()['Strain'])
+        if strains:
+             strain = strains[0].Title
+             pdf_fn = '{}-{}'.format(pdf_fn, strain)
+
         if pdf_report:
             if contact:
                 recipients = [{
@@ -498,7 +536,7 @@ class AnalysisRequestPublishView(ARPV):
             if len(to) > 0:
                 # Send the email to the managers
                 mime_msg['To'] = ','.join(to)
-                attachPdf(mime_msg, pdf_report, ar.id)
+                attachPdf(mime_msg, pdf_report, pdf_fn)
 
                 # BIKA Cannabis hack.  Create the CSV they desire here now
                 fn = self.current_certificate_number()
@@ -536,7 +574,7 @@ class AnalysisRequestPublishView(ARPV):
 
             # Attach the pdf to the email if requested
             if pdf_report and 'pdf' in recip.get('pubpref'):
-                attachPdf(mime_msg, pdf_report, ar.id)
+                attachPdf(mime_msg, pdf_report, pdf_fn)
                 # BIKA Cannabis hack.  Create the CSV they desire here now
                 fn = self.current_certificate_number()
                 attachCSV(mime_msg,csvdata,fn)

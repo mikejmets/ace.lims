@@ -74,6 +74,10 @@
                     <!-- Client -->
                     <div class="table table_header" >
                         <div class="row">
+                          <div class="td label" i18n:translate="">Laboratory License ID</div>
+                          <div class="td" tal:content="python:laboratory['lab_license_id']">To be confirmed</div>
+                        </div>
+                        <div class="row">
                           <div class="td label" i18n:translate="">MME Name</div>
                           <div class="td" tal:content="python:client['name']">To be confirmed</div>
                         </div>
@@ -145,7 +149,7 @@
   <tal:def tal:define="transposed python:view.getARAnaysis(analysisrequest['obj']);
                        cat_titles python:view.sorted_by_sort_key(transposed.keys());">
         <div class="an_table">
-            <img class="ar-image" style="with:100%"
+            <img class="ar-image" 
                 tal:condition="analysisrequest/attachment_src"
                 tal:attributes="src analysisrequest/attachment_src"/>
         </div>
@@ -166,9 +170,9 @@
                                    class="accredited-ico"/>
                         </span>
                         <span class="td unit"
-                          tal:content="python:transposed[cat_title][service_title]['service'].getUnit()"></span>
+                          tal:content="python:transposed[cat_title][service_title]['unit']"></span>
                         <span class="td result"
-                          tal:content="structure python:transposed[cat_title][service_title]['ars'].get(analysisrequest['obj'].id,'')"/>
+                          tal:content="structure python:transposed[cat_title][service_title]['ars']"/>
                     </div>
                 </tal:cat_analyses>
                 <tal:cat_data tal:repeat="data python:sorted(transposed[cat_title].keys())">
@@ -182,6 +186,9 @@
   </tal:def>
       <div class='page-footer' style="height:60px">
         <div class="lab-manager">
+            <img class="signature"
+                tal:condition="laboratory/signature"
+                tal:attributes="src laboratory/signature"/>
             <hr style="width:100%"/>
             <div class="lab-manager-name" tal:content="laboratory/lab_manager"></div>
             <div class="lab-manager-date" tal:content="laboratory/today"></div>
