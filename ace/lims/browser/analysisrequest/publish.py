@@ -20,7 +20,7 @@ from plone.app.content.browser.interfaces import IFolderContentsView
 from plone.resource.utils import  queryResourceDirectory
 from zope.interface import implements
 
-from plone import api
+from plone import api as ploneapi
 
 import App
 import StringIO
@@ -319,6 +319,14 @@ class AnalysisRequestPublishView(ARPV):
                 },
             }
         """
+        def convert_unit(result, formula):
+            formula = formula.replace('Value', '%f')
+            return eval(formula % float(result))
+
+        def get_sample_type_uid(analysis):
+            if getattr(analysis.aq_parent, 'getSample'):
+                return analysis.aq_parent.getSample().getSampleType().UID()
+
         analyses = {}
         count = 0
         ans = [an.getObject() for an in ar.getAnalyses()]
@@ -327,22 +335,41 @@ class AnalysisRequestPublishView(ARPV):
             cat = service.getCategoryTitle()
             if cat not in analyses:
                 analyses[cat] = {}
-            if service.title not in analyses[cat]:
-                analyses[cat][service.title] = {}
+            cat_dict = analyses[cat]
+            if service.title not in cat_dict:
+                cat_dict[service.title] = {}
 
-            d = analyses[cat][service.title]
-            d['ars'] = {ar.id: an.getFormattedResult()}
-            d['accredited'] = service.getAccredited()
-            d['service'] = service
-            analyses[cat][service.title] = d
-            if '_data' not in analyses[cat]:
-                analyses[cat]['_data'] = {}
-            analyses[cat]['_data']['footnotes'] = service.getCategory().Comments()
-            if 'unit' not in analyses[cat]['_data']:
-                analyses[cat]['_data']['unit'] = []
+            an_dict = cat_dict[service.title]
+            an_dict['ars'] = an.getFormattedResult()
+            an_dict['accredited'] = service.getAccredited()
+            an_dict['service'] = service
+            an_dict['unit'] = service.getUnit()
+            # add unit conversion information
+            sample_type_ui = get_sample_type_uid(an)
+            if sample_type_ui:
+                i = 0
+                for unit_conversion in service.getUnitConversions():
+                    if unit_conversion.get('SampleType') and \
+                       unit_conversion.get('Unit') and \
+                       unit_conversion.get('SampleType') == sample_type_ui:
+                        i += 1
+                        new = dict(an_dict)
+                        unit_conversion = ploneapi.content.get(
+                                            UID=unit_conversion['Unit'])
+                        new['unit'] = unit_conversion.converted_unit
+                        new['ars'] = convert_unit(
+                                        an.getResult(), unit_conversion.formula)
+                        key = '%s (%s)' % (service['title'], new['unit'])
+                        cat_dict[key] = new
+
+            if '_data' not in cat_dict:
+                cat_dict['_data'] = {}
+            cat_dict['_data']['footnotes'] = service.getCategory().Comments()
+            if 'unit' not in cat_dict['_data']:
+                cat_dict['_data']['unit'] = []
             unit = to_utf8(service.getUnit())
-            if unit not in analyses[cat]['_data']['unit']:
-                analyses[cat]['_data']['unit'].append(unit)
+            if unit not in cat_dict['_data']['unit']:
+                cat_dict['_data']['unit'].append(unit)
         return analyses
 
     def getAnaysisBasedTransposedMatrix(self, ars):
@@ -405,7 +432,7 @@ class AnalysisRequestPublishView(ARPV):
         """Return the last written ID from the registry
         """
         key = 'bika.lims.current_coa_number'
-        val = api.portal.get_registry_record(key)
+        val = ploneapi.portal.get_registry_record(key)
         year = str(time.localtime(time.time())[0])[-2:]
         return "COA%s-%05d"%(year, int(val))
 
