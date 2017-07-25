@@ -259,5 +259,6 @@ class AnalysisRequestSchemaModifier(object):
                 schema[fn].widget.visible['sample_registered'] = {
                     'view': 'visible', 'edit': 'visible', 'add': 'edit'}
 
+        schema.moveField("Lot", after="CultivationBatch")
         return schema
 
