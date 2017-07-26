@@ -179,6 +179,8 @@ class AnalysisRequestPublishView(ARPV):
         # Attachment src/link
         attachments = ar.getAttachment()
         for attachment in attachments:
+            if attachment.getReportOption() != 'r':
+                continue
             filename = attachment.getAttachmentFile().filename 
             extension = filename.split('.')[-1]
             if extension in ['png', 'jpg']: #Check other image extensions
