@@ -323,7 +323,10 @@ class AnalysisRequestPublishView(ARPV):
         """
         def convert_unit(result, formula):
             formula = formula.replace('Value', '%f')
-            return eval(formula % float(result))
+            dec = len(result.split(dmk)[-1])
+            new =  eval(formula % float(result))
+            fmt = '{{:.{}f}}'.format(dec)
+            return fmt.format(new)
 
         def get_sample_type_uid(analysis):
             if getattr(analysis.aq_parent, 'getSample'):
@@ -331,6 +334,7 @@ class AnalysisRequestPublishView(ARPV):
 
         analyses = {}
         count = 0
+        dmk = ar.bika_setup.getResultsDecimalMark()
         ans = [an.getObject() for an in ar.getAnalyses()]
         for an in ans:
             service = an.getService()
@@ -359,8 +363,10 @@ class AnalysisRequestPublishView(ARPV):
                         unit_conversion = ploneapi.content.get(
                                             UID=unit_conversion['Unit'])
                         new['unit'] = unit_conversion.converted_unit
+                        an.getFormattedResult()
                         new['ars'] = convert_unit(
-                                        an.getResult(), unit_conversion.formula)
+                                        an.getFormattedResult(),
+                                        unit_conversion.formula)
                         key = '%s (%s)' % (service['title'], new['unit'])
                         cat_dict[key] = new
 
