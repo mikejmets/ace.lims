@@ -13,7 +13,7 @@
     <div class="barcode"
          tal:attributes="data-id strain;"
          data-code="code128"
-         data-barHeight="22"
+         data-barHeight="16"
          addQuietZone="false"
          showHRI="false">
     </div>
@@ -26,7 +26,7 @@
     </div>
 
     <!-- Priority -->
-    <div class="row-priority">
+    <div class="row-priority small-font">
         <span tal:content="python:priority">
             BSID-0001
         </span>
@@ -36,7 +36,7 @@
     <div class="barcode"
          tal:attributes="data-id sid;"
          data-code="code128"
-         data-barHeight="29"
+         data-barHeight="18"
          addQuietZone="false"
          showHRI="false">
     </div>
