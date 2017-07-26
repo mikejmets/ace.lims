@@ -12,6 +12,7 @@ from bika.lims.idserver import renameAfterCreation
 from bika.lims import bikaMessageFactory as _, t
 from bika.lims import logger
 from bika.lims.utils import to_utf8, encode_header, attachPdf
+from bika.lims.utils import convert_unit
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.Utils import formataddr
@@ -321,13 +322,6 @@ class AnalysisRequestPublishView(ARPV):
                 },
             }
         """
-        def convert_unit(result, formula):
-            formula = formula.replace('Value', '%f')
-            dec = len(result.split(dmk)[-1])
-            new =  eval(formula % float(result))
-            fmt = '{{:.{}f}}'.format(dec)
-            return fmt.format(new)
-
         def get_sample_type_uid(analysis):
             if getattr(analysis.aq_parent, 'getSample'):
                 return analysis.aq_parent.getSample().getSampleType().UID()
@@ -366,7 +360,8 @@ class AnalysisRequestPublishView(ARPV):
                         an.getFormattedResult()
                         new['ars'] = convert_unit(
                                         an.getFormattedResult(),
-                                        unit_conversion.formula)
+                                        unit_conversion.formula,
+                                        dmk)
                         key = '%s (%s)' % (service['title'], new['unit'])
                         cat_dict[key] = new
 
