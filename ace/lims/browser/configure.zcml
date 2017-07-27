@@ -9,5 +9,5 @@
             name="ace-stickers"
     />
 
-  <include file="coc.zcml"/>
+  <include package=".coc"/>
 </configure>

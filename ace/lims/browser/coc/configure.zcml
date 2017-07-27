@@ -5,16 +5,16 @@
     xmlns:plone="http://namespaces.plone.org/plone"
     i18n_domain="ace.lims">
 
-   <plone:static
+    <plone:static
       directory="templates/coc"
       type="coc"
       name="ace.lims"
     />
 
     <browser:page
-      for="*"
+      for="bika.lims.interfaces.IAnalysisRequest"
       name="coc"
-      class="ace.lims.browser.coc.COC"
+      class=".coc.COC"
       permission="zope2.View"
       layer="ace.lims.interfaces.IACELIMS"
     />
