@@ -4,31 +4,65 @@
     /* Total width: 46mm + 2x1mm = 48mm */
     background: grey;
 }
-.title{
-    text-align: center;
-}
-.A4{
-    width: 210mm;
-    height: 1122px;
+.Letter{
+    width: 216mm;
+    height: 279mm;
     text-align: center;
     margin: 0 auto;
     background: white;
-    border: 1px solid red;
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+.A4{
+    width: 216mm;
+    height: 297mm;
+    text-align: center;
+    margin: 0 auto;
+    background: white;
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+.title{
+    margin-right: 150px;
+}
+.td_logo {
+    margin: 10px;
+    float: left;
+}
+.td_numbering {
+    float: right;
+    margin: 10px;
 }
 .footer{
     bottom: 0;
 }
 
 .coc_body{
-    margin: 0 70px 0px 70px;
-    border: 1px dashed #cdcdcd;
-    height: 94%;
+    margin: 40px 70px 40px 70px;
+    height: 85%;
 }
+.coc_body table{
+    border-spacing: 0;
+    border: 1px solid darkgrey;
+}
+.coc-items{
+    margin: 10px 0 10px 0;
+    border: 1px solid darkgrey;
+    border-spacing: 0;
+}
+.coc-transfers{
+    margin: 10px 0 10px 0;
+    border: 1px solid darkgrey;
+    border-spacing: 0;
+}
+
 table{
     width: 100%;
 }
 th, td{
-     border: 1px solid #dddddd;
+    border: 1px solid #dddddd;
+    padding: 0;
+    margin: 0;
 }
 td p{
     padding: 0;

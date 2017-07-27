@@ -2,8 +2,8 @@
     Default template used to render a coc
 -->
 <tal:sticker define="
-    portal_state      context/@@plone_portal_state;
-    portal_url        portal_state/portal_url;
+    lab_data          view/lab_data;
+    client_data       view/client_data;
     item              view/current_item;
     ar                python:item[0];
     ar_id             python:ar.getId() if ar else '';
@@ -26,100 +26,155 @@
     smart_id          python:part.getId() if show_partitions else sample.getId();
     hazardous         python:sample.getSampleType().getHazardous();">
 
-
-    <div class="A4">
-        <h1 class="title">Chain of Custody</h1>
-        <div class="coc_body">
-            <table cellpadding="0" cellspacing="0" border="0">
-                <tr class="grey_background">
-                    <th class='label' i18n:translate="" colspan="2">Client Information:</th>
-                    <th class='label' i18n:translate="">Project Information:</th>
-                    <th class='label' i18n:translate="" colspan="2">Lab Use Only:</th>
-                </tr>
-                <tr class="">
-                    <td class='label td_top' i18n:translate="">
-                           <p>Client:</p>
-                           <p style="padding-left:3px">hello</p>
-                   </td>
-                    <td class='label td_top' i18n:translate="">MME Registration Number:</td>
-                    <td class='label td_top' i18n:translate="">Site Contact:</td>
-                    <td class='label td_top' i18n:translate="" colspan="2">Lab Contact:</td>
-                </tr>
-                <tr class="">
-                    <td class='label td_top' i18n:translate="">
-                           <p>Profile:</p>
-                           <p style="padding-left:3px">hello</p>
-                   </td>
-                    <td class='label td_top' i18n:translate="">E-mail:</td>
-                    <td class='label td_top' i18n:translate="">Phone:</td>
-                    <td class='label td_top' i18n:translate="" style="width:12.5px">Email:</td>
-                    <td class='label td_top' i18n:translate="" style="width:12.5px">Phone:</td>
-                </tr>
-                <tr class="">
-                    <td class='label td_top' i18n:translate="">
-                           <p>Street Address:</p>
-                           <p style="padding-left:3px">hello</p>
-                   </td>
-                    <td class='label td_top' i18n:translate="">City, State, Zip:</td>
-                    <td class='label td_top' i18n:translate=""></td>
-                    <td class='label td_top' i18n:translate="" style="width:12.5px">Lab ID:</td>
-                    <td class='label td_top' i18n:translate="" style="width:12.5px">Lab Storage Location:</td>
-                </tr>
-            </table>
-            <table cellpadding="0" cellspacing="0" border="0" style="height:150px">
-            <tr>
-                <td>Item</td>
-                <td rowspan="2"> H1</td>
-                <td colspan="2">Collection</td>
-                <td>Analysis Required</td>
-                <td>Collection Weight</td>
-            </tr>
-            <tr>
-                <td>1</td>
-                <td>2</td>
-                <td>3</td>
-                <td>4</td>
-                <td>5</td>
-            </tr>
-            <tr>
-                <td>6</td>
-                <td>7</td>
-                <td>8</td>
-                <td>9</td>
-                <td>10</td>
-                <td>11</td>
-            </tr>
-            </table>
-            <table cellpadding="0" cellspacing="0" border="0">
-                <tr>
-                    <th colspan="7" style="text-align:left">Field Comment:</th>
-                </tr>
-                <tr>
-                    <td>Transfers:</td>
-                    <td>Relinquished By</td>
-                    <td>Date / Time</td>
-                    <td>Received By</td>
-                    <td>Date / Time</td>
-                    <td>Attestation Statement</td>
-                </tr>
-                <tr>
-                    <td>Transfers:</td>
-                    <td>Relinquished By</td>
-                    <td>Date / Time</td>
-                    <td>Received By</td>
-                    <td colspan="2">Date / Time</td>
-                </tr>
-                <tr>
-                    <td>Transfers:</td>
-                    <td>Relinquished By</td>
-                    <td>Date / Time</td>
-                    <td>Received By</td>
-                    <td colspan="2">Date / Time</td>
-                </tr>
-            </table>
-        </div>
-        <div class="footer">
-            Hello Footer
+<div class="Letter">
+    <div id="section-header" class="page-header">
+        <div id='lab-logo'>
+            <div class="table table_header" >
+                <div class="row">
+                    <div class="td_numbering">
+                        <div class="page-number">Page 1 of 1</div>
+                    </div> 
+                    <div class="td_logo">
+                        <img tal:attributes="src lab_data/logo"/>
+                    </div>
+                    <h1 class="title">Chain of Custody</h1>
+                </div>
+            </div>
         </div>
     </div>
+    <div class="coc_body">
+        <table>
+            <tr class="grey_background">
+                <th class='label' i18n:translate="" colspan="3">Client Information:</th>
+                <th class='label' i18n:translate="" colspan="2">Lab Use Only:</th>
+            </tr>
+            <tr class="">
+                <td class='label td_top' i18n:translate="">
+                       <p>Client:</p>
+                       <p style="padding-left:3px" tal:content="client_data/name">hello</p>
+               </td>
+                <td class='label td_top' i18n:translate="">
+                       <p>MME Registration Number:</p>
+                       <p>COMING SOON:</p>
+               </td>
+               <td class='label td_top' i18n:translate="">
+                       <p>Client Contact:</p>
+                       <p style="padding-left:3px"
+                            tal:condition="client_data/contact_name"
+                            tal:content="client_data/contact_name">hello</p>
+               </td>
+               <td class='label td_top' colspan="2" i18n:translate="">
+                       <p>Lab Contact:</p>
+                       <p style="padding-left:3px"
+                            tal:condition="lab_data/lab_manager"
+                            tal:content="lab_data/lab_manager">hello</p>
+               </td>
+            </tr>
+            <tr class="">
+                <td class='label td_top' i18n:translate="">
+                       <p>Profile:</p>
+                       <p style="padding-left:3px">PLEASE ADVISE</p>
+               </td>
+               <td class='label td_top' i18n:translate="">
+                       <p>Email Address:</p>
+                       <p style="padding-left:3px"
+                            tal:condition="client_data/contact_email"
+                            tal:content="client_data/contact_email">hello</p>
+               </td>
+               <td class='label td_top' i18n:translate="">
+                       <p>Phone:</p>
+                       <p style="padding-left:3px"
+                            tal:condition="client_data/phone"
+                            tal:content="client_data/phone">hello</p>
+               </td>
+               <td class='label td_top' i18n:translate="">
+                       <p>Email Address:</p>
+                       <p style="padding-left:3px"
+                            tal:condition="lab_data/email"
+                            tal:content="lab_data/email">hello</p>
+               </td>
+               <td class='label td_top' i18n:translate="">
+                       <p>Phone:</p>
+                       <p style="padding-left:3px"
+                            tal:condition="lab_data/phone"
+                            tal:content="lab_data/phone">hello</p>
+               </td>
+            </tr>
+            <tr class="">
+                <td class='label td_top' i18n:translate="">
+                       <p>Street Address:</p>
+                       <p style="padding-left:3px"
+                            tal:condition="client_data/street_part"
+                            tal:content="client_data/street_part">hello</p>
+               </td>
+                <td class='label td_top' i18n:translate="">
+                       <p>City, State, Zip:</p>
+                       <p style="padding-left:3px"
+                            tal:condition="client_data/city_part"
+                            tal:content="client_data/city_part">hello</p>
+               </td>
+                <td class='label td_top' i18n:translate=""></td>
+               <td class='label td_top' i18n:translate="">
+                       <p>Lab ID:</p>
+                       <p style="padding-left:3px"
+                            tal:condition="lab_data/lab_license_id"
+                            tal:content="lab_data/lab_license_id">hello</p>
+               </td>
+               <td class='label td_top' colspan="2" i18n:translate="">
+                       <p>Storage Location:</p>
+               </td>
+            </tr>
+        </table>
+        <table class="coc-items">
+        <tr>
+            <td rowspan="2">Item</td>
+            <td rowspan="2">Product & Strain</td>
+            <td colspan="3">Collection</td>
+            <td rowspan="2">Analysis Required</td>
+            <td colspan="2">Weight Sampled</td>
+        </tr>
+        <tr>
+            <td>Client Batch ID</td>
+            <td>Sampler</td>
+            <td>Date Sampled</td>
+            <td>At Client</td>
+            <td>At Lab</td>
+        </tr>
+        <tr tal:repeat="cnt python:range(5)">
+            <td tal:content="python:cnt+1"></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        </table>
+        <table class="coc-transfers">
+            <tr>
+                <th colspan="7" style="text-align:left">Field Comment:</th>
+            </tr>
+            <tr>
+                <td>Transfers:</td>
+                <td>Relinquished By</td>
+                <td>Date / Time</td>
+                <td>Received By</td>
+                <td>Date / Time</td>
+                <td>Attestation Statement</td>
+            </tr>
+            <tr tal:repeat="cnt python:range(3)">
+                <td tal:content="python:cnt+1"></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+    <div class="footer">
+        Hello Footer
+    </div>
+</div>
 </tal:sticker>

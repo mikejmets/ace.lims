@@ -10,6 +10,7 @@ from bika.lims import bikaMessageFactory as _, t
 from bika.lims import logger
 from bika.lims.browser import BrowserView
 from bika.lims.vocabularies import getStickerTemplates
+from bika.lims.utils import to_utf8, encode_header, attachPdf
 from plone.resource.utils import iterDirectoriesOfType, queryResourceDirectory
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 import glob, os, os.path, sys, traceback
@@ -25,6 +26,7 @@ class COC(BrowserView):
     template = ViewPageTemplateFile("templates/coc_preview.pt")
     item_index = 0
     current_item = None
+    lab_data = None
     rendered_items = []
 
     def __call__(self):
@@ -46,8 +48,56 @@ class COC(BrowserView):
             logger.warning("Cannot print coc: no items specified in request")
             self.request.response.redirect(self.context.absolute_url())
             return
-
+        
         return self.template()
+
+    def client_data(self):
+        client = self.context.aq_parent
+        contacts = client.getContacts()
+        contact_name = ''
+        contact_email = ''
+        if contacts:
+            contact = contacts[0]
+            contact_name = contact.Title()
+            contact_email = contact.getEmailAddress()
+        address = client.getPhysicalAddress()
+        adict = {'obj': client,
+                'name': to_utf8(client.getName()),
+                'phone': to_utf8(client.getPhone()),
+                'contact_name': to_utf8(contact_name),
+                'contact_email': to_utf8(contact_email),
+                'street_part': to_utf8(address['address']),
+                'city_part': to_utf8('{},{},{}'.format(address['city'],address['state'], address['zip'])),
+                }
+        return adict
+
+    def lab_data(self):
+        portal = self.context.portal_url.getPortalObject()
+        lab = self.context.bika_setup.laboratory
+        supervisor = lab.getLaboratorySupervisor()
+        bsc = getToolByName(self.context, "bika_setup_catalog")
+        labcontact = bsc(portal_type="LabContact", id=supervisor)
+        lab_manager = ''
+        if len(labcontact) == 1:
+            labcontact = labcontact[0].getObject()
+            lab_manager = to_utf8(labcontact.getFullname())
+
+        adict = {'obj': lab,
+                'title': to_utf8(lab.Title()),
+                'lab_license_id': to_utf8(lab.getLaboratoryLicenseID()),
+                'url': to_utf8(lab.getLabURL()),
+                'phone': to_utf8(lab.getPhone()),
+                'email': to_utf8(lab.getEmailAddress()),
+                'confidence': lab.getConfidence(),
+                'accredited': lab.getLaboratoryAccredited(),
+                'accreditation_body': to_utf8(lab.getAccreditationBody()),
+                'accreditation_logo': lab.getAccreditationBodyLogo(),
+                'logo': "%s/logo_print.png" % portal.absolute_url(),
+                'lab_manager': to_utf8(lab_manager),
+                'lab_manager': to_utf8(lab_manager),
+                }
+        return adict
+
 
     def _populateItems(self, item):
         """ Creates an wel-defined array for this item to make the sticker
@@ -104,7 +154,6 @@ class COC(BrowserView):
                  'title': <teamplate_title>,
                  'selected: True/False'}
         """
-        seltemplate = self.getSelectedTemplate()
         templates = []
         templates.append({'selected': True, 'id': 'coc.pt', 'title': 'COC'})
         #for temp in getStickerTemplates():
@@ -122,24 +171,26 @@ class COC(BrowserView):
             If no template selected but size param, get the sticker template
             set as default in Bika Setup for the size set.
         """
-        bs_template = self.context.bika_setup.getAutoStickerTemplate()
-        size = self.request.get('size', '')
-        if size == 'small':
-            bs_template = self.context.bika_setup.getSmallStickerTemplate()
-        elif size == 'large':
-            bs_template = self.context.bika_setup.getLargeStickerTemplate()
-        rq_template = self.request.get('template', bs_template)
-        # Check if the template exists. If not, fallback to default's
-        prefix = ''
-        if rq_template.find(':') >= 0:
-            prefix, rq_template = rq_template.split(':')
-            templates_dir = queryResourceDirectory('coc', prefix).directory
-        else:
-            this_dir = os.path.dirname(os.path.abspath(__file__))
-            templates_dir = os.path.join(this_dir, 'templates/coc/')
-        if not os.path.isfile(os.path.join(templates_dir, rq_template)):
-            rq_template = 'coc.pt'
-        return '%s:%s' % (prefix, rq_template) if prefix else rq_template
+        return 'coc.pt'
+        #bs_template = self.context.bika_setup.getAutoStickerTemplate()
+        #size = self.request.get('size', '')
+        #if size == 'small':
+        #    bs_template = self.context.bika_setup.getSmallStickerTemplate()
+        #elif size == 'large':
+        #    bs_template = self.context.bika_setup.getLargeStickerTemplate()
+        #rq_template = self.request.get('template', bs_template)
+        ## Check if the template exists. If not, fallback to default's
+        #prefix = ''
+        #import pdb; pdb.set_trace()
+        #if rq_template.find(':') >= 0:
+        #    prefix, rq_template = rq_template.split(':')
+        #    templates_dir = queryResourceDirectory('coc', prefix).directory
+        #else:
+        #    this_dir = os.path.dirname(os.path.abspath(__file__))
+        #    templates_dir = os.path.join(this_dir, 'templates/coc/')
+        #if not os.path.isfile(os.path.join(templates_dir, rq_template)):
+        #    rq_template = 'coc.pt'
+        #return '%s:%s' % (prefix, rq_template) if prefix else rq_template
 
     def getSelectedTemplateCSS(self):
         """ Looks for the CSS file from the selected template and return its
