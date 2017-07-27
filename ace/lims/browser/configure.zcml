@@ -9,4 +9,5 @@
             name="ace-stickers"
     />
 
+  <include file="coc.zcml"/>
 </configure>

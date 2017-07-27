@@ -1,0 +1,46 @@
+.sticker {
+    font-family: Helvetica, Arial;
+    font-size:6pt;
+    /* Total width: 46mm + 2x1mm = 48mm */
+    background: grey;
+}
+.title{
+    text-align: center;
+}
+.A4{
+    width: 210mm;
+    height: 1122px;
+    text-align: center;
+    margin: 0 auto;
+    background: white;
+    border: 1px solid red;
+}
+.footer{
+    bottom: 0;
+}
+
+.coc_body{
+    margin: 0 70px 0px 70px;
+    border: 1px dashed #cdcdcd;
+    height: 94%;
+}
+table{
+    width: 100%;
+}
+th, td{
+     border: 1px solid #dddddd;
+}
+td p{
+    padding: 0;
+    margin: 0;
+}
+.grey_background{
+    background: grey;
+}
+.td_top{
+    vertical-align: top;
+    text-align: left;
+    padding-left: 1px;
+    width: 25%;
+    
+}
