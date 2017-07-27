@@ -20,22 +20,8 @@
                         contact         analysisrequest/contact;
                         laboratory      analysisrequest/laboratory;
                         portal          analysisrequest/portal;
-                        sample          analysisrequest/sample;
-                        batch           analysisrequest/batch;
-                        analyses        analysisrequest/analyses;
-                        qcanalyses      analysisrequest/qcanalyses;
-                        specifications  analysisrequest/specifications;
-                        reporter        analysisrequest/reporter;
-                        pointsofcapture analysisrequest/points_of_capture;
-                        categories      analysisrequest/categories;
-                        categanalyses   analysisrequest/categorized_analyses;
-                        categqcanalyses analysisrequest/categorized_qcanalyses;
-                        hasqcanalyses   python:len(qcanalyses) &gt; 0;
-                        reportdrymatter analysisrequest/report_drymatter;
-                        hasprevresults  analysisrequest/haspreviousresults;
-                        showqcanalyses  python:view.isQCAnalysesVisible();
-                        coanr python:view.next_certificate_number();
-                        remarksenabled  python:view.context.bika_setup.getEnableAnalysisRemarks();">
+                        remarks         analysisrequest/remarks;
+                        coanr python:view.next_certificate_number();">
 
   <!--
        Page Header
@@ -58,7 +44,7 @@
                     <div class="td td_coa"> <h1>CERTIFICATE OF ANALYSIS</h1> </div>
                     <div class="td td_numbering">
                         <div class="page-number">Page <span class="page-current-num"></span> of <span class="page-total-count"></span></div>
-                        <p tal:content="string: TBConfirmed No. ${coanr}"/>
+                        <p tal:content="string: TBConfirmed No. ${coanr}"></p>
                     </div> 
                 </div>
             </div>
@@ -66,12 +52,15 @@
     </div>
 
 
-  <!-- Address and Lab info -->
+    <!-- Address and Lab info -->
     <div id="section-info">
+        <!-- Start of table -->
         <div class="table table_header" >
+            <!-- Start of row -->
             <div class="row">
+                <!-- Start of td -->
                 <div class="td" style="width: 50%">
-                    <!-- Client -->
+                    <!-- Start of table -->
                     <div class="table table_header" >
                         <div class="row">
                           <div class="td label" i18n:translate="">Laboratory License ID</div>
@@ -102,9 +91,13 @@
                           <div class="td" tal:content="analysisrequest/lot"> </div>
                         </div>
                     </div>
+                    <!-- End of table -->
                 </div>
+                <!-- End of td -->
+                <!-- Start of td -->
                 <div class="td" style="width: 50%">
                     <!-- Laboratory -->
+                    <!-- Start of table -->
                     <div class="table table_header" >
                         <div class="row">
                           <div class="td label" i18n:translate="">Laboratory</div>
@@ -123,30 +116,31 @@
                           <div class="td" tal:content="analysisrequest/date_received"> </div>
                         </div>
                     </div>
+                    <!-- End of table -->
                 </div>
+                <!-- End of td -->
             </div>
+            <!-- End of row -->
         </div>
         <!-- End of table -->
-
     </div>
     <!-- End of section-info -->
 
-  <!-- Alert section (invalidated ar, etc.) -->
-  <div id="section-alert" tal:condition="analysisrequest/invalid">
-    <h1 i18n:translate="">This Analysis Request has been invalidated due to erroneously published results</h1>
-    <tal:invalidreport tal:define="child python:analysisrequest['obj'].getChildAnalysisRequest()"
-                       tal:condition="child">
-      <span i18n:translate="">This Analysis request has been replaced by</span>&nbsp;
-      <a tal:attributes="href child/absolute_url"
-         tal:content="child/id"></a>
-    </tal:invalidreport>
-  </div>
-  <div id="section-alert" tal:condition="python:analysisrequest['prepublish']==True and analysisrequest['invalid']==False">
-    <h1 i18n:translate="">Provisional report</h1>
-  </div>
+    <!-- Alert section (invalidated ar, etc.) -->
+    <div id="section-alert" tal:condition="analysisrequest/invalid">
+        <h1 i18n:translate="">This Analysis Request has been invalidated due to erroneously published results</h1>
+        <tal:invalidreport tal:define="child python:analysisrequest['obj'].getChildAnalysisRequest()"
+                           tal:condition="child">
+            <span i18n:translate="">This Analysis request has been replaced by</span>&nbsp;
+            <a tal:attributes="href child/absolute_url" tal:content="child/id"></a>
+        </tal:invalidreport>
+    </div>
+    <div id="section-alert" tal:condition="python:analysisrequest['prepublish']==True and analysisrequest['invalid']==False">
+        <h1 i18n:translate="">Provisional report</h1>
+    </div>
 
-  <!-- Results section -->
-  <tal:def tal:define="transposed python:view.getARAnaysis(analysisrequest['obj']);
+    <!-- Results section -->
+    <tal:def tal:define="transposed python:view.getARAnaysis(analysisrequest['obj']);
                        cat_titles python:view.sorted_by_sort_key(transposed.keys());">
         <div class="an_table">
             <img class="ar-image" 
@@ -183,8 +177,29 @@
             </div>
         </tal:category>
 
-  </tal:def>
-      <div class='page-footer' style="height:60px">
+    </tal:def>
+    <div class="table remarks">
+        <div class="row">
+            <div class="td" tal:content="structure remarks"> </div>
+       </div>
+    </div>
+    <div class="table remarks">
+        <div class="row">
+            <div class="td" tal:content="structure remarks"> </div>
+       </div>
+    </div>
+  <div id="section-resultsinterpretation"
+       tal:define="ri python:dict([(k,v) for (k,v) in analysisrequest.get('resultsinterpretationdepts',{}).items() if v and v.get('richtext','')]);"
+       tal:condition="python: ri">
+    <h1 i18n:translate="">Results interpretation</h1>
+    <tal:ris repeat="rid python:ri.keys()">
+      <h2 tal:content="rid" tal:condition="rid"></h2>
+      <div tal:content="structure python:ri.get(rid,{}).get('richtext','')"></div>
+      <p>&nbsp;</p>
+    </tal:ris>
+  </div>
+
+    <div class='page-footer' style="height:60px">
         <div class="lab-manager">
             <img class="signature"
                 tal:condition="laboratory/signature"
@@ -195,17 +210,16 @@
             <div class="lab-manager-terms">
                 This signature indicate the above material has been reviewed and verified
             </div>
-              
         </div>
         <table style="width:100%; text-align:center">
-         <tr>
-            <td tal:content="laboratory/phone"/>
-            <td id="" tal:content='structure laboratory/address'></td>
-            <td>
-              <a tal:content="laboratory/email"
-                 tal:attributes="url python:'mailto:%s' % laboratory['email']"/>
-            </td>
-         </tr>
+            <tr>
+                <td tal:content="laboratory/phone"></td>
+                <td id="" tal:content='structure laboratory/address'></td>
+                <td>
+                  <a tal:content="laboratory/email"
+                     tal:attributes="url python:'mailto:%s' % laboratory['email']"></a>
+                </td>
+            </tr>
         </table>
-      </div>
+    </div>
 </tal:report>
