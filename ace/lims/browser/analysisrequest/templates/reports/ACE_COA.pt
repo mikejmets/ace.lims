@@ -20,8 +20,6 @@
                         contact         analysisrequest/contact;
                         laboratory      analysisrequest/laboratory;
                         portal          analysisrequest/portal;
-                        sample          analysisrequest/sample;
-                        batch           analysisrequest/batch;
                         remarks         analysisrequest/remarks;
                         coanr python:view.next_certificate_number();">
 
