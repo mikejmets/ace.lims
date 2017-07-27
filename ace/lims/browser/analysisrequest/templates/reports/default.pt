@@ -83,11 +83,11 @@
                         </div>
                         <div class="row">
                           <div class="td label" i18n:translate="">MME ID</div>
-                          <div class="td">To be confirmed</div>
+                          <div class="td" tal:content="python:analysisrequest['mme_id']">To be confirmed</div>
                         </div>
                         <div class="row">
                           <div class="td label" i18n:translate="">State ID</div>
-                          <div class="td">To be confirmed</div>
+                          <div class="td" tal:content="python:analysisrequest['state_id']">To be confirmed</div>
                         </div>
                         <div class="row">
                           <div class="td label" i18n:translate="">Strain</div>
