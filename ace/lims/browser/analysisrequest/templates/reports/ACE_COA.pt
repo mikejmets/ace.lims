@@ -22,20 +22,8 @@
                         portal          analysisrequest/portal;
                         sample          analysisrequest/sample;
                         batch           analysisrequest/batch;
-                        analyses        analysisrequest/analyses;
-                        qcanalyses      analysisrequest/qcanalyses;
-                        specifications  analysisrequest/specifications;
-                        reporter        analysisrequest/reporter;
-                        pointsofcapture analysisrequest/points_of_capture;
-                        categories      analysisrequest/categories;
-                        categanalyses   analysisrequest/categorized_analyses;
-                        categqcanalyses analysisrequest/categorized_qcanalyses;
-                        hasqcanalyses   python:len(qcanalyses) &gt; 0;
-                        reportdrymatter analysisrequest/report_drymatter;
-                        hasprevresults  analysisrequest/haspreviousresults;
-                        showqcanalyses  python:view.isQCAnalysesVisible();
-                        coanr python:view.next_certificate_number();
-                        remarksenabled  python:view.context.bika_setup.getEnableAnalysisRemarks();">
+                        remarks         analysisrequest/remarks;
+                        coanr python:view.next_certificate_number();">
 
   <!--
        Page Header
@@ -192,11 +180,26 @@
         </tal:category>
 
     </tal:def>
-    <div class="table an_table" >
+    <div class="table remarks">
         <div class="row">
             <div class="td" tal:content="structure remarks"> </div>
        </div>
     </div>
+    <div class="table remarks">
+        <div class="row">
+            <div class="td" tal:content="structure remarks"> </div>
+       </div>
+    </div>
+  <div id="section-resultsinterpretation"
+       tal:define="ri python:dict([(k,v) for (k,v) in analysisrequest.get('resultsinterpretationdepts',{}).items() if v and v.get('richtext','')]);"
+       tal:condition="python: ri">
+    <h1 i18n:translate="">Results interpretation</h1>
+    <tal:ris repeat="rid python:ri.keys()">
+      <h2 tal:content="rid" tal:condition="rid"></h2>
+      <div tal:content="structure python:ri.get(rid,{}).get('richtext','')"></div>
+      <p>&nbsp;</p>
+    </tal:ris>
+  </div>
 
     <div class='page-footer' style="height:60px">
         <div class="lab-manager">
