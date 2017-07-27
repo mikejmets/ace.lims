@@ -1,0 +1,80 @@
+.sticker {
+    font-family: Helvetica, Arial;
+    font-size:6pt;
+    /* Total width: 46mm + 2x1mm = 48mm */
+    background: grey;
+}
+.Letter{
+    width: 216mm;
+    height: 279mm;
+    text-align: center;
+    margin: 0 auto;
+    background: white;
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+.A4{
+    width: 216mm;
+    height: 297mm;
+    text-align: center;
+    margin: 0 auto;
+    background: white;
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+.title{
+    margin-right: 150px;
+}
+.td_logo {
+    margin: 10px;
+    float: left;
+}
+.td_numbering {
+    float: right;
+    margin: 10px;
+}
+.footer{
+    bottom: 0;
+}
+
+.coc_body{
+    margin: 40px 70px 40px 70px;
+    height: 85%;
+}
+.coc_body table{
+    border-spacing: 0;
+    border: 1px solid darkgrey;
+}
+.coc-items{
+    margin: 10px 0 10px 0;
+    border: 1px solid darkgrey;
+    border-spacing: 0;
+}
+.coc-transfers{
+    margin: 10px 0 10px 0;
+    border: 1px solid darkgrey;
+    border-spacing: 0;
+}
+
+table{
+    width: 100%;
+}
+th, td{
+    border: 1px solid #dddddd;
+    padding: 0;
+    margin: 0;
+}
+td p{
+    padding: 0;
+    margin: 0;
+}
+.grey_background{
+    background: grey;
+}
+.td_top{
+    vertical-align: top;
+    text-align: left;
+    padding-left: 1px;
+    width: 25%;
+    
+}

@@ -112,6 +112,11 @@ class AnalysisRequestPublishView(ARPV):
         if strains:
              strain = strains[0].Title
 
+        mme_id = state_id = ''
+        client_state_lincense_id = ar.getClientStateLicenseID().split(',')
+        if len(client_state_lincense_id) == 4:
+            mme_id = client_state_lincense_id[1] #LicenseID
+            state_id = client_state_lincense_id[2] #LicenseNumber
         data = {'obj': ar,
                 'id': ar.getRequestID(),
                 #'client_order_num': ar.getClientOrderNumber(),
@@ -148,7 +153,9 @@ class AnalysisRequestPublishView(ARPV):
                 'resultsinterpretation':ar.getResultsInterpretation(),
                 'ar_attachments': self._get_ar_attachments(ar),
                 'an_attachments': self._get_an_attachments(ar),
-                'attachment_src': None,}
+                'attachment_src': None,
+                'mme_id': mme_id,
+                'state_id': state_id,}
 
         # Sub-objects
         excludearuids.append(ar.UID())
@@ -505,6 +512,10 @@ class AnalysisRequestPublishView(ARPV):
             )
             report.unmarkCreationFlag()
             renameAfterCreation(report)
+            # Set blob properties for fields containing file data
+            fld = report.getField('Pdf')
+            fld.get(report).setFilename(pdf_fn+ ".pdf")
+            fld.get(report).setContentType('application/pdf')
 
             # Set status to prepublished/published/republished
             status = wf.getInfoFor(ar, 'review_state')
