@@ -55,7 +55,7 @@
                </td>
                 <td class='label td_top' i18n:translate="">
                        <p>MME Registration Number:</p>
-                       <p>COMING SOON:</p>
+                       <p style="padding-left:3px" tal:content="client_data/mme_id">hello</p>
                </td>
                <td class='label td_top' i18n:translate="">
                        <p>Client Contact:</p>

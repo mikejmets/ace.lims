@@ -61,6 +61,12 @@ class COC(BrowserView):
             contact_name = contact.Title()
             contact_email = contact.getEmailAddress()
         address = client.getPhysicalAddress()
+        mme_id = state_id = ''
+        client_state_lincense_id = \
+                self.context.getClientStateLicenseID().split(',')
+        if len(client_state_lincense_id) == 4:
+            mme_id = client_state_lincense_id[1] #LicenseID
+            state_id = client_state_lincense_id[2] #LicenseNumber
         adict = {'obj': client,
                 'name': to_utf8(client.getName()),
                 'phone': to_utf8(client.getPhone()),
@@ -68,6 +74,7 @@ class COC(BrowserView):
                 'contact_email': to_utf8(contact_email),
                 'street_part': to_utf8(address['address']),
                 'city_part': to_utf8('{},{},{}'.format(address['city'],address['state'], address['zip'])),
+                'mme_id': mme_id,
                 }
         return adict
 
