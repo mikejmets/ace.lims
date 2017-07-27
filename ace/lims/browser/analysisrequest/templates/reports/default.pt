@@ -170,9 +170,9 @@
                                    class="accredited-ico"/>
                         </span>
                         <span class="td unit"
-                          tal:content="python:transposed[cat_title][service_title]['service'].getUnit()"></span>
+                          tal:content="python:transposed[cat_title][service_title]['unit']"></span>
                         <span class="td result"
-                          tal:content="structure python:transposed[cat_title][service_title]['ars'].get(analysisrequest['obj'].id,'')"/>
+                          tal:content="structure python:transposed[cat_title][service_title]['ars']"/>
                     </div>
                 </tal:cat_analyses>
                 <tal:cat_data tal:repeat="data python:sorted(transposed[cat_title].keys())">
