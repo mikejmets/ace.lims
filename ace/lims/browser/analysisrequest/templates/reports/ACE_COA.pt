@@ -137,7 +137,6 @@
             <!-- End of row -->
         </div>
         <!-- End of table -->
-
     </div>
     <!-- End of section-info -->
 
@@ -154,8 +153,8 @@
         <h1 i18n:translate="">Provisional report</h1>
     </div>
 
-  <!-- Results section -->
-  <tal:def tal:define="transposed python:view.getARAnaysis(analysisrequest['obj']);
+    <!-- Results section -->
+    <tal:def tal:define="transposed python:view.getARAnaysis(analysisrequest['obj']);
                        cat_titles python:view.sorted_by_sort_key(transposed.keys());">
         <div class="an_table">
             <img class="ar-image" 
@@ -192,7 +191,13 @@
             </div>
         </tal:category>
 
-  </tal:def>
+    </tal:def>
+    <div class="table an_table" >
+        <div class="row">
+            <div class="td" tal:content="structure remarks"> </div>
+       </div>
+    </div>
+
     <div class='page-footer' style="height:60px">
         <div class="lab-manager">
             <img class="signature"
