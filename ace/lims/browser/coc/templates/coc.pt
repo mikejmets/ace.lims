@@ -1,0 +1,185 @@
+<!--
+    Default template used to render a coc
+-->
+<tal:coc define="
+    lab_data          view/lab_data;
+    client_data       view/client_data;
+    ar_data           view/ar_data;
+    ">
+<div class="Letter">
+    <div class="coc_body">
+        <div id="section-header" class="page-header">
+            <div id='lab-logo'>
+                <div class="table table_header" >
+                    <div class="row">
+                        <div class="td_logo">
+                            <img tal:attributes="src lab_data/logo"/>
+                        </div>
+                        <p tal:content="lab_data/name"/>
+                        <p tal:content="lab_data/address"/>
+                        <h1 class="title">Chain of Custody</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <table>
+            <tr class="grey_background">
+                <th class='label' i18n:translate="" colspan="2">Client Information</th>
+                <th class='label' i18n:translate="" colspan="1">Project Information</th>
+                <th class='label' i18n:translate="" colspan="2">Lab Use Only</th>
+            </tr>
+            <tr class="">
+                <td class='label td_top' i18n:translate="">
+                       <p>Client:</p>
+                       <p style="padding-left:3px" tal:content="client_data/name">hello</p>
+               </td>
+                <td class='label td_top' i18n:translate="">
+                       <p>ME ID:</p>
+                       <p style="padding-left:3px"
+                             tal:condition="ar_data"
+                             tal:content="python:ar_data[0]['lic_id']">hello</p>
+               </td>
+               <td class='label td_top' i18n:translate="">
+                       <p>Customer Contact:</p>
+                       <p style="padding-left:3px"
+                            tal:condition="client_data/contact_name"
+                            tal:content="client_data/contact_name">hello</p>
+               </td>
+               <td class='label td_top' colspan="2" i18n:translate="">
+                       <p>Lab Contact:</p>
+                       <p style="padding-left:3px"
+                            tal:condition="lab_data/lab_manager"
+                            tal:content="lab_data/lab_manager">hello</p>
+               </td>
+            </tr>
+            <tr class="">
+                <td class='label td_top' i18n:translate="">
+                       <p>State ID:</p>
+                       <p style="padding-left:3px"
+                             tal:condition="ar_data"
+                             tal:content="python:ar_data[0]['state_id']">hello</p>
+               </td>
+               <td class='label td_top' i18n:translate="">
+                       <p>Email Address:</p>
+                       <p style="padding-left:3px"
+                            tal:condition="client_data/contact_email"
+                            tal:content="client_data/contact_email">hello</p>
+               </td>
+               <td class='label td_top' i18n:translate="">
+                       <p>Site Contact:</p>
+                       <p style="padding-left:3px"
+                            tal:condition="client_data/contact_name"
+                            tal:content="client_data/contact_name">hello</p>
+               </td>
+               <td class='label td_top' style="width:200px" i18n:translate="">
+                       <p>Email Address:</p>
+                       <p style="padding-left:3px"
+                            tal:condition="lab_data/email"
+                            tal:content="lab_data/email">hello</p>
+               </td>
+               <td class='label td_top' style="width:200px" i18n:translate="">
+                       <p>Phone:</p>
+                       <p style="padding-left:3px"
+                            tal:condition="lab_data/phone"
+                            tal:content="lab_data/phone">hello</p>
+               </td>
+            </tr>
+            <tr class="">
+                <td class='label td_top' i18n:translate="">
+                       <p>Street Address:</p>
+                       <p style="padding-left:3px"
+                            tal:condition="client_data/street_part"
+                            tal:content="client_data/street_part">hello</p>
+               </td>
+                <td class='label td_top' i18n:translate="">
+                       <p>City, State, Zip:</p>
+                       <p style="padding-left:3px"
+                            tal:condition="client_data/city_part"
+                            tal:content="client_data/city_part">hello</p>
+               </td>
+               <td class='label td_top' i18n:translate="">
+                       <p>Phone:</p>
+                       <p style="padding-left:3px"
+                            tal:condition="client_data/phone"
+                            tal:content="client_data/phone">hello</p>
+               </td>
+               <td colspan="2" class='label td_top' i18n:translate="">
+                       <p>Lab ID:</p>
+                       <p style="padding-left:3px"
+                            tal:condition="lab_data/lab_license_id"
+                            tal:content="lab_data/lab_license_id">hello</p>
+               </td>
+            </tr>
+        </table>
+        <table class="coc-items">
+            <tr class="coc-table-header">
+                <td rowspan="2">Item</td>
+                <td rowspan="2">Sample ID & Strain</td>
+                <td rowspan="2">Batch</td>
+                <td colspan="3">Collection</td>
+                <td colspan="2">Collection Weight</td>
+            </tr>
+            <tr class="coc-table-header">
+                <td>Collector's Name</td>
+                <td>Client Contact</td>
+                <td>Date & Time</td>
+                <td>Collection Site</td>
+                <td>Laboratory</td>
+            </tr>
+            <tr tal:repeat="ar ar_data">
+                <td tal:content="repeat/ar/number"></td>
+                <td tal:content="ar/title" style="text-align:left"></td>
+                <td tal:content="ar/batch" style="text-align:left"></td>
+                <td tal:content="ar/sampler" style="text-align:left"></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr tal:repeat="cnt python:range(10-len(ar_data))">
+                <td tal:content="python:cnt+len(ar_data)+1"></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <th id="coc-comment" colspan="8">Field Comments:</th>
+            </tr>
+        </table>
+        <table class="coc-transfers">
+            <tr class="coc-table-header">
+                <td style="width:20px">Transfers</td>
+                <td style="width:100px">Relinquished By</td>
+                <td style="width:50px">Date/Time</td>
+                <td style="width:100px">Received By</td>
+                <td style="width:50px">Date/Time</td>
+                <td>Attestation Statement</td>
+            </tr>
+            <tr tal:repeat="cnt python:range(3)">
+                <td tal:content="python:cnt+1"></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <tal:if tal:condition="not:repeat/cnt/index">
+                    <td id="coc-attest" rowspan="3"
+                        tal:content="client_data/attest" />
+                </tal:if>
+            </tr>
+            <tr>
+                <td id="coc-comment" rowspan="2" colspan="5">Lab Comments:</td>
+                <td style="text-align:left">Signature/Date:</td>
+            </tr>
+            <tr>
+                <td style="text-align:left" >Printed Name:</td>
+            </tr>
+        </table>
+    </div>
+    <div class="footer">
+    </div>
+</div>
+</tal:coc>

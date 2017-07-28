@@ -34,7 +34,7 @@ class COC(BrowserView):
         bc = getToolByName(self.context, 'bika_catalog')
         items = self.request.get('items', '')
         if items:
-            self.items = [o.getObject() for o in bc(id=items.split(","))]
+            self.items = [o.getObject() for o in bc(UID=items.split(","))]
         else:
             self.items = [self.context,]
 
@@ -51,8 +51,30 @@ class COC(BrowserView):
         
         return self.template()
 
+    def ar_data(self):
+        ars = []
+        for item in self.items:
+            ar = item[0]
+            client_state_id_lst = \
+                    ar.getClientStateLicenseID().split(',')
+            sample = ar.getSample()
+            strain = ''
+            bsc =  self.bika_setup_catalog
+            strains = bsc(UID=ar.getSample()['Strain'])
+            if strains:
+                 strain = strains[0].Title
+            adict = {
+                    'lic_id': client_state_id_lst[1],
+                    'state_id': client_state_id_lst[2],
+                    'title': '{} - {}'.format(sample.Title(), strain),
+                    'batch': ar['CultivationBatch'],
+                    'sampler': ar.getSampler(),
+                    }
+            ars.append(adict)
+        return ars
+
     def client_data(self):
-        client = self.context.aq_parent
+        client = self.context
         contacts = client.getContacts()
         contact_name = ''
         contact_email = ''
@@ -61,12 +83,7 @@ class COC(BrowserView):
             contact_name = contact.Title()
             contact_email = contact.getEmailAddress()
         address = client.getPhysicalAddress()
-        mme_id = state_id = ''
-        client_state_lincense_id = \
-                self.context.getClientStateLicenseID().split(',')
-        if len(client_state_lincense_id) == 4:
-            mme_id = client_state_lincense_id[1] #LicenseID
-            state_id = client_state_lincense_id[2] #LicenseNumber
+        attest = self.context.bika_setup.getCOCAttestationStatement()
         adict = {'obj': client,
                 'name': to_utf8(client.getName()),
                 'phone': to_utf8(client.getPhone()),
@@ -74,7 +91,7 @@ class COC(BrowserView):
                 'contact_email': to_utf8(contact_email),
                 'street_part': to_utf8(address['address']),
                 'city_part': to_utf8('{},{},{}'.format(address['city'],address['state'], address['zip'])),
-                'mme_id': mme_id,
+                'attest': to_utf8(attest),
                 }
         return adict
 
@@ -89,9 +106,13 @@ class COC(BrowserView):
             labcontact = labcontact[0].getObject()
             lab_manager = to_utf8(labcontact.getFullname())
 
-        adict = {'obj': lab,
+        address = lab.getPhysicalAddress()
+        address = ', '.join((address['address'],
+                address['city'],address['state'], address['zip']))
+        adict = {
                 'title': to_utf8(lab.Title()),
                 'lab_license_id': to_utf8(lab.getLaboratoryLicenseID()),
+                'name': to_utf8(lab.getName()),
                 'url': to_utf8(lab.getLabURL()),
                 'phone': to_utf8(lab.getPhone()),
                 'email': to_utf8(lab.getEmailAddress()),
@@ -101,7 +122,7 @@ class COC(BrowserView):
                 'accreditation_logo': lab.getAccreditationBodyLogo(),
                 'logo': "%s/logo_print.png" % portal.absolute_url(),
                 'lab_manager': to_utf8(lab_manager),
-                'lab_manager': to_utf8(lab_manager),
+                'address': to_utf8(address),
                 }
         return adict
 
@@ -188,7 +209,6 @@ class COC(BrowserView):
         #rq_template = self.request.get('template', bs_template)
         ## Check if the template exists. If not, fallback to default's
         #prefix = ''
-        #import pdb; pdb.set_trace()
         #if rq_template.find(':') >= 0:
         #    prefix, rq_template = rq_template.split(':')
         #    templates_dir = queryResourceDirectory('coc', prefix).directory
@@ -217,7 +237,7 @@ class COC(BrowserView):
                 content = resource.readFile(css)
         else:
             this_dir = os.path.dirname(os.path.abspath(__file__))
-            templates_dir = os.path.join(this_dir, 'templates/coc/')
+            templates_dir = os.path.join(this_dir, 'templates/')
             path = '%s/%s.css' % (templates_dir, template[:-3])
             if os.path.isfile(path):
                 with open(path, 'r') as content_file:
@@ -246,7 +266,7 @@ class COC(BrowserView):
             bika.lims' Code_128_1x48mm.pt template (was sticker_small.pt).
         """
         curritem = self.nextItem()
-        templates_dir = 'templates/coc'
+        templates_dir = 'templates'
         embedt = self.getSelectedTemplate()
         if embedt.find(':') >= 0:
             prefix, embedt = embedt.split(':')

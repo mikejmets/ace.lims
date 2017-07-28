@@ -92,7 +92,7 @@
         @media print {
             body {background-color:#fff;}
             #sticker-preview-header {display:none !important;}
-            #stickers-wrapper { margin:0;}
+            #coc-wrapper { margin:0;}
             .sticker {
               margin:0;
               border:none;
@@ -122,11 +122,11 @@
             $('#sticker-rule').fadeIn();
 
             /**
-             * Re-loads the stickers preview by using the template specified
+             * Re-loads the coc preview by using the template specified
              */
             function reload(template) {
                 var baseurl = $('body').attr('data-itemsurl');
-                $('#stickers-wrapper').fadeTo('fast', 0.4);
+                $('#coc-wrapper').fadeTo('fast', 0.4);
                 $.ajax({
                     url: baseurl,
                     type: 'POST',
@@ -135,9 +135,9 @@
                 })
                 .always(function(data) {
                     var htmldata = data;
-                    htmldata = $(htmldata).find('#stickers-wrapper').html();
-                    $('#stickers-wrapper').html(htmldata);
-                    $('#stickers-wrapper').fadeTo('fast', 1);
+                    htmldata = $(htmldata).find('#coc-wrapper').html();
+                    $('#coc-wrapper').html(htmldata);
+                    $('#coc-wrapper').fadeTo('fast', 1);
                     // reload barcoding
                     bika.lims.BarcodeUtils.load();
                     var stickwidth = $('.sticker').first().width();
@@ -177,16 +177,11 @@
             </div>
         </div>
 
-        <!-- Container where all the stickers are embedded. -->
-        <div id="stickers-wrapper">
-            <style id='stickers-style' type="text/css" tal:content="structure python:view.getSelectedTemplateCSS()"></style>
-            <tal:stickers repeat="sticker view/items">
-            <tal:sticker define="partid python:sticker[2].getId() if sticker else None;"
-                         condition="python:not partid or partid not in view.rendered_items">
+        <!-- Container where all the coc are embedded. -->
+        <div id="coc-wrapper">
+            <style id='coc-style' type="text/css" tal:content="structure python:view.getSelectedTemplateCSS()"></style>
             <div class='sticker'
                  tal:content='structure python:view.renderItem()'></div>
-            </tal:sticker>
-            </tal:stickers>
         </div>
     </div>
 </body>

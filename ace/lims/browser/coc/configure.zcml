@@ -6,13 +6,13 @@
     i18n_domain="ace.lims">
 
     <plone:static
-      directory="templates/coc"
+      directory="templates"
       type="coc"
       name="ace.lims"
     />
 
     <browser:page
-      for="bika.lims.interfaces.IAnalysisRequest"
+      for="bika.lims.interfaces.IClient"
       name="coc"
       class=".coc.COC"
       permission="zope2.View"
