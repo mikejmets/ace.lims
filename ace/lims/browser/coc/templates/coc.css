@@ -1,17 +1,16 @@
-.sticker {
+.coc {
     font-family: Helvetica, Arial;
-    font-size:6pt;
     /* Total width: 46mm + 2x1mm = 48mm */
     background: grey;
 }
 .Letter{
-    width: 216mm;
-    height: 279mm;
+    height: 216mm;
+    width: 279mm;
     text-align: center;
     margin: 0 auto;
     background: white;
-    border: 1px solid black;
     border-collapse: collapse;
+    font-size: 8pt;
 }
 .A4{
     width: 216mm;
@@ -19,7 +18,6 @@
     text-align: center;
     margin: 0 auto;
     background: white;
-    border: 1px solid black;
     border-collapse: collapse;
 }
 .title{
@@ -61,8 +59,9 @@ table{
 }
 th, td{
     border: 1px solid #dddddd;
-    padding: 0;
+    padding: 0 0 0 5px;
     margin: 0;
+    height: 20px;
 }
 td p{
     padding: 0;
@@ -76,5 +75,21 @@ td p{
     text-align: left;
     padding-left: 1px;
     width: 25%;
-    
+}
+#coc-comment {
+    padding: 5px;
+    text-align: left;
+    vertical-align: top;
+    height:40px;
+}
+tr.coc-table-header td {
+    font-weight: bold;
+}
+.label {
+    background-color: white;
+}
+#coc-attest{
+    width: 300px;
+    text-align: left;
+    vertical-align: top;
 }
