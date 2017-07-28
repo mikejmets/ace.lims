@@ -197,6 +197,9 @@
 .row { display:table-row; }
 .th { display:table-cell; font-weight:bold; }
 .td { display:table-cell; }
+.remarks{
+    width:100% !important;
+    bottom: 90px}
 .table_header{
     width: 100%;
     padding: 0;
