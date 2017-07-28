@@ -15,9 +15,9 @@
                         <div class="td_logo">
                             <img tal:attributes="src lab_data/logo"/>
                         </div>
-                        <p tal:content="lab_data/name"/>
-                        <p tal:content="lab_data/address"/>
-                        <h1 class="title">Chain of Custody</h1>
+                        <p class="coc-centre" tal:content="lab_data/name"/>
+                        <p class="coc-centre" tal:content="lab_data/address"/>
+                        <h1 class="coc-centre">Chain of Custody</h1>
                     </div>
                 </div>
             </div>

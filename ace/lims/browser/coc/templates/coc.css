@@ -20,16 +20,12 @@
     background: white;
     border-collapse: collapse;
 }
-.title{
+.coc-centre{
     margin-right: 150px;
 }
 .td_logo {
     margin: 10px;
     float: left;
-}
-.td_numbering {
-    float: right;
-    margin: 10px;
 }
 .footer{
     bottom: 0;
