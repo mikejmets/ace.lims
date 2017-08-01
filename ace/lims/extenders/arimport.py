@@ -104,7 +104,8 @@ class ARImportSchemaModifier(object):
         if "Strain" not in temp_var:
             temp_var.append("Strain")
         dgf.columns = tuple(temp_var)
-        dgf.widget.columns["Strain"] = Column('Strain')
+        dgf.widget.columns["Strain"] = SelectColumn(
+                                    'Strain', vocabulary='Vocabulary_Strain')
 
         return schema
 
