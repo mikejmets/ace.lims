@@ -26,68 +26,6 @@ from Products.DataGridField import LinesColumn
 from Products.DataGridField import SelectColumn
 from Products.DataGridField import TimeColumn
 
-#class ARImportSchemaExtender(object):
-#    adapts(IARImport)
-#    implements(IOrderableSchemaExtender)
-#
-#    fields = [
-#        DataGridField(
-#            'SampleData',
-#            allow_insert=True,
-#            allow_delete=True,
-#            allow_reorder=False,
-#            allow_empty_rows=False,
-#            allow_oddeven=True,
-#            columns=('ClientSampleID',
-#                     'SamplingDate',
-#                     'DateSampled',
-#                     'Sampler',
-#                     'Lot',
-#                     'SamplePoint',
-#                     'SampleMatrix',
-#                     'SampleType',  # not a schema field!
-#                     'ContainerType',  # not a schema field!
-#                     'ReportDryMatter',
-#                     'Priority',
-#                     'Analyses',  # not a schema field!
-#                     'Profiles'  # not a schema field!
-#                     ),
-#            widget=DataGridWidget(
-#                label=_('Samples'),
-#                columns={
-#                    'ClientSampleID': Column('Sample ID'),
-#                    'SamplingDate': DateColumn('Sampling Date'),
-#                    'DateSampled': DatetimeColumn('Date Sampled'),
-#                    'Sampler': Column('Sampler'),
-#                    'Lot': Column('Lot'),
-#                    'SamplePoint': SelectColumn(
-#                        'Sample Point', vocabulary='Vocabulary_SamplePoint'),
-#                    'SampleMatrix': SelectColumn(
-#                        'Sample Matrix', vocabulary='Vocabulary_SampleMatrix'),
-#                    'SampleType': SelectColumn(
-#                        'Sample Type', vocabulary='Vocabulary_SampleType'),
-#                    'ContainerType': SelectColumn(
-#                        'Container', vocabulary='Vocabulary_ContainerType'),
-#                    'ReportDryMatter': CheckboxColumn('Dry'),
-#                    'Priority': SelectColumn(
-#                        'Priority', vocabulary='Vocabulary_Priority'),
-#                    'Analyses': LinesColumn('Analyses'),
-#                    'Profiles': LinesColumn('Profiles'),
-#                }
-#            )
-#        )
-#
-#    ]
-#
-#    def __init__(self, context):
-#        self.context = context
-#
-#    def getOrder(self, schematas):
-#        return schematas
-#
-#    def getFields(self):
-#        return self.fields
-
 class ARImportSchemaModifier(object):
     adapts(IARImport)
     implements(ISchemaModifier)
