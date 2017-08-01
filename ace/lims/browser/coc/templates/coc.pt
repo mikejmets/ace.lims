@@ -172,10 +172,13 @@
             </tr>
             <tr>
                 <td id="coc-comment" rowspan="2" colspan="5">Lab Comments:</td>
-                <td style="text-align:left">Signature/Date:</td>
+                <td style="text-align:left">
+                    <img class="signature" tal:condition="lab_data/signature" tal:attributes="src lab_data/signature"/>
+                    <span style="text-align:right !important" tal:content="lab_data/today">Signature/Date:</span>
+                </td>
             </tr>
             <tr>
-                <td style="text-align:left" >Printed Name:</td>
+                <td style="text-align:left" tal:content="lab_data/lab_manager">Printed Name:</td>
             </tr>
         </table>
     </div>
