@@ -37,7 +37,7 @@
                        <p>ME ID:</p>
                        <p style="padding-left:3px"
                              tal:condition="ar_data"
-                             tal:content="python:ar_data[0]['lic_id']">hello</p>
+                             tal:content="python:ar_data[0]['state_id']">hello</p>
                </td>
                <td class='label td_top' i18n:translate="">
                        <p>Customer Contact:</p>
@@ -57,7 +57,7 @@
                        <p>State ID:</p>
                        <p style="padding-left:3px"
                              tal:condition="ar_data"
-                             tal:content="python:ar_data[0]['state_id']">hello</p>
+                             tal:content="python:ar_data[0]['lic_id']">hello</p>
                </td>
                <td class='label td_top' i18n:translate="">
                        <p>Email Address:</p>
@@ -115,7 +115,8 @@
             <tr class="coc-table-header">
                 <td rowspan="2">Item</td>
                 <td rowspan="2">Sample ID & Strain</td>
-                <td rowspan="2">Batch</td>
+                <td rowspan="2" style="width:140px">Batch</td>
+                <td rowspan="2" style="width:30px">Lot</td>
                 <td colspan="3">Collection</td>
                 <td colspan="2">Collection Weight</td>
             </tr>
@@ -130,6 +131,7 @@
                 <td tal:content="repeat/ar/number"></td>
                 <td tal:content="ar/title" style="text-align:left"></td>
                 <td tal:content="ar/batch" style="text-align:left"></td>
+                <td tal:content="ar/lot" style="text-align:left"></td>
                 <td tal:content="ar/sampler" style="text-align:left"></td>
                 <td></td>
                 <td></td>
@@ -138,6 +140,7 @@
             </tr>
             <tr tal:repeat="cnt python:range(10-len(ar_data))">
                 <td tal:content="python:cnt+len(ar_data)+1"></td>
+                <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
