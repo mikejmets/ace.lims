@@ -9,4 +9,6 @@
 
     <adapter name='ace.lims' factory=".sample.SampleSchemaExtender" />
     <adapter name='ace.lims' factory=".sample.SampleSchemaModifier" />
+
+    <adapter name='ace.lims' factory=".arimport.ARImportSchemaModifier" />
 </configure>
