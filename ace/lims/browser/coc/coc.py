@@ -69,6 +69,7 @@ class COC(BrowserView):
                     'state_id': client_state_id_lst[2],
                     'title': '{} - {}'.format(sample.Title(), strain),
                     'batch': ar['CultivationBatch'],
+                    'lot': ar['Lot'],
                     'sampler': ar.getSampler(),
                     }
             ars.append(adict)
@@ -104,10 +105,13 @@ class COC(BrowserView):
         labcontact = bsc(portal_type="LabContact", id=supervisor)
         signature = None
         lab_manager = ''
+        signature = ''
         if len(labcontact) == 1:
             labcontact = labcontact[0].getObject()
             lab_manager = to_utf8(labcontact.getFullname())
-            signature = '%s/Signature' % labcontact.getSignature().absolute_url()
+            if labcontact.getSignature():
+                signature = '%s/Signature' % \
+                        labcontact.getSignature().absolute_url()
 
         address = lab.getPhysicalAddress()
         address = ', '.join((address['address'],
