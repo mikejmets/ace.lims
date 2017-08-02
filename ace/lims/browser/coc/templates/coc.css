@@ -34,31 +34,27 @@
 .coc_body{
     margin: 40px 10px 40px 10px;
     height: 85%;
+    color: black;
 }
 .coc_body table{
     border-spacing: 0;
-    border: 1px solid darkgrey;
+    border: 1px solid #0d0d0d;
 }
 .coc-items{
     margin: 10px 0 10px 0;
-    border: 1px solid darkgrey;
+    border: 1px solid #0d0d0d;
     border-spacing: 0;
 }
 .coc-transfers{
     margin: 10px 0 10px 0;
-    border: 1px solid darkgrey;
+    border: 1px solid #0d0d0d;
     border-spacing: 0;
 }
-.signature{
-    height:30px;
-    width:80%
-}
-
 table{
     width: 100%;
 }
 th, td{
-    border: 1px solid #dddddd;
+    border: 1px solid #0d0d0d;
     padding: 0 0 0 5px;
     margin: 0;
     height: 20px;
@@ -76,11 +72,12 @@ td p{
     padding-left: 1px;
     width: 25%;
 }
-#coc-comment {
+.coc-comment {
     padding: 5px;
     text-align: left;
     vertical-align: top;
     height:40px;
+    font-weight: bold;
 }
 tr.coc-table-header td {
     font-weight: bold;
