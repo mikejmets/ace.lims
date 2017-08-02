@@ -57,10 +57,10 @@ def save_sample_data(self):
         gridrow['Sampler'] = row['Sampler']
         del (row['Sampler'])
 
-        gridrow = {'CultivationBatch': row['CultivationBatch']}
+        gridrow['CultivationBatch'] = row['CultivationBatch']
         del (row['CultivationBatch'])
 
-        gridrow = {'Lot': row['Lot']}
+        gridrow['Lot'] = row['Lot']
         del (row['Lot'])
 
         gridrow['Strain'] = row['Strain']

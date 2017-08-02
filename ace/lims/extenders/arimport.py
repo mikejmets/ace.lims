@@ -57,15 +57,14 @@ class ARImportSchemaModifier(object):
             temp_var.append("Strain")
         if "Lot" not in temp_var:
             temp_var.append("Lot")
-        #if "CultivationBatch" not in temp_var:
-        #    temp_var.append("CultivationBatch")
+        if "CultivationBatch" not in temp_var:
+            temp_var.append("CultivationBatch")
 
         dgf.columns = tuple(temp_var)
         vocab = Vocabulary_Strain()
-        dgf.widget.columns["Strain"] = SelectColumn(
-                                    'Strain', vocabulary=vocab)
+        dgf.widget.columns["Strain"] = SelectColumn('Strain', vocabulary=vocab)
         dgf.widget.columns["Lot"] = Column('Lot')
-        #dgf.widget.columns["CultivationBatch"] = Column('CultivationBatch') 
+        dgf.widget.columns["CultivationBatch"] = Column('Cultivation Batch')
 
         return schema
 
