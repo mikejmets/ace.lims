@@ -29,6 +29,7 @@
   <include package=".static" />
   <include package=".browser"/>
   <include package=".setupdata"/>
+  <include package=".monkey"/>
 
   <include file="profiles.zcml" />
 </configure>
