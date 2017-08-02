@@ -123,34 +123,34 @@ class AnalysisRequestPublishView(ARPV):
                 #'client_reference': ar.getClientReference(),
                 #'client_sampleid': ar.getClientSampleID(),
                 #'adhoc': ar.getAdHoc(),
-                'composite': ar.getComposite(),
-                'report_drymatter': ar.getReportDryMatter(),
-                'invoice_exclude': ar.getInvoiceExclude(),
+                #'composite': ar.getComposite(),
+                #'report_drymatter': ar.getReportDryMatter(),
+                #'invoice_exclude': ar.getInvoiceExclude(),
                 'sampling_date': self.ulocalized_time(
                     ar.getSamplingDate(), long_format=1),
                 'date_received': self.ulocalized_time(
                     ar.getDateReceived(), long_format=1),
-                'member_discount': ar.getMemberDiscount(),
+                #'member_discount': ar.getMemberDiscount(),
                 'date_sampled': self.ulocalized_time(
                     ar.getDateSampled(), long_format=1),
                 'date_published': self.ulocalized_time(DateTime(), long_format=1),
-                'invoiced': ar.getInvoiced(),
-                'late': ar.getLate(),
-                'subtotal': ar.getSubtotal(),
-                'vat_amount': ar.getVATAmount(),
-                'totalprice': ar.getTotalPrice(),
+                #'invoiced': ar.getInvoiced(),
+                #'late': ar.getLate(),
+                #'subtotal': ar.getSubtotal(),
+                #'vat_amount': ar.getVATAmount(),
+                #'totalprice': ar.getTotalPrice(),
                 'invalid': ar.isInvalid(),
                 'url': ar.absolute_url(),
-                'remarks': to_utf8(ar.getRemarks()),
+                'remarks': to_utf8(ar.getRemarks().replace('\n', '').replace("===", "<br/>")),
                 'footer': to_utf8(self.context.bika_setup.getResultFooter()),
                 'prepublish': False,
-                'child_analysisrequest': None,
-                'parent_analysisrequest': None,
-                'resultsinterpretation':ar.getResultsInterpretation(),
+                #'child_analysisrequest': None,
+                #'parent_analysisrequest': None,
+                #'resultsinterpretation':ar.getResultsInterpretation(),
                 'lot': ar['Lot'],#To be fixed
                 'strain': strain, # To be fixed
                 'cultivation_batch': ar['CultivationBatch'],
-                'resultsinterpretation':ar.getResultsInterpretation(),
+                #'resultsinterpretation':ar.getResultsInterpretation(),
                 'ar_attachments': self._get_ar_attachments(ar),
                 'an_attachments': self._get_an_attachments(ar),
                 'attachment_src': None,
@@ -158,13 +158,13 @@ class AnalysisRequestPublishView(ARPV):
                 'state_id': state_id,}
 
         # Sub-objects
-        excludearuids.append(ar.UID())
-        puid = ar.getRawParentAnalysisRequest()
-        if puid and puid not in excludearuids:
-            data['parent_analysisrequest'] = self._ar_data(ar.getParentAnalysisRequest(), excludearuids)
-        cuid = ar.getRawChildAnalysisRequest()
-        if cuid and cuid not in excludearuids:
-            data['child_analysisrequest'] = self._ar_data(ar.getChildAnalysisRequest(), excludearuids)
+        #excludearuids.append(ar.UID())
+        #puid = ar.getRawParentAnalysisRequest()
+        #if puid and puid not in excludearuids:
+        #    data['parent_analysisrequest'] = self._ar_data(ar.getParentAnalysisRequest(), excludearuids)
+        #cuid = ar.getRawChildAnalysisRequest()
+        #if cuid and cuid not in excludearuids:
+        #    data['child_analysisrequest'] = self._ar_data(ar.getChildAnalysisRequest(), excludearuids)
 
         wf = getToolByName(ar, 'portal_workflow')
         allowed_states = ['verified', 'published']
@@ -172,18 +172,17 @@ class AnalysisRequestPublishView(ARPV):
 
         data['contact'] = self._contact_data(ar)
         data['client'] = self._client_data(ar)
-        data['sample'] = self._sample_data(ar)
+        #data['sample'] = self._sample_data(ar)
         data['product'] = self._sample_type(ar).get('title', '')
-        data['batch'] = self._batch_data(ar)
-        data['specifications'] = self._specs_data(ar)
-        data['analyses'] = self._analyses_data(ar, ['verified', 'published'])
-        data['qcanalyses'] = self._qcanalyses_data(ar, ['verified', 'published'])
-        data['points_of_capture'] = sorted(set([an['point_of_capture'] for an in data['analyses']]))
-        data['categories'] = sorted(set([an['category'] for an in data['analyses']]))
-        data['haspreviousresults'] = len([an['previous_results'] for an in data['analyses'] if an['previous_results']]) > 0
-        data['hasblanks'] = len([an['reftype'] for an in data['qcanalyses'] if an['reftype'] == 'b']) > 0
-        data['hascontrols'] = len([an['reftype'] for an in data['qcanalyses'] if an['reftype'] == 'c']) > 0
-        data['hasduplicates'] = len([an['reftype'] for an in data['qcanalyses'] if an['reftype'] == 'd']) > 0
+        #data['batch'] = self._batch_data(ar)
+        #data['specifications'] = self._specs_data(ar)
+        #data['analyses'] = self._analyses_data(ar, ['verified', 'published'])
+        #data['qcanalyses'] = self._qcanalyses_data(ar, ['verified', 'published'])
+        #data['points_of_capture'] = sorted(set([an['point_of_capture'] for an in data['analyses']]))
+        #data['categories'] = sorted(set([an['category'] for an in data['analyses']]))
+        #data['hasblanks'] = len([an['reftype'] for an in data['qcanalyses'] if an['reftype'] == 'b']) > 0
+        #data['hascontrols'] = len([an['reftype'] for an in data['qcanalyses'] if an['reftype'] == 'c']) > 0
+        #data['hasduplicates'] = len([an['reftype'] for an in data['qcanalyses'] if an['reftype'] == 'd']) > 0
         # Attachment src/link
         attachments = ar.getAttachment()
         for attachment in attachments:
@@ -197,45 +196,45 @@ class AnalysisRequestPublishView(ARPV):
                 break
 
         # Categorize analyses
-        data['categorized_analyses'] = {}
+        #data['categorized_analyses'] = {}
         data['department_analyses'] = {}
-        for an in data['analyses']:
-            poc = an['point_of_capture']
-            cat = an['category']
-            pocdict = data['categorized_analyses'].get(poc, {})
-            catlist = pocdict.get(cat, [])
-            catlist.append(an)
-            pocdict[cat] = catlist
-            data['categorized_analyses'][poc] = pocdict
+        #for an in data['analyses']:
+        #    poc = an['point_of_capture']
+        #    cat = an['category']
+        #    pocdict = data['categorized_analyses'].get(poc, {})
+        #    catlist = pocdict.get(cat, [])
+        #    catlist.append(an)
+        #    pocdict[cat] = catlist
+        #    data['categorized_analyses'][poc] = pocdict
 
-            # Group by department too
-            anobj = an['obj']
-            dept = anobj.getService().getDepartment() if anobj.getService() else None
-            if dept:
-                dept = dept.UID()
-                dep = data['department_analyses'].get(dept, {})
-                dep_pocdict = dep.get(poc, {})
-                dep_catlist = dep_pocdict.get(cat, [])
-                dep_catlist.append(an)
-                dep_pocdict[cat] = dep_catlist
-                dep[poc] = dep_pocdict
-                data['department_analyses'][dept] = dep
+        #    # Group by department too
+        #    anobj = an['obj']
+        #    dept = anobj.getService().getDepartment() if anobj.getService() else None
+        #    if dept:
+        #        dept = dept.UID()
+        #        dep = data['department_analyses'].get(dept, {})
+        #        dep_pocdict = dep.get(poc, {})
+        #        dep_catlist = dep_pocdict.get(cat, [])
+        #        dep_catlist.append(an)
+        #        dep_pocdict[cat] = dep_catlist
+        #        dep[poc] = dep_pocdict
+        #        data['department_analyses'][dept] = dep
 
         # Categorize qcanalyses
-        data['categorized_qcanalyses'] = {}
-        for an in data['qcanalyses']:
-            qct = an['reftype']
-            poc = an['point_of_capture']
-            cat = an['category']
-            qcdict = data['categorized_qcanalyses'].get(qct, {})
-            pocdict = qcdict.get(poc, {})
-            catlist = pocdict.get(cat, [])
-            catlist.append(an)
-            pocdict[cat] = catlist
-            qcdict[poc] = pocdict
-            data['categorized_qcanalyses'][qct] = qcdict
+        #data['categorized_qcanalyses'] = {}
+        #for an in data['qcanalyses']:
+        #    qct = an['reftype']
+        #    poc = an['point_of_capture']
+        #    cat = an['category']
+        #    qcdict = data['categorized_qcanalyses'].get(qct, {})
+        #    pocdict = qcdict.get(poc, {})
+        #    catlist = pocdict.get(cat, [])
+        #    catlist.append(an)
+        #    pocdict[cat] = catlist
+        #    qcdict[poc] = pocdict
+        #    data['categorized_qcanalyses'][qct] = qcdict
 
-        data['reporter'] = self._reporter_data(ar)
+        #data['reporter'] = self._reporter_data(ar)
         data['managers'] = self._managers_data(ar)
 
         portal = self.context.portal_url.getPortalObject()
