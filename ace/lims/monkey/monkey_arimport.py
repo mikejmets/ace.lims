@@ -5,6 +5,9 @@
 # Copyright 2011-2017 by it's authors.
 # Some rights reserved. See LICENSE.txt, AUTHORS.txt.
 
+from bika.lims.content.analysisrequest import schema as ar_schema
+from bika.lims.content.sample import schema as sample_schema
+from bika.lims.vocabularies import CatalogVocabulary
 from Products.CMFCore.utils import getToolByName
 
 def save_sample_data(self):
@@ -53,6 +56,12 @@ def save_sample_data(self):
 
         gridrow['Sampler'] = row['Sampler']
         del (row['Sampler'])
+
+        gridrow = {'CultivationBatch': row['CultivationBatch']}
+        del (row['CultivationBatch'])
+
+        gridrow = {'Lot': row['Lot']}
+        del (row['Lot'])
 
         gridrow['Strain'] = row['Strain']
         title = row['Strain']
@@ -157,3 +166,4 @@ def save_sample_data(self):
     if unexpected:
         self.error("Unexpected header fields: %s" %
                    ','.join(unexpected))
+
