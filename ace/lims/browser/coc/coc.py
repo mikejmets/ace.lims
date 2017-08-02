@@ -109,9 +109,6 @@ class COC(BrowserView):
         if len(labcontact) == 1:
             labcontact = labcontact[0].getObject()
             lab_manager = to_utf8(labcontact.getFullname())
-            if labcontact.getSignature():
-                signature = '%s/Signature' % \
-                        labcontact.getSignature().absolute_url()
 
         address = lab.getPhysicalAddress()
         address = ', '.join((address['address'],
