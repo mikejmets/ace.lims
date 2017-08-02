@@ -32,8 +32,7 @@
 }
 
 .coc_body{
-    margin: 40px 10px 40px 10px;
-    height: 85%;
+    margin: 40px 0px 40px 0px;
     color: black;
 }
 .coc_body table{
@@ -65,6 +64,10 @@ td p{
 }
 .grey_background{
     background: grey;
+}
+.coc-header{
+    font-style: italic;
+    font-weight: bold;
 }
 .td_top{
     vertical-align: top;

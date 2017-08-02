@@ -15,15 +15,15 @@
                         <div class="td_logo">
                             <img tal:attributes="src lab_data/logo"/>
                         </div>
-                        <p class="coc-centre" tal:content="lab_data/name"/>
-                        <p class="coc-centre" tal:content="lab_data/address"/>
+                        <p class="coc-centre coc-header" tal:content="lab_data/name"/>
+                        <p class="coc-centre coc-header" tal:content="lab_data/address"/>
                         <h1 class="coc-centre">Chain of Custody</h1>
                     </div>
                 </div>
             </div>
         </div>
         <table>
-            <tr class="grey_background">
+            <tr >
                 <th class='label' i18n:translate="" colspan="2">Client Information</th>
                 <th class='label' i18n:translate="" colspan="1">Project Information</th>
                 <th class='label' i18n:translate="" colspan="2">Lab Use Only</th>
