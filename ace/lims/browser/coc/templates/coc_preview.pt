@@ -108,6 +108,26 @@
         $(function(){
             $('#print-button').click(function(e) {
                 e.preventDefault();
+                ////@page{size:landscape}
+                //var css = "@page { "
+                //css += "-webkit-transform: rotate(90deg);"
+                //css += "-moz-transform: rotate(90deg);"
+                //css += "-o-transform: rotate(90deg);"
+                //css += "-ms-transform: rotate(90deg);"
+                //css += "transform: rotate(90deg);}"
+                //head = document.head || document.getElementsByTagName('head')[0],
+                //    style = document.createElement('style');
+
+                //    style.type = 'text/css';
+                //    style.media = 'print';
+
+                //    if (style.styleSheet){
+                //          style.styleSheet.cssText = css;
+                //    } else {
+                //          style.appendChild(document.createTextNode(css));
+                //    }
+
+                //    head.appendChild(style);
                 window.print();
             });
             $('#cancel-button').click(function(e) {

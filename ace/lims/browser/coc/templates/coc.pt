@@ -15,15 +15,15 @@
                         <div class="td_logo">
                             <img tal:attributes="src lab_data/logo"/>
                         </div>
-                        <p class="coc-centre" tal:content="lab_data/name"/>
-                        <p class="coc-centre" tal:content="lab_data/address"/>
+                        <p class="coc-centre coc-header" tal:content="lab_data/name"/>
+                        <p class="coc-centre coc-header" tal:content="lab_data/address"/>
                         <h1 class="coc-centre">Chain of Custody</h1>
                     </div>
                 </div>
             </div>
         </div>
         <table>
-            <tr class="grey_background">
+            <tr >
                 <th class='label' i18n:translate="" colspan="2">Client Information</th>
                 <th class='label' i18n:translate="" colspan="1">Project Information</th>
                 <th class='label' i18n:translate="" colspan="2">Lab Use Only</th>
@@ -37,7 +37,7 @@
                        <p>ME ID:</p>
                        <p style="padding-left:3px"
                              tal:condition="ar_data"
-                             tal:content="python:ar_data[0]['lic_id']">hello</p>
+                             tal:content="python:ar_data[0]['state_id']">hello</p>
                </td>
                <td class='label td_top' i18n:translate="">
                        <p>Customer Contact:</p>
@@ -57,7 +57,7 @@
                        <p>State ID:</p>
                        <p style="padding-left:3px"
                              tal:condition="ar_data"
-                             tal:content="python:ar_data[0]['state_id']">hello</p>
+                             tal:content="python:ar_data[0]['lic_id']">hello</p>
                </td>
                <td class='label td_top' i18n:translate="">
                        <p>Email Address:</p>
@@ -115,7 +115,8 @@
             <tr class="coc-table-header">
                 <td rowspan="2">Item</td>
                 <td rowspan="2">Sample ID & Strain</td>
-                <td rowspan="2">Batch</td>
+                <td rowspan="2" style="width:140px">Batch</td>
+                <td rowspan="2" style="width:30px">Lot</td>
                 <td colspan="3">Collection</td>
                 <td colspan="2">Collection Weight</td>
             </tr>
@@ -130,6 +131,7 @@
                 <td tal:content="repeat/ar/number"></td>
                 <td tal:content="ar/title" style="text-align:left"></td>
                 <td tal:content="ar/batch" style="text-align:left"></td>
+                <td tal:content="ar/lot" style="text-align:left"></td>
                 <td tal:content="ar/sampler" style="text-align:left"></td>
                 <td></td>
                 <td></td>
@@ -145,9 +147,10 @@
                 <td></td>
                 <td></td>
                 <td></td>
+                <td></td>
             </tr>
             <tr>
-                <th id="coc-comment" colspan="8">Field Comments:</th>
+                <th class="coc-comment" colspan="9">Field Comments:</th>
             </tr>
         </table>
         <table class="coc-transfers">
@@ -157,7 +160,7 @@
                 <td style="width:50px">Date/Time</td>
                 <td style="width:100px">Received By</td>
                 <td style="width:50px">Date/Time</td>
-                <td>Attestation Statement</td>
+                <td colspan="2" style="width:100px">Attestation Statement</td>
             </tr>
             <tr tal:repeat="cnt python:range(3)">
                 <td tal:content="python:cnt+1"></td>
@@ -166,16 +169,17 @@
                 <td></td>
                 <td></td>
                 <tal:if tal:condition="not:repeat/cnt/index">
-                    <td id="coc-attest" rowspan="3"
+                    <td style="width:100px" id="coc-attest" colspan="2" rowspan="3"
                         tal:content="client_data/attest" />
                 </tal:if>
             </tr>
             <tr>
-                <td id="coc-comment" rowspan="2" colspan="5">Lab Comments:</td>
-                <td style="text-align:left">Signature/Date:</td>
+                <td class="coc-comment" rowspan="2" colspan="5">Lab Comments:</td>
+                <td style="text-align:left" colspan="2">Signature:</td>
             </tr>
             <tr>
-                <td style="text-align:left" >Printed Name:</td>
+                <td style="width:200px;text-align:left" >Printed Name:</td>
+                <td style="width:100px;text-align:left" >Date:</td>
             </tr>
         </table>
     </div>

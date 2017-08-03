@@ -5,6 +5,7 @@
 # Copyright 2011-2017 by it's authors.
 # Some rights reserved. See LICENSE.txt, AUTHORS.txt.
 
+from DateTime import DateTime
 from Products.CMFCore.utils import getToolByName
 from bika.lims import bikaMessageFactory as _, t
 from bika.lims import logger
@@ -68,6 +69,7 @@ class COC(BrowserView):
                     'state_id': client_state_id_lst[2],
                     'title': '{} - {}'.format(sample.Title(), strain),
                     'batch': ar['CultivationBatch'],
+                    'lot': ar['Lot'],
                     'sampler': ar.getSampler(),
                     }
             ars.append(adict)
@@ -101,7 +103,9 @@ class COC(BrowserView):
         supervisor = lab.getLaboratorySupervisor()
         bsc = getToolByName(self.context, "bika_setup_catalog")
         labcontact = bsc(portal_type="LabContact", id=supervisor)
+        signature = None
         lab_manager = ''
+        signature = ''
         if len(labcontact) == 1:
             labcontact = labcontact[0].getObject()
             lab_manager = to_utf8(labcontact.getFullname())
@@ -122,6 +126,8 @@ class COC(BrowserView):
                 'accreditation_logo': lab.getAccreditationBodyLogo(),
                 'logo': "%s/logo_print.png" % portal.absolute_url(),
                 'lab_manager': to_utf8(lab_manager),
+                'signature': signature,
+                'today':self.ulocalized_time(DateTime(), long_format=0),
                 'address': to_utf8(address),
                 }
         return adict

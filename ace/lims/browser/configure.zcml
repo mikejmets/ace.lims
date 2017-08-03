@@ -1,6 +1,7 @@
 <configure
         xmlns="http://namespaces.zope.org/zope"
         xmlns:plone="http://namespaces.plone.org/plone"
+        xmlns:browser="http://namespaces.zope.org/browser"
         i18n_domain="ace.lims">
 
     <plone:static
@@ -9,5 +10,13 @@
             name="ace-stickers"
     />
 
-  <include package=".coc"/>
+    <include package=".coc"/>
+
+    <browser:page
+        for="*"
+        name="regenerate_id_server_values"
+        class=".utils.UtilView"
+        attribute="regenerate_id_server_values"
+        permission="cmf.ManagePortal"
+        />
 </configure>

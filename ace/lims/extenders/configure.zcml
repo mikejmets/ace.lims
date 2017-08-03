@@ -6,6 +6,7 @@
 
     <adapter name='ace.lims' factory=".analysisrequest.AnalysisRequestSchemaExtender" />
     <adapter name='ace.lims' factory=".analysisrequest.AnalysisRequestSchemaModifier" />
+    <adapter name='ace.lims' factory=".batch.BatchSchemaModifier" />
 
     <adapter name='ace.lims' factory=".sample.SampleSchemaExtender" />
     <adapter name='ace.lims' factory=".sample.SampleSchemaModifier" />
