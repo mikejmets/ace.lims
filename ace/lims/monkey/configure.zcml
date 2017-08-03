@@ -15,4 +15,11 @@
       replacement="ace.lims.monkey.monkey_arimport.save_sample_data"
       />
 
+  <monkey:patch
+      description="This adds the bika.lims category to controlpanel-overview."
+      class="bika.lims.content.arimport.ARImport"
+      original="workflow_before_validate"
+      replacement="ace.lims.monkey.monkey_arimport.workflow_before_validate"
+      />
+
 </configure>

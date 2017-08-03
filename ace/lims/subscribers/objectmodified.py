@@ -17,4 +17,5 @@ def ObjectModifiedEventHandler(obj, event):
         return
 
     if obj.portal_type == 'ARImport':
+
         obj.workflow_before_validate()

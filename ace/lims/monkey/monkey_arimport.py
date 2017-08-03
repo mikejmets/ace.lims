@@ -5,10 +5,17 @@
 # Copyright 2011-2017 by it's authors.
 # Some rights reserved. See LICENSE.txt, AUTHORS.txt.
 
+import transaction
+from DateTime import DateTime
+from bika.lims.browser import ulocalized_time
 from bika.lims.content.analysisrequest import schema as ar_schema
 from bika.lims.content.sample import schema as sample_schema
 from bika.lims.vocabularies import CatalogVocabulary
+from Products.Archetypes.utils import addStatusMessage
 from Products.CMFCore.utils import getToolByName
+from zope.i18nmessageid import MessageFactory
+
+_p = MessageFactory(u"plone")
 
 def save_sample_data(self):
     """Save values from the file's header row into the DataGrid columns
@@ -57,13 +64,13 @@ def save_sample_data(self):
         try:
             gridrow = {'ClientSampleID': row['ClientSampleID']}
         except KeyError, e:
-            raise RuntimeError('AR Import: CultivationBatch not in input file')
+            raise RuntimeError('AR Import: ClientSampleID not in input file')
         del (row['ClientSampleID'])
 
         try:
             gridrow['Sampler'] = row['Sampler']
         except KeyError, e:
-            raise RuntimeError('AR Import: CultivationBatch not in input file')
+            raise RuntimeError('AR Import: Sampler not in input file')
         del (row['Sampler'])
 
         try:
@@ -72,12 +79,15 @@ def save_sample_data(self):
             raise RuntimeError('AR Import: CultivationBatch not in input file')
         del (row['CultivationBatch'])
 
+
         try:
             gridrow['ClientStateLicenseID'] = row['ClientStateLicenseID']
         except KeyError, e:
             raise RuntimeError(
                     'AR Import: ClientStateLicenseID not in input file')
         title = row['ClientStateLicenseID']
+        if len(title) == 0:
+            errors.append("Row %s: ClientStateLicenseID is required" % row_nr)
         if title:
             for license in self.aq_parent.getLicenses():
                 license_types = bsc(
@@ -89,7 +99,6 @@ def save_sample_data(self):
                         longstring ='{},{LicenseID},{LicenseNumber},{Authority}'
                         id_value = longstring.format(license_type, **license)
                         gridrow['ClientStateLicenseID'] = id_value
-
         del (row['ClientStateLicenseID'])
 
         gridrow['Lot'] = row['Lot']
@@ -97,12 +106,29 @@ def save_sample_data(self):
 
         gridrow['Strain'] = row['Strain']
         title = row['Strain']
+        if len(title) == 0:
+            errors.append("Row %s: Strain is required" % row_nr)
         if title:
             obj = self.lookup(('Strain',),
                               Title=title)
             if obj:
                 gridrow['Strain'] = obj[0].UID
         del (row['Strain'])
+
+        samplingDate = row['SamplingDate']
+        if len(samplingDate) == 0:
+            errors.append("Row %s: SamplingDate is required" % row_nr)
+        try:
+            dummy = DateTime(samplingDate)
+        except:
+            errors.append("Row %s: SamplingDate format is incorrect" % row_nr)
+        gridrow['SamplingDate'] = samplingDate
+        del (row['SamplingDate'])
+
+        gridrow['Priority'] = row['Priority']
+        if len(gridrow['Priority']) == 0:
+            errors.append("Row %s: Priority is required" % row_nr)
+        del (row['Priority'])
 
         # We'll use this later to verify the number against selections
         if 'Total number of Analyses or Profiles' in row:
@@ -124,16 +150,6 @@ def save_sample_data(self):
                 if obj:
                     gridrow['ContainerType'] = obj[0].UID
             del (row['ContainerType'])
-
-        if 'SampleMatrix' in row:
-            # SampleMatrix - not part of sample or AR schema
-            title = row['SampleMatrix']
-            if title:
-                obj = self.lookup(('SampleMatrix',),
-                                  Title=row['SampleMatrix'])
-                if obj:
-                    gridrow['SampleMatrix'] = obj[0].UID
-            del (row['SampleMatrix'])
 
         # match against sample schema
         for k, v in row.items():
@@ -195,4 +211,50 @@ def save_sample_data(self):
     if unexpected:
         self.error("Unexpected header fields: %s" %
                    ','.join(unexpected))
+
+def workflow_before_validate(self):
+    """This function transposes values from the provided file into the
+    ARImport object's fields, and checks for invalid values.
+
+    If errors are found:
+        - Validation transition is aborted.
+        - Errors are stored on object and displayed to user.
+
+    """
+    # Re-set the errors on this ARImport each time validation is attempted.
+    # When errors are detected they are immediately appended to this field.
+    self.setErrors([])
+
+    def item_empty(gridrow, key):
+        if not gridrow.get(key, False):
+            return True
+        return len(gridrow[key]) == 0
+
+    row_nr = 0
+    for gridrow in self.getSampleData():
+        row_nr += 1
+        for key in (
+                'SamplingDate', 'Priority', 'Strain', 'ClientStateLicenseID'):
+            if item_empty(gridrow, key):
+                self.error("Row %s: %s is required" % (row_nr, key))
+        samplingDate = gridrow['SamplingDate']
+        try:
+            new = DateTime(samplingDate)
+            ulocalized_time(new, long_format=True, time_only=False, context=self)
+        except:
+            self.error(
+                "Row %s: SamplingDate format must be 2017-06-21" % row_nr)
+
+    self.validate_headers()
+    self.validate_samples()
+
+    if self.getErrors():
+        addStatusMessage(self.REQUEST, _p('Validation errors.'), 'error')
+        transaction.commit()
+        self.REQUEST.response.write(
+            '<script>document.location.href="%s/edit"</script>' % (
+                self.absolute_url()))
+    self.REQUEST.response.write(
+        '<script>document.location.href="%s/view"</script>' % (
+            self.absolute_url()))
 
