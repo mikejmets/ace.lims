@@ -69,6 +69,8 @@ def save_sample_data(self):
 
         try:
             gridrow['Sampler'] = row['Sampler']
+            if gridrow['Sampler'] == '':
+                gridrow['Sampler'] = None
         except KeyError, e:
             raise RuntimeError('AR Import: Sampler not in input file')
         del (row['Sampler'])
@@ -124,6 +126,15 @@ def save_sample_data(self):
             errors.append("Row %s: SamplingDate format is incorrect" % row_nr)
         gridrow['SamplingDate'] = samplingDate
         del (row['SamplingDate'])
+
+        if 'Sampler' not in row.keys():
+            gridrow['Sampler'] = ''
+        else:
+            if len(row['Sampler']) > 0:
+                gridrow['Sampler'] = row['Sampler']
+            else:
+                gridrow['Sampler'] = ''
+            del (row['Sampler'])
 
         gridrow['Priority'] = row['Priority']
         if len(gridrow['Priority']) == 0:
@@ -244,6 +255,9 @@ def workflow_before_validate(self):
         except:
             self.error(
                 "Row %s: SamplingDate format must be 2017-06-21" % row_nr)
+        sampler = gridrow['Sampler']
+        if not sampler:
+            gridrow['Sampler'] = ''
 
     self.validate_headers()
     self.validate_samples()
