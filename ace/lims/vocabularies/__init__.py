@@ -52,7 +52,6 @@ def getTemplates(bikalims_path, restype):
 
     # Retrieve the templates from other add-ons
     for templates_resource in iterDirectoriesOfType(restype):
-        import pdb; pdb.set_trace()
         prefix = templates_resource.__name__
         if prefix == 'bika.lims':
             continue
