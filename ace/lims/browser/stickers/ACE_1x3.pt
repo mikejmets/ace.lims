@@ -2,27 +2,14 @@
     item              python:view.current_item;
     ar                python:item[0];
     priority          python:ar.getPriority().Title() if ar else '';
-    client            python:ar.getClient().getClientID() if ar else '';
     sample            python:item[1];
-    bsc               python:view.bika_setup_catalog;
-    strains           python:bsc(UID=sample['Strain']);
-    strain            python:strains[0].Title if strains else '';
-    sid               python:sample.getId() if sample else '';
+    ar_id             ar/getId|sample/getId;
+    client_ref        ar/getClientReference|sample/getClientReference;
     ">
-
-    <!-- Strain Barcode - - >
-    <div class="barcode"
-         tal:attributes="data-id strain;"
-         data-code="code128"
-         data-barHeight="12"
-         addQuietZone="false"
-         showHRI="false">
-    </div>
-    -->
 
     <!-- Strain -->
     <div class="row small-font">
-        <span tal:content="client">
+        <span tal:content="client_ref">
             BSID-0001
         </span>
     </div>
@@ -36,7 +23,7 @@
 
     <!-- Barcode -->
     <div class="barcode"
-         tal:attributes="data-id sid;"
+         tal:attributes="data-id ar_id;"
          data-code="code128"
          data-barHeight="36"
          addQuietZone="false"
@@ -45,7 +32,7 @@
 
     <!-- Bika Sample ID -->
     <div class="row large-font">
-        <span tal:content="python:sid">
+        <span tal:content="ar_id">
             BSID-0001
         </span>
     </div>
