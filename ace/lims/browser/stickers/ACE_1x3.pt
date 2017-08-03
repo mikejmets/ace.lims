@@ -1,0 +1,40 @@
+<tal:sticker define="
+    item              python:view.current_item;
+    ar                python:item[0];
+    priority          python:ar.getPriority().Title() if ar else '';
+    sample            python:item[1];
+    ar_id             ar/getId|sample/getId;
+    client_ref        ar/getClientReference|sample/getClientReference;
+    ">
+
+    <!-- Strain -->
+    <div class="row small-font">
+        <span tal:content="client_ref">
+            BSID-0001
+        </span>
+    </div>
+
+    <!-- Priority -->
+    <div class="row-priority small-font">
+        <span tal:content="python:priority">
+            BSID-0001
+        </span>
+    </div>
+
+    <!-- Barcode -->
+    <div class="barcode"
+         tal:attributes="data-id ar_id;"
+         data-code="code128"
+         data-barHeight="36"
+         addQuietZone="false"
+         showHRI="false">
+    </div>
+
+    <!-- Bika Sample ID -->
+    <div class="row large-font">
+        <span tal:content="ar_id">
+            BSID-0001
+        </span>
+    </div>
+
+</tal:sticker>
