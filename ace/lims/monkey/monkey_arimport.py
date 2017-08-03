@@ -48,19 +48,35 @@ def save_sample_data(self):
 
         # sid is just for referring the user back to row X in their
         # in put spreadsheet
-        gridrow = {'sid': row['Samples']}
+        try:
+            gridrow = {'sid': row['Samples']}
+        except KeyError, e:
+            raise RuntimeError('AR Import: CultivationBatch not in input file')
         del (row['Samples'])
 
-        gridrow = {'ClientSampleID': row['ClientSampleID']}
+        try:
+            gridrow = {'ClientSampleID': row['ClientSampleID']}
+        except KeyError, e:
+            raise RuntimeError('AR Import: CultivationBatch not in input file')
         del (row['ClientSampleID'])
 
-        gridrow['Sampler'] = row['Sampler']
+        try:
+            gridrow['Sampler'] = row['Sampler']
+        except KeyError, e:
+            raise RuntimeError('AR Import: CultivationBatch not in input file')
         del (row['Sampler'])
 
-        gridrow['CultivationBatch'] = row['CultivationBatch']
+        try:
+            gridrow['CultivationBatch'] = row['CultivationBatch']
+        except KeyError, e:
+            raise RuntimeError('AR Import: CultivationBatch not in input file')
         del (row['CultivationBatch'])
 
-        gridrow['ClientStateLicenseID'] = row['ClientStateLicenseID']
+        try:
+            gridrow['ClientStateLicenseID'] = row['ClientStateLicenseID']
+        except KeyError, e:
+            raise RuntimeError(
+                    'AR Import: ClientStateLicenseID not in input file')
         title = row['ClientStateLicenseID']
         if title:
             for license in self.aq_parent.getLicenses():
@@ -98,9 +114,6 @@ def save_sample_data(self):
             nr_an = int(nr_an)
         except ValueError:
             nr_an = 0
-
-        # TODO this is ignored and is probably meant to serve some purpose.
-        del (row['Price excl Tax'])
 
         # ContainerType - not part of sample or AR schema
         if 'ContainerType' in row:
