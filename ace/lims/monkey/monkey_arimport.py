@@ -60,6 +60,22 @@ def save_sample_data(self):
         gridrow['CultivationBatch'] = row['CultivationBatch']
         del (row['CultivationBatch'])
 
+        gridrow['ClientStateLicenseID'] = row['ClientStateLicenseID']
+        title = row['ClientStateLicenseID']
+        if title:
+            for license in self.aq_parent.getLicenses():
+                license_types = bsc(
+                                    portal_type='ClientType',
+                                    UID=license['LicenseType'])
+                if len(license_types) == 1:
+                    license_type = license_types[0].Title
+                    if license_type == title:
+                        longstring ='{},{LicenseID},{LicenseNumber},{Authority}'
+                        id_value = longstring.format(license_type, **license)
+                        gridrow['ClientStateLicenseID'] = id_value
+
+        del (row['ClientStateLicenseID'])
+
         gridrow['Lot'] = row['Lot']
         del (row['Lot'])
 
