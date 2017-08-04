@@ -222,6 +222,10 @@ def workflow_before_validate(self):
     """
     # Re-set the errors on this ARImport each time validation is attempted.
     # When errors are detected they are immediately appended to this field.
+    if not self.getClient():
+        #Modified from ProcessForm only
+        return
+
     self.setErrors([])
 
     def item_empty(gridrow, key):
@@ -250,7 +254,7 @@ def workflow_before_validate(self):
     self.validate_headers()
     self.validate_samples()
 
-    if self.getErrors():
+    if self.getErrors() and self.getErrors() != ():
         addStatusMessage(self.REQUEST, _p('Validation errors.'), 'error')
         transaction.commit()
         self.REQUEST.response.write(
