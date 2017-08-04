@@ -1,0 +1,22 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    xmlns:i18n="http://namespaces.zope.org/i18n"
+    xmlns:plone="http://namespaces.plone.org/plone"
+    i18n_domain="ace.lims">
+
+    <plone:static
+      directory="templates"
+      type="coc"
+      name="ace.lims"
+    />
+
+    <browser:page
+      for="bika.lims.interfaces.IClient"
+      name="coc"
+      class=".coc.COC"
+      permission="zope2.View"
+      layer="ace.lims.interfaces.IACELIMS"
+    />
+
+</configure>

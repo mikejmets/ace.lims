@@ -2,80 +2,226 @@
  * Do not use margins, use padding instead
  */
 
-@page {
-}
-
 #report {
-    font: 8pt Arial, Verdana, serif;
+    font: 9pt Helvetica, Verdana, serif;
 }
 
-#report h1 {
-    font-size:1.4em;
-    font-weight:bold;
-}
+#report h1 { font-size:1.4em; }
+#report h2 { font-size:1.2em; }
+#report h3 { font-size:1.1em; }
 
-#report h2 {
-    font-size:1.2em;
-    font-weight:bold;
-    padding-bottom:5px !important;
-}
-
+#report h1,
+#report h2,
 #report h3 {
-    font-size:1.1em;
     font-weight:bold;
     padding-bottom:5px !important;
 }
 
-.page-header {
-    height: 76px;
+#report table {
+    width: 100%;
 }
 
-#section-info {
-    line-height:125% !important;
+#report table tr td,
+#report table tr th {
+    text-align:left;
+    vertical-align:top;
 }
-
-#section-info-heading {
-    height:2em;
-    text-align:center !important;
-    vertical-align:center;
-}
-
-#discreeter div{
-  margin-top:3px;
-  line-height: 125% !important;
-}
-
-#discreeter-info {
-    color:#555;
-}
-
-.accredited-ico {
-    height:1.1em;
-    vertical-align:middle;
-}
-
 #report .label {
     font-weight:bold;
     padding-right: 10px;
-    text-align: left;
-    vertical-align: top;
 }
 #report .outofrange,
 #report .outofrange a {
     font-weight:bold;
     color:#d40000;
 }
+#report .units,
+#report .units sub,
+#report .units sup {
+    color:#777;
+    font-weight:normal;
+    font-style:italic;
+}
+#report .units sub,
+#report .units sup {
+    font-size:7pt;
+}
+
+#report table#section-header{
+    border-bottom:1px solid #000;
+}
+
+#report table#section-header,
+#report table#section-info {
+    
+}
+#report table#section-header td#accreditation-logo {
+    width:80mm;
+}
+#report table#section-info td#lab-info {
+    width:80mm;
+}
+#report #section-alert {
+    padding:20px;
+    border:1px solid #CDCDCD;
+    background-color:#ffffff;
+    margin:0px;
+}
+#report #section-alert h1 {
+    font-size:1em;
+    margin:0px;
+    padding:0;
+    border:none;
+    color:#d40000;
+}
+#report #section-results,
+#report #section-qcresults,
+#report #section-resultsinterpretation {
+    padding-top:20px;
+}
+#report #section-summary table tr td,
+#report #section-results table tr td,
+#report #section-qcresults table tr td {
+    padding-left:5px;
+}
+#report #section-summary tr td {
+    border-left-width: 0px;
+    border-bottom:1px solid #ccc;
+}
+#report #section-summary tr td.label {
+    width:60mm;
+}
+#report #section-results table thead tr th,
+#report #section-qcresults table thead tr th {
+    padding-right:10px;
+}
+#report #section-results table thead tr th span,
+#report #section-qcresults table thead tr th span {
+    display:block;
+    border-bottom:1px solid #000;
+    line-height:1.6;
+}
+#report #section-results .result {
+    width:100px;
+}
+#report #section-results .specs {
+    width:200px;
+    text-align:center;
+    padding-right:10px;
+}
+#report #section-results .outofrange {
+    width:10px;
+}
+#report #section-results .remarks {
+    font-size: 0.9em;
+    padding: 0 400px 15px 3px;
+    color: #555;
+}
+#report #section-qcresults .result {
+    width:60px;
+}
+#report #section-qcresults .specs {
+    width:100px;
+    text-align:center;
+    padding-right:10px;
+}
+#report #section-qcresults .worksheet {
+    width:80px;
+}
+#report #section-qcresults .refsample {
+    width:200px;
+}
+#report #section-qcresults .outofrange {
+    width:10px;
+}
+#report .attachment {
+    padding-bottom: 1em;
+}
+#report .inline-attachment-horizontal {
+    width: 100%;
+}
+#report .inline-attachment-landscape {
+    width: 100%;
+}
+#report #section-signatures {
+    padding:10mm 0 5mm;
+}
+#section-discreeter {
+    color:#444;
+}
+#section-discreeter * {
+    font-size:0.9em;
+}
+#section-discreeter ol {
+    margin:0;
+    padding: 0 0 0 15px;
+}
+#report .page-footer .barcode-container {
+    text-align:right;
+}
+#report .barcode {
+    float: right;
+}
+#report #ariddept {
+    font-size: 10px;
+    overflow: auto;
+    padding: 0 10px 5px;
+    text-align: right;
+}
+#report div#section-info td {
+    vertical-align: top;
+}
+#report div#section-info td a {
+    text-decoration: none;
+}
+#report div#section-info table {
+    width: 100%;
+}
+#report img.accredited-ico {
+    vertical-align:bottom;
+    padding-right:5px;
+}
+#report .category_comments {
+    color: #333;
+    font-size: 11px;
+    line-height: 130%;
+    padding: 10px 15px 15px;
+}
+
 #report .page-footer table {
     border-top: 1px solid #aaaaaa;
     padding: 5px 0;
     width: 100%;
 }
+.table { display:table; table-layout:fixed; width:40%; }
+.row { display:table-row; }
+.th { display:table-cell; font-weight:bold; }
+.td { display:table-cell; }
+.remarks{
+    width:100% !important;
+    bottom: 90px}
+.table_header{
+    width: 100%;
+    padding: 0;
+}
+.td_logo{
+    width: 34%;
+}
+.td_coa{
+    width: 34%;
+    text-align: center;
+}
+.td_numbering{
+    width: 34%;
+    text-align: right;
+    vertical-align:top;
+}
 
 .lab-manager{
     width:41%; 
     float: right;
-    margin-top: 5px;
-    margin-bottom: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 
 .lab-manager-name{
@@ -89,54 +235,65 @@
 .lab-manager-terms{
     clear: both;
     font-size: 8px; 
-    text-align: right;
+    text-align: left;
 }
 
-.ar_table {
+.an_table {
     font-size: 82.5%;
     /*
     border-top:1px solid #cdcdcd;
     border-left:1px solid #cdcdcd;
-    */
-    width:45% !important;
     float: left;
+    */
+    width:310px !important;
     padding: 10px 10px 10px 0px;
+    padding-left:15px;
+    min-height: 100px !important;
+    display: inline-block;
+    vertical-align: top;
 }
-.ar_table .header_th {
+.an_table:nth-child(odd){
+    /*
+    float: right;
+    display: inline-block;
+    */
+}
+.an_table .header_th {
     font-weight:bold;
     padding: 2px 2px 2px 0;
 }
-.ar_table .header_td {
+.an_table .header_td {
     text-align: center;
     font-weight:bold;
     padding:2px;
 }
-.ar_table .th {
+.an_table .th {
     background: grey;
     color: white;
     padding:1px;
     border-bottom:1px solid #cdcdcd;
     border-right:1px solid #cdcdcd;
 }
-.ar_table .td {
+.an_table .th:nth-child(1){
+    width: 200px !important;
+}
+.an_table .th:nth-child(2){
+    width: 40px !important;
+}
+.an_table .th:nth-child(3){
+    width: 70px !important;
+}
+.an_table .td {
     padding:1px;
     border-bottom:1px solid #cdcdcd;
     border-right:1px solid #cdcdcd;
+    border-left:1px solid #cdcdcd;
 }
 .cat_title {
     background: #dddddd;
     color: #444444;
     padding:2px 0px 2px 0px;
-    margin-top:7px;
-}
-
-.ar_table .unit,
-.ar_table .unit sub,
-.ar_table .unit sup {
-    color:#777;
-    font-weight:normal;
-    font-style:italic;
-    font-size:7pt;
+    padding-top:7px;
 }
 
 .ar-image{
@@ -144,29 +301,7 @@
     width:80%;
     height:100px;
 }
-div.resultsinterpretation {
-    border: 1px solid #cdcdcd;
+.signature{
+    height:30px;
+    width:100%
 }
-
-div.resultsinterpretation_heading {
-    font-weight:bold;
-    background: #dddddd;
-    color: #444444;
-    margin-top:7px;
-    padding:2px 0px 2px 0px;
-    font-size:1.2em;
-}
-
-
-/* this is to reproduce table-like structure
-   for the sake of table-less layout. */
-.table { display:table; table-layout:fixed; width:45%; }
-.row { display:table-row; }
-.th { display:table-cell; font-weight:bold; }
-.td { display:table-cell; }
-/* this is where the colspan tricks works. */
-/* below is for visual recognition test purposes only. */
-.red { background:red; }
-.blue { background:blue; }
-.green { background:green; }
-.black { background:black; }

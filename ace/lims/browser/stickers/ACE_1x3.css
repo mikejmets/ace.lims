@@ -1,20 +1,20 @@
 @page {
-    size: 70mm 20mm;
-    margin: 0mm 0mm 0mm 0mm !important;
-    padding: 0mm 0mm 0mm 0mm !important;
+    size: 3in 1in;
+    margin: 0 0 0 0 !important;
+    padding: 0 0 0 0 !important;
 }
 
 .sticker * {
     text-align: center;
     margin: 0 auto;
+    padding: 2px 0 2px 0;
 }
 
 .sticker {
     font-family: Helvetica, Arial;
     font-size:6pt;
-    width: 70.0mm; max-width: 70.0mm;
-    height: 20.0mm; max-height: 20.0mm;
-    /*padding-top: 5px;*/
+    width: 3in; max-width: 3in;
+    height: 1in; max-height: 1in;
 }
 
 .large-font {
@@ -32,7 +32,7 @@
 }
 
 .row-priority {
-  padding-bottom: 4px;
+  padding-bottom: 0px;
 }
 .barcode {
   margin-bottom: 0px;

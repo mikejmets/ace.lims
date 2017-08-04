@@ -248,6 +248,7 @@ class AnalysisRequestSchemaModifier(object):
                 'view': 'invisible'}
                 schema[fn].required = False
 
+        schema['ClientStateLicenseID'].required = True
         schema['Priority'].required = True
 
         sampler_fields = (
@@ -259,5 +260,6 @@ class AnalysisRequestSchemaModifier(object):
                 schema[fn].widget.visible['sample_registered'] = {
                     'view': 'visible', 'edit': 'visible', 'add': 'edit'}
 
+        schema.moveField("Lot", after="CultivationBatch")
         return schema
 

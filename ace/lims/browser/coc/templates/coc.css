@@ -1,0 +1,95 @@
+.coc {
+    font-family: Helvetica, Arial;
+    /* Total width: 46mm + 2x1mm = 48mm */
+    background: grey;
+}
+.Letter{
+    height: 216mm;
+    width: 279mm;
+    text-align: center;
+    margin: 0 auto;
+    background: white;
+    border-collapse: collapse;
+    font-size: 8pt;
+}
+.A4{
+    width: 216mm;
+    height: 297mm;
+    text-align: center;
+    margin: 0 auto;
+    background: white;
+    border-collapse: collapse;
+}
+.coc-centre{
+    margin-right: 150px;
+}
+.td_logo {
+    margin: 10px;
+    float: left;
+}
+.footer{
+    bottom: 0;
+}
+
+.coc_body{
+    margin: 40px 0px 40px 0px;
+    color: black;
+}
+.coc_body table{
+    border-spacing: 0;
+    border: 1px solid #0d0d0d;
+}
+.coc-items{
+    margin: 10px 0 10px 0;
+    border: 1px solid #0d0d0d;
+    border-spacing: 0;
+}
+.coc-transfers{
+    margin: 10px 0 10px 0;
+    border: 1px solid #0d0d0d;
+    border-spacing: 0;
+}
+table{
+    width: 100%;
+}
+th, td{
+    border: 1px solid #0d0d0d;
+    padding: 0 0 0 5px;
+    margin: 0;
+    height: 20px;
+}
+td p{
+    padding: 0;
+    margin: 0;
+}
+.grey_background{
+    background: grey;
+}
+.coc-header{
+    font-style: italic;
+    font-weight: bold;
+}
+.td_top{
+    vertical-align: top;
+    text-align: left;
+    padding-left: 1px;
+    width: 25%;
+}
+.coc-comment {
+    padding: 5px;
+    text-align: left;
+    vertical-align: top;
+    height:40px;
+    font-weight: bold;
+}
+tr.coc-table-header td {
+    font-weight: bold;
+}
+.label {
+    background-color: white;
+}
+#coc-attest{
+    width: 300px;
+    text-align: left;
+    vertical-align: top;
+}
