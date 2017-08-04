@@ -68,14 +68,6 @@ def save_sample_data(self):
         del (row['ClientSampleID'])
 
         try:
-            gridrow['Sampler'] = row['Sampler']
-            if gridrow['Sampler'] == '':
-                gridrow['Sampler'] = None
-        except KeyError, e:
-            raise RuntimeError('AR Import: Sampler not in input file')
-        del (row['Sampler'])
-
-        try:
             gridrow['CultivationBatch'] = row['CultivationBatch']
         except KeyError, e:
             raise RuntimeError('AR Import: CultivationBatch not in input file')
@@ -117,6 +109,7 @@ def save_sample_data(self):
                 gridrow['Strain'] = obj[0].UID
         del (row['Strain'])
 
+        #Validation only
         samplingDate = row['SamplingDate']
         if len(samplingDate) == 0:
             errors.append("Row %s: SamplingDate is required" % row_nr)
@@ -124,22 +117,17 @@ def save_sample_data(self):
             dummy = DateTime(samplingDate)
         except:
             errors.append("Row %s: SamplingDate format is incorrect" % row_nr)
-        gridrow['SamplingDate'] = samplingDate
-        del (row['SamplingDate'])
 
+        #Validation only
         if 'Sampler' not in row.keys():
-            gridrow['Sampler'] = ''
+            row['Sampler'] = ''
         else:
-            if len(row['Sampler']) > 0:
-                gridrow['Sampler'] = row['Sampler']
-            else:
-                gridrow['Sampler'] = ''
-            del (row['Sampler'])
+            if row['Sampler'] is None and len(row['Sampler']) == 0:
+                row['Sampler'] = ''
 
-        gridrow['Priority'] = row['Priority']
-        if len(gridrow['Priority']) == 0:
+        #Validation only
+        if len(row['Priority']) == 0:
             errors.append("Row %s: Priority is required" % row_nr)
-        del (row['Priority'])
 
         # We'll use this later to verify the number against selections
         if 'Total number of Analyses or Profiles' in row:
