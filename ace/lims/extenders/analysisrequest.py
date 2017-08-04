@@ -255,10 +255,16 @@ class AnalysisRequestSchemaModifier(object):
                 'Sampler', 
                 'DateSampled',
             )
+        states = [
+                'sample_registered',
+                'to_be_sampled',
+                'sample_due',
+                'sample_received',
+                ]
         for fn in sampler_fields:
             if fn in schema:
-                schema[fn].widget.visible['sample_registered'] = {
-                    'view': 'visible', 'edit': 'visible', 'add': 'edit'}
+                for state in  states:
+                    schema[fn].widget.visible[state] = {'view': 'visible','edit': 'visible'}
 
         schema.moveField("Lot", after="CultivationBatch")
         return schema
