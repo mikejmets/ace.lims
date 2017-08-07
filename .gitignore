@@ -9,6 +9,7 @@
 *.egg-info
 *.EGG-INFO
 .*.cfg
+*~
 bin/
 build/
 develop-eggs/
