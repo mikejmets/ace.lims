@@ -154,6 +154,8 @@ class AnalysisRequestPublishView(ARPV):
                 'ar_attachments': self._get_ar_attachments(ar),
                 'an_attachments': self._get_an_attachments(ar),
                 'attachment_src': None,
+                'attachment_width': None,
+                'attachment_height': None,
                 'mme_id': mme_id,
                 'state_id': state_id,}
 
@@ -190,9 +192,15 @@ class AnalysisRequestPublishView(ARPV):
                 continue
             filename = attachment.getAttachmentFile().filename 
             extension = filename.split('.')[-1]
-            if extension in ['png', 'jpg']: #Check other image extensions
+            if extension in ['png', 'jpg', 'jpeg']: #Check other image extensions
                 file_url =  attachment.absolute_url()
                 data['attachment_src'] = '{}/at_download/AttachmentFile'.format(file_url)
+                [width, height] = attachment.getAttachmentFile().getSize()
+                maxwidth = 248 # 80% of 310px
+                maxheight = 100
+                resize_ratio = min(maxwidth/float(width), maxheight/float(height))
+                data['attachment_width'] = width*resize_ratio
+                data['attachment_height'] = height*resize_ratio
                 break
 
         # Categorize analyses
