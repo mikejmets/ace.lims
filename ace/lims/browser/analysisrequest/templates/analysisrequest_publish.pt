@@ -39,8 +39,8 @@
                     &nbsp;&nbsp;&nbsp;
                     <label for="sel_layout" i18n:translate="">Layout</label>
                     <select id="sel_layout" name="sel_layout">
-                        <option value="A4" selected>DIN-A4 (210 x 297 mm)</option>
-                        <option value="letter">Letter size (216 x 279mm)</option>
+                        <option value="A4">DIN-A4 (210 x 297 mm)</option>
+                        <option value="letter" selected>Letter size (216 x 279mm)</option>
                     </select>
                 </div>
                 <div class='options-line'>
