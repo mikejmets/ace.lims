@@ -12,7 +12,7 @@
     />
 
     <browser:page
-      for="bika.lims.interfaces.IClient"
+      for="*"
       name="coc"
       class=".coc.COC"
       permission="zope2.View"

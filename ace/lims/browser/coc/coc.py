@@ -76,7 +76,16 @@ class COC(BrowserView):
         return ars
 
     def client_data(self):
-        client = self.context
+        context = self.context
+        client = context
+        if context.portal_type == 'AnalysisRequestsFolder' \
+            or context.portal_type == 'Batch':
+            bc = getToolByName(self.context, 'bika_catalog')
+            items = self.request.get('items', '')
+            if items:
+                item = items.split(',')[0]
+                client = bc(UID=item)[0].getObject().aq_parent
+
         contacts = client.getContacts()
         contact_name = ''
         contact_email = ''
