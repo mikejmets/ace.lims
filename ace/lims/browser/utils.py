@@ -16,3 +16,11 @@ class UtilView(BrowserView):
 
         return 'Done'
 
+    def as_maximum_turnaround_time(self):
+
+        folder = self.context.bika_setup.bika_analysisservices
+        for a_service in folder.values():
+            a_service.MaxTimeAllowed['days'] = 3
+            a_service.MaxTimeAllowed['hours'] = 0
+            a_service.MaxTimeAllowed['minutes'] = 0
+        return 'Done'

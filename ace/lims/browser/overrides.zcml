@@ -11,11 +11,4 @@
       layer="bika.lims.interfaces.IBikaLIMS"
     />
 
-    <browser:page
-      for="*"
-      name="analysisrequest_submit"
-      class="ace.lims.browser.analysisrequest.add.ajaxAnalysisRequestSubmit"
-      permission="zope.Public"
-      layer="bika.lims.interfaces.IBikaLIMS"
-    />
 </configure>

@@ -19,4 +19,12 @@
         attribute="regenerate_id_server_values"
         permission="cmf.ManagePortal"
         />
+
+    <browser:page
+        for="*"
+        name="as_maximum_turnaround_time"
+        class=".utils.UtilView"
+        attribute="as_maximum_turnaround_time"
+        permission="cmf.ManagePortal"
+        />
 </configure>
