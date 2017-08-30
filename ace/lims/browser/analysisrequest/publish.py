@@ -281,7 +281,9 @@ class AnalysisRequestPublishView(ARPV):
         if len(labcontact) == 1:
             labcontact = labcontact[0].getObject()
             lab_manager = to_utf8(self.user_fullname(labcontact.getUsername()))
-            signature = '%s/Signature' % labcontact.getSignature().absolute_url()
+            if labcontact.getSignature():
+                signature_url = labcontact.getSignature().absolute_url()
+                signature = '{}/Signature'.format(signature_url)
 
 
         return {'obj': lab,
