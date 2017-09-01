@@ -146,9 +146,7 @@
         <div class="an_table">
             <img class="ar-image"
                 tal:condition="analysisrequest/attachment_src"
-                tal:attributes="src analysisrequest/attachment_src;
-                                height analysisrequest/attachment_height;
-                                width analysisrequest/attachment_width;"/>
+                tal:attributes="src analysisrequest/attachment_src;"/>
         </div>
 
         <tal:category tal:repeat="cat_title cat_titles">
