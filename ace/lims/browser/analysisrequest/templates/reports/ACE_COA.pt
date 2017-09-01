@@ -21,7 +21,8 @@
                         laboratory      analysisrequest/laboratory;
                         portal          analysisrequest/portal;
                         remarks         analysisrequest/remarks;
-                        coanr python:view.next_certificate_number();">
+                        coanr           python:view.next_certificate_number();
+                        id              analysisrequest/id">
 
   <!--
        Page Header
@@ -44,7 +45,7 @@
                     <div class="td td_coa"> <h1>CERTIFICATE OF ANALYSIS</h1> </div>
                     <div class="td td_numbering">
                         <div class="page-number">Page <span class="page-current-num"></span> of <span class="page-total-count"></span></div>
-                        <p tal:content="string: TBConfirmed No. ${coanr}"></p>
+                        <p tal:content="string: ${id}"></p>
                     </div> 
                 </div>
             </div>

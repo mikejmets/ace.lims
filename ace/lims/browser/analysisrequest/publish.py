@@ -281,7 +281,9 @@ class AnalysisRequestPublishView(ARPV):
         if len(labcontact) == 1:
             labcontact = labcontact[0].getObject()
             lab_manager = to_utf8(self.user_fullname(labcontact.getUsername()))
-            signature = '%s/Signature' % labcontact.getSignature().absolute_url()
+            if labcontact.getSignature():
+                signature_url = labcontact.getSignature().absolute_url()
+                signature = '{}/Signature'.format(signature_url)
 
 
         return {'obj': lab,
@@ -368,16 +370,18 @@ class AnalysisRequestPublishView(ARPV):
                        unit_conversion.get('SampleType') == sample_type_ui:
                         i += 1
                         new = dict(an_dict)
-                        unit_conversion = ploneapi.content.get(
+                        conv = ploneapi.content.get(
                                             UID=unit_conversion['Unit'])
-                        new['unit'] = unit_conversion.converted_unit
+                        new['unit'] = conv.converted_unit
                         an.getFormattedResult()
                         new['ars'] = convert_unit(
                                         an.getFormattedResult(),
-                                        unit_conversion.formula,
+                                        conv.formula,
                                         dmk)
                         key = '%s (%s)' % (service['title'], new['unit'])
                         cat_dict[key] = new
+                        if service.title in cat_dict.keys() and unit_conversion.get('HideOriginalUnit') == '1':
+                            del cat_dict[service.title]
 
             if '_data' not in cat_dict:
                 cat_dict['_data'] = {}
