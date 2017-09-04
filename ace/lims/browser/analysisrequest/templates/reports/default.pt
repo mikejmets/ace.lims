@@ -223,7 +223,7 @@
     </div>
 
     <div class='page-footer' style="height:20px;">
-        <table style="width:100%; text-align:center; padding-top:60px">
+        <table style="width:100%; text-align:center; padding-top:10%">
             <tr>
                 <td tal:content="laboratory/phone"></td>
                 <td id="" tal:content='structure laboratory/address'></td>

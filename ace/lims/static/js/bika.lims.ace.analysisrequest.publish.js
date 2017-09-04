@@ -36,12 +36,12 @@
       'A4': {
         size: 'A4',
         dimensions: [210, 297],
-        margins: [25, 10, 35, 10]
+        margins: [25, 10, 37, 10]
       },
       'letter': {
         size: 'letter',
         dimensions: [216, 279],
-        margins: [25, 10, 35, 10]
+        margins: [25, 10, 37, 10]
       }
     };
     getPaperSize = function() {
@@ -174,7 +174,7 @@
             dim.firstHeight = papersize.dimensions[1] - dim.marginTop - dim.firstMarginBottom;
           }
           first_footer_html = '<div class="first-page-footer">' + $(pgf).html() + '</div>';
-          arbody.find('.first-page-footer').remove();
+          arbody.find('.first-page-footer').remove(); //TODO: Does not render when COA is one page
         } else {
           first_footer_html = footer_html;
         }
