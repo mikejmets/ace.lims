@@ -36,12 +36,12 @@
       'A4': {
         size: 'A4',
         dimensions: [210, 297],
-        margins: [25, 10, 35, 10]
+        margins: [25, 10, 37, 10]
       },
       'letter': {
         size: 'letter',
         dimensions: [216, 279],
-        margins: [25, 10, 35, 10]
+        margins: [25, 10, 37, 10]
       }
     };
     getPaperSize = function() {
