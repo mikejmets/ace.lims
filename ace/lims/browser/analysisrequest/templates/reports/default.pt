@@ -152,7 +152,6 @@
             <div class="table an_table">
                 <div class="row">
                   <span class="th" tal:content="cat_title"/>
-                  <span class="th">Unit</span>
                   <span class="th">Result</span>
                 </div>
                 <tal:cat_analyses tal:repeat="service_title python:sorted(transposed[cat_title].keys())">
@@ -163,8 +162,6 @@
                                    tal:condition="python:transposed[cat_title][service_title]['accredited']"
                                    class="accredited-ico"/>
                         </span>
-                        <span class="td unit"
-                          tal:content="python:transposed[cat_title][service_title]['unit']"></span>
                         <span class="td result"
                           tal:content="structure python:transposed[cat_title][service_title]['ars']"/>
                     </div>

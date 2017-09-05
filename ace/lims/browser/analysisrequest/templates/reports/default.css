@@ -276,7 +276,12 @@
     width: 200px !important;
 }
 .an_table .th:nth-child(2){
-    width: 40px !important;
+    width: 104px !important;
+    text-align: center;
+}
+.an_table .td:nth-child(2){
+    text-align: right;
+    padding-right: 2px;
 }
 .an_table .th:nth-child(3){
     width: 70px !important;
