@@ -195,7 +195,7 @@
       <p>&nbsp;</p>
     </tal:ris>
   </div>
-    <div class='first-page-footer' style="height:60px">
+    <div class='page-footer' style="height:60px">
         <div class="lab-manager">
             <img class="signature"
                 tal:condition="laboratory/signature"
@@ -208,19 +208,6 @@
             </div>
         </div>
         <table style="width:100%; text-align:center;">
-            <tr>
-                <td tal:content="laboratory/phone"></td>
-                <td id="" tal:content='structure laboratory/address'></td>
-                <td>
-                  <a tal:content="laboratory/email"
-                     tal:attributes="url python:'mailto:%s' % laboratory['email']"></a>
-                </td>
-            </tr>
-        </table>
-    </div>
-
-    <div class='page-footer' style="height:20px;">
-        <table style="width:100%; text-align:center; padding-top:60px">
             <tr>
                 <td tal:content="laboratory/phone"></td>
                 <td id="" tal:content='structure laboratory/address'></td>
