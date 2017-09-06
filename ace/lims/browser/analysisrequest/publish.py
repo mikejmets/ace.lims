@@ -406,7 +406,7 @@ class AnalysisRequestPublishView(ARPV):
                         if spec_string:
                             new = dict({})
                             new['unit'] = 'Limits'
-                            new['ars'] = spec_string
+                            new['ars'] = spec_string.split(' ')[-1]
                             an_dict['other_units'].append(new)
 
             if '_data' not in cat_dict:
