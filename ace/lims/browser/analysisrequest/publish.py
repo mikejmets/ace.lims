@@ -353,6 +353,13 @@ class AnalysisRequestPublishView(ARPV):
         count = 0
         dmk = ar.bika_setup.getResultsDecimalMark()
         ans = [an.getObject() for an in ar.getAnalyses()]
+        sample_type_ui = ar.getSampleType().UID()
+        bsc = getToolByName(self, 'bika_setup_catalog')
+        analysis_specs = bsc(portal_type='AnalysisSpec',
+                      getSampleTypeUID=sample_type_ui)
+        analysis_spec = None
+        if len(analysis_specs) > 0:
+            analysis_spec = analysis_specs[0].getObject()
         for an in ans:
             service = an.getService()
             cat = service.getCategoryTitle()
@@ -370,7 +377,6 @@ class AnalysisRequestPublishView(ARPV):
             an_dict['include_original'] = True
             an_dict['other_units'] = []
             # add unit conversion information
-            sample_type_ui = get_sample_type_uid(an)
             if sample_type_ui:
                 i = 0
                 new_text = []
@@ -392,6 +398,16 @@ class AnalysisRequestPublishView(ARPV):
                         if service.title in cat_dict.keys() and \
                            unit_conversion.get('HideOriginalUnit') == '1':
                                an_dict['include_original'] = False
+
+                if analysis_spec:
+                    keyword = service.getKeyword()
+                    if keyword:
+                        spec_string = analysis_spec.getAnalysisSpecsStr(keyword)
+                        if spec_string:
+                            new = dict({})
+                            new['unit'] = 'Limits'
+                            new['ars'] = spec_string
+                            an_dict['other_units'].append(new)
 
             if '_data' not in cat_dict:
                 cat_dict['_data'] = {}
