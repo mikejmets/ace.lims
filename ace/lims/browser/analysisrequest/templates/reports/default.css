@@ -243,7 +243,7 @@
     border-left:1px solid #cdcdcd;
     float: left;
     */
-    width:310px !important;
+    width:340px !important;
     padding: 10px 10px 10px 0px;
     padding-left:15px;
     min-height: 100px !important;
@@ -275,16 +275,16 @@
 .an_table .row {
 }
 .an_table .width2 {
-    width: 270px;
+    width: 300px;
 }
 .an_table .width3 {
-    width: 230px;
+    width: 260px;
 }
 .an_table .width4 {
-    width: 190px;
+    width: 220px;
 }
 .an_table .width5 {
-    width: 150px;
+    width: 180px;
 }
 .an_table .th:nth-child(2){
     width: 40px !important;
