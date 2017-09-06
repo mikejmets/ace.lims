@@ -364,6 +364,8 @@ class AnalysisRequestPublishView(ARPV):
             sample_type_ui = get_sample_type_uid(an)
             if sample_type_ui:
                 i = 0
+                new_text = []
+                hide_original = False
                 for unit_conversion in service.getUnitConversions():
                     if unit_conversion.get('SampleType') and \
                        unit_conversion.get('Unit') and \
@@ -378,10 +380,20 @@ class AnalysisRequestPublishView(ARPV):
                                         an.getFormattedResult(),
                                         conv.formula,
                                         dmk)
-                        key = '%s (%s)' % (service['title'], new['unit'])
-                        cat_dict[key] = new
-                        if service.title in cat_dict.keys() and unit_conversion.get('HideOriginalUnit') == '1':
-                            del cat_dict[service.title]
+                        #key = '%s (%s)' % (service['title'], new['unit'])
+                        #cat_dict[key] = new
+                        new_text.append('%s%s' % (new['ars'], new['unit']))
+                        if service.title in cat_dict.keys() and \
+                           unit_conversion.get('HideOriginalUnit') == '1':
+                               hide_original = True
+                if not hide_original:
+                    if cat_dict[service.title].get('unit'):
+                        new_text.append('%s%s' % (
+                            cat_dict[service.title]['ars'],
+                            cat_dict[service.title]['unit']))
+                    else:
+                        new_text.append(cat_dict[service.title]['ars'])
+                cat_dict[service.title]['ars'] = ', '.join(new_text)
 
             if '_data' not in cat_dict:
                 cat_dict['_data'] = {}

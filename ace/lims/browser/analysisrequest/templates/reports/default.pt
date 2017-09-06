@@ -152,7 +152,6 @@
             <div class="table an_table">
                 <div class="row">
                   <span class="th" tal:content="cat_title"/>
-                  <span class="th">Unit</span>
                   <span class="th">Result</span>
                 </div>
                 <tal:cat_analyses tal:repeat="service_title python:sorted(transposed[cat_title].keys())">
@@ -163,8 +162,6 @@
                                    tal:condition="python:transposed[cat_title][service_title]['accredited']"
                                    class="accredited-ico"/>
                         </span>
-                        <span class="td unit"
-                          tal:content="python:transposed[cat_title][service_title]['unit']"></span>
                         <span class="td result"
                           tal:content="structure python:transposed[cat_title][service_title]['ars']"/>
                     </div>
@@ -198,8 +195,7 @@
       <p>&nbsp;</p>
     </tal:ris>
   </div>
-
-    <div class='page-footer' style="height:60px">
+    <div class='first-page-footer' style="height:60px">
         <div class="lab-manager">
             <img class="signature"
                 tal:condition="laboratory/signature"
@@ -211,7 +207,20 @@
                 This signature indicate the above material has been reviewed and verified
             </div>
         </div>
-        <table style="width:100%; text-align:center">
+        <table style="width:100%; text-align:center;">
+            <tr>
+                <td tal:content="laboratory/phone"></td>
+                <td id="" tal:content='structure laboratory/address'></td>
+                <td>
+                  <a tal:content="laboratory/email"
+                     tal:attributes="url python:'mailto:%s' % laboratory['email']"></a>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class='page-footer' style="height:20px;">
+        <table style="width:100%; text-align:center; padding-top:60px">
             <tr>
                 <td tal:content="laboratory/phone"></td>
                 <td id="" tal:content='structure laboratory/address'></td>
