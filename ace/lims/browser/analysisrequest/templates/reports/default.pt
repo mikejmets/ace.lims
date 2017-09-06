@@ -140,40 +140,39 @@
     </div>
 
     <!-- Results section -->
-    <tal:def tal:define="transposed python:view.getARAnaysis(analysisrequest['obj']);
-                       cat_titles python:view.sorted_by_sort_key(transposed.keys());">
+    <tal:def tal:define="ar_data python:view.getARAnayses(analysisrequest['obj']);">
         <div class="an_table">
             <img class="ar-image" 
                 tal:condition="analysisrequest/attachment_src"
                 tal:attributes="src analysisrequest/attachment_src"/>
         </div>
 
-        <tal:category tal:repeat="cat_title cat_titles">
+        <tal:category tal:repeat="cat ar_data">
             <div class="table an_table">
                 <div class="row">
-                  <span class="th" tal:content="cat_title"/>
-                  <span class="th">Result</span>
+                    <tal:head tal:repeat="header cat/headers">
+                      <span tal:define="idx repeat/header/index"
+                            tal:condition="python: idx==0"
+                            tal:attributes='class python:"th width%s" % len(cat["headers"])'
+                            tal:content="header">TH</span>
+                      <span tal:define="idx repeat/header/index"
+                            tal:condition="python: idx"
+                            class="th"
+                            tal:content="header">TH</span>
+                    </tal:head>
                 </div>
-                <tal:cat_analyses tal:repeat="service_title python:sorted(transposed[cat_title].keys())">
-                    <div class="row" tal:condition="python:service_title != '_data'" >
-                        <span class="td service_title">
-                            <span tal:content="service_title"/>
-                            <img tal:attributes='src python:portal["url"]+"/++resource++bika.lims.images/accredited.png";'
-                                   tal:condition="python:transposed[cat_title][service_title]['accredited']"
-                                   class="accredited-ico"/>
-                        </span>
-                        <span class="td result"
-                          tal:content="structure python:transposed[cat_title][service_title]['ars']"/>
+                <tal:cat_analyses tal:repeat="row cat/rows">
+                    <div class="row">
+                        <tal:item tal:repeat="item row">
+                            <span class="td" tal:content="structure item">TD</span>
+                        </tal:item>
                     </div>
                 </tal:cat_analyses>
-                <tal:cat_data tal:repeat="data python:sorted(transposed[cat_title].keys())">
-                  <div tal:condition="python: data=='_data' and len(transposed[cat_title][data]['footnotes']) > 0"
-                      tal:content="python:transposed[cat_title][data]['footnotes']">
-                  </div>
+                <tal:cat_data tal:repeat="note cat/notes">
+                  <div tal:content="note"/>
                 </tal:cat_data>
             </div>
         </tal:category>
-
     </tal:def>
     <div class="table remarks">
         <div class="row">

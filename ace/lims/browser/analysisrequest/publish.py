@@ -309,8 +309,15 @@ class AnalysisRequestPublishView(ARPV):
         sort_keys = dict([(b.Title, "{:04}".format(a)) for a, b in enumerate(analysis_categories)])
         return sorted(category_keys, key=lambda title, sk=sort_keys: sk.get(title))
 
-    def getARAnaysis(self, ar):
+    def getARAnayses(self, ar):
         """ Returns a dict with the following structure:
+            [ {'headers': ['cat1_title', 'unit1', 'unit2'],
+               'rows': [ ['AS 1 title', val1, val2],
+                         ['AS 2 title', val1, val2]],
+                       ],
+               'footnotes': ['note 1 ', 'Note2']
+              },
+            ]
             {'category_1_name':
                 {'service_1_title':
                     {'service_1_uid':
@@ -346,6 +353,13 @@ class AnalysisRequestPublishView(ARPV):
         count = 0
         dmk = ar.bika_setup.getResultsDecimalMark()
         ans = [an.getObject() for an in ar.getAnalyses()]
+        sample_type_ui = ar.getSampleType().UID()
+        bsc = getToolByName(self, 'bika_setup_catalog')
+        analysis_specs = bsc(portal_type='AnalysisSpec',
+                      getSampleTypeUID=sample_type_ui)
+        analysis_spec = None
+        if len(analysis_specs) > 0:
+            analysis_spec = analysis_specs[0].getObject()
         for an in ans:
             service = an.getService()
             cat = service.getCategoryTitle()
@@ -360,8 +374,9 @@ class AnalysisRequestPublishView(ARPV):
             an_dict['accredited'] = service.getAccredited()
             an_dict['service'] = service
             an_dict['unit'] = service.getUnit()
+            an_dict['include_original'] = True
+            an_dict['other_units'] = []
             # add unit conversion information
-            sample_type_ui = get_sample_type_uid(an)
             if sample_type_ui:
                 i = 0
                 new_text = []
@@ -371,29 +386,28 @@ class AnalysisRequestPublishView(ARPV):
                        unit_conversion.get('Unit') and \
                        unit_conversion.get('SampleType') == sample_type_ui:
                         i += 1
-                        new = dict(an_dict)
+                        new = dict({})
                         conv = ploneapi.content.get(
                                             UID=unit_conversion['Unit'])
                         new['unit'] = conv.converted_unit
-                        an.getFormattedResult()
                         new['ars'] = convert_unit(
                                         an.getFormattedResult(),
                                         conv.formula,
                                         dmk)
-                        #key = '%s (%s)' % (service['title'], new['unit'])
-                        #cat_dict[key] = new
-                        new_text.append('%s%s' % (new['ars'], new['unit']))
+                        an_dict['other_units'].append(new)
                         if service.title in cat_dict.keys() and \
                            unit_conversion.get('HideOriginalUnit') == '1':
-                               hide_original = True
-                if not hide_original:
-                    if cat_dict[service.title].get('unit'):
-                        new_text.append('%s%s' % (
-                            cat_dict[service.title]['ars'],
-                            cat_dict[service.title]['unit']))
-                    else:
-                        new_text.append(cat_dict[service.title]['ars'])
-                cat_dict[service.title]['ars'] = ', '.join(new_text)
+                               an_dict['include_original'] = False
+
+                if analysis_spec:
+                    keyword = service.getKeyword()
+                    if keyword:
+                        spec_string = analysis_spec.getAnalysisSpecsStr(keyword)
+                        if spec_string:
+                            new = dict({})
+                            new['unit'] = 'Limits'
+                            new['ars'] = spec_string
+                            an_dict['other_units'].append(new)
 
             if '_data' not in cat_dict:
                 cat_dict['_data'] = {}
@@ -403,7 +417,55 @@ class AnalysisRequestPublishView(ARPV):
             unit = to_utf8(service.getUnit())
             if unit not in cat_dict['_data']['unit']:
                 cat_dict['_data']['unit'].append(unit)
-        return analyses
+        #Transpose analyses into a table like structure for the page template
+        result = []
+        cats = self.sorted_by_sort_key(analyses.keys())
+        for cat_title in cats:
+            cat_dict_out = {'headers': [cat_title,], 'rows': [], 'notes': []}
+            cat_dict_in = analyses[cat_title]
+            keys = sorted(cat_dict_in.keys())
+            #Get headers
+            headers = cat_dict_out['headers']
+            for key in keys:
+                if key == '_data':
+                    notes = cat_dict_in[key].get('footnotes', '')
+                    if len(notes):
+                        cat_dict_out['notes'].append(notes)
+                    continue
+                row_dict = cat_dict_in[key] 
+                if len(row_dict.get('other_units', [])) > 0:
+                    for other in row_dict['other_units']:
+                        if other['unit'] not in headers:
+                            headers.append(other['unit'])
+                if row_dict['include_original']:
+                    unit = row_dict['unit']
+                    if unit is None:
+                        unit = 'Result'
+                    if unit not in headers:
+                        headers.append(unit)
+            #Contruct rows with in header constraints
+            rows = cat_dict_out['rows']
+            for key in keys:
+                if key == '_data':
+                    continue
+                row = [key,]
+                for h in headers[:-1]:
+                    row.append('')
+                row_dict = cat_dict_in[key] 
+                if len(row_dict.get('other_units', [])) > 0:
+                    for other in row_dict['other_units']:
+                        idx = headers.index(other['unit'])
+                        row[idx] = other['ars']
+                if row_dict['include_original']:
+                    unit = row_dict['unit']
+                    if unit is None:
+                        unit = 'Result'
+                    idx = headers.index(unit)
+                    row[idx] = row_dict['ars']
+                rows.append(row)
+            result.append(cat_dict_out)
+        #print str(result)
+        return result
 
     def getAnaysisBasedTransposedMatrix(self, ars):
         """ Returns a dict with the following structure:
