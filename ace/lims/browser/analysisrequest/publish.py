@@ -441,7 +441,7 @@ class AnalysisRequestPublishView(ARPV):
                             headers.append(unit['unit'])
                 if row_dict['include_original']:
                     unit = row_dict['unit']
-                    if unit is None:
+                    if unit is None or len(unit) == 0:
                         unit = 'Result'
                     if unit not in headers:
                         headers.append(unit)
@@ -468,7 +468,7 @@ class AnalysisRequestPublishView(ARPV):
                         row[idx] = unit['ars']
                 if row_dict['include_original']:
                     unit = row_dict['unit']
-                    if unit is None:
+                    if unit is None or len(unit) == 0:
                         unit = 'Result'
                     idx = headers.index(unit)
                     row[idx] = row_dict['ars']
