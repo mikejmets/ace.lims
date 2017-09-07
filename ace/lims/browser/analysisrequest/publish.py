@@ -375,7 +375,8 @@ class AnalysisRequestPublishView(ARPV):
             an_dict['service'] = service
             an_dict['unit'] = service.getUnit()
             an_dict['include_original'] = True
-            an_dict['other_units'] = []
+            an_dict['converted_units'] = []
+            an_dict['limits_units'] = []
             # add unit conversion information
             if sample_type_ui:
                 i = 0
@@ -394,7 +395,7 @@ class AnalysisRequestPublishView(ARPV):
                                         an.getFormattedResult(),
                                         conv.formula,
                                         dmk)
-                        an_dict['other_units'].append(new)
+                        an_dict['converted_units'].append(new)
                         if service.title in cat_dict.keys() and \
                            unit_conversion.get('HideOriginalUnit') == '1':
                                an_dict['include_original'] = False
@@ -407,7 +408,7 @@ class AnalysisRequestPublishView(ARPV):
                             new = dict({})
                             new['unit'] = 'Limits'
                             new['ars'] = spec_string.split(' ')[-1]
-                            an_dict['other_units'].append(new)
+                            an_dict['limits_units'].append(new)
 
             if '_data' not in cat_dict:
                 cat_dict['_data'] = {}
@@ -426,6 +427,7 @@ class AnalysisRequestPublishView(ARPV):
             keys = sorted(cat_dict_in.keys())
             #Get headers
             headers = cat_dict_out['headers']
+            limits = []
             for key in keys:
                 if key == '_data':
                     notes = cat_dict_in[key].get('footnotes', '')
@@ -433,16 +435,24 @@ class AnalysisRequestPublishView(ARPV):
                         cat_dict_out['notes'].append(notes)
                     continue
                 row_dict = cat_dict_in[key] 
-                if len(row_dict.get('other_units', [])) > 0:
-                    for other in row_dict['other_units']:
-                        if other['unit'] not in headers:
-                            headers.append(other['unit'])
+                if len(row_dict.get('converted_units', [])) > 0:
+                    for unit in row_dict['converted_units']:
+                        if unit['unit'] not in headers:
+                            headers.append(unit['unit'])
                 if row_dict['include_original']:
                     unit = row_dict['unit']
                     if unit is None:
                         unit = 'Result'
                     if unit not in headers:
                         headers.append(unit)
+                if len(row_dict.get('limits_units', [])) > 0:
+                    for unit in row_dict['limits_units']:
+                        if unit['unit'] not in limits:
+                            limits.append(unit['unit'])
+            for limit in limits:
+                if limit not in headers:
+                    headers.append(limit)
+
             #Contruct rows with in header constraints
             rows = cat_dict_out['rows']
             for key in keys:
@@ -452,16 +462,20 @@ class AnalysisRequestPublishView(ARPV):
                 for h in headers[:-1]:
                     row.append('')
                 row_dict = cat_dict_in[key] 
-                if len(row_dict.get('other_units', [])) > 0:
-                    for other in row_dict['other_units']:
-                        idx = headers.index(other['unit'])
-                        row[idx] = other['ars']
+                if len(row_dict.get('converted_units', [])) > 0:
+                    for unit in row_dict['converted_units']:
+                        idx = headers.index(unit['unit'])
+                        row[idx] = unit['ars']
                 if row_dict['include_original']:
                     unit = row_dict['unit']
                     if unit is None:
                         unit = 'Result'
                     idx = headers.index(unit)
                     row[idx] = row_dict['ars']
+                if len(row_dict.get('limits_units', [])) > 0:
+                    for unit in row_dict['limits_units']:
+                        idx = headers.index(unit['unit'])
+                        row[idx] = unit['ars']
                 rows.append(row)
             result.append(cat_dict_out)
         #print str(result)
