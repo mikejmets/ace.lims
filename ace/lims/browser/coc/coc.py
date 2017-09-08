@@ -10,6 +10,7 @@ from Products.CMFCore.utils import getToolByName
 from bika.lims import bikaMessageFactory as _, t
 from bika.lims import logger
 from bika.lims.browser import BrowserView
+from bika.lims.idserver import generateUniqueId
 from bika.lims.vocabularies import getStickerTemplates
 from bika.lims.utils import to_utf8, encode_header, attachPdf
 from plone.resource.utils import iterDirectoriesOfType, queryResourceDirectory
@@ -129,6 +130,7 @@ class COC(BrowserView):
                 'signature': signature,
                 'today':self.ulocalized_time(DateTime(), long_format=0),
                 'address': to_utf8(address),
+                'chain_coc': generateUniqueId(self.context, portal_type='COC'),
                 }
         return adict
 
