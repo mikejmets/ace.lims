@@ -22,10 +22,18 @@
 }
 .coc-centre{
     margin-right: 150px;
+    margin-bottom: 0;
 }
 .td_logo {
     margin: 10px;
     float: left;
+}
+.coc_right{
+    float: right;
+    margin-bottom: 10px;
+}
+.coc_text{
+    display: inline-block;
 }
 .footer{
     bottom: 0;
