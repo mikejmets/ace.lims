@@ -17,7 +17,10 @@
                         </div>
                         <p class="coc-centre coc-header" tal:content="lab_data/name"/>
                         <p class="coc-centre coc-header" tal:content="lab_data/address"/>
-                        <h1 class="coc-centre">Chain of Custody</h1>
+                        <h1 class="coc-centre coc-text">Chain of Custody</h1>
+                    </div>
+                    <div class="row">
+                        <span class="coc_right" tal:content="lab_data/chain_coc">Hello</span>
                     </div>
                 </div>
             </div>
