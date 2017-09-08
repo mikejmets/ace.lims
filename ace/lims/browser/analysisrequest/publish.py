@@ -362,6 +362,8 @@ class AnalysisRequestPublishView(ARPV):
             analysis_spec = analysis_specs[0].getObject()
         for an in ans:
             service = an.getService()
+            if service.getHidden():
+                continue
             cat = service.getCategoryTitle()
             if cat not in analyses:
                 analyses[cat] = {}
