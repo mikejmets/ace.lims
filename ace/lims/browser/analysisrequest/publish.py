@@ -175,7 +175,6 @@ class AnalysisRequestPublishView(ARPV):
         data['prepublish'] = wf.getInfoFor(ar, 'review_state') not in allowed_states
         if wf.getInfoFor(ar, 'review_state') == 'published':
             data['published'] = True
-            data['id'] = '{}{}'.format(data['id'],generateUniqueId(self.context, portal_type='COA'))
 
         data['contact'] = self._contact_data(ar)
         data['client'] = self._client_data(ar)
