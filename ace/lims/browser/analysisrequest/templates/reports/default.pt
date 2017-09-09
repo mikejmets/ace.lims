@@ -55,11 +55,11 @@
     <!-- Address and Lab info -->
     <div id="section-info">
         <!-- Start of table -->
-        <div class="table table_header" >
+        <div class="table table_header">
             <!-- Start of row -->
             <div class="row">
                 <!-- Start of td -->
-                <div class="td" style="width: 50%">
+                <div class="td fifty_percent td_vertical_align">
                     <!-- Start of table -->
                     <div class="table table_header" >
                         <div class="row">
@@ -111,7 +111,7 @@
                 </div>
                 <!-- End of td -->
                 <!-- Start of td -->
-                <div class="td" style="width: 50%">
+                <div class="td fifty_percent">
                     <tal:def tal:define="ar_data python:view.getARAnayses(analysisrequest['obj']);">
                         <div class="an_table_image">
                             <div class="row">

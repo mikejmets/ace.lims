@@ -325,9 +325,15 @@
     display: inline-block;
     vertical-align: top;
 }
+.td_vertical_align{
+    vertical-align: top;
+}
 
 .ar-image{
     width:100%;
+}
+.fifty_percent{
+    width:50%;
 }
 .signature{
     height:60px;
