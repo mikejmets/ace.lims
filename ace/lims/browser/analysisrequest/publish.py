@@ -11,6 +11,7 @@ from bika.lims.browser.analysisrequest.publish import \
 from bika.lims.idserver import renameAfterCreation
 from bika.lims import bikaMessageFactory as _, t
 from bika.lims import logger
+from bika.lims.idserver import generateUniqueId
 from bika.lims.utils import to_utf8, encode_header, attachPdf
 from bika.lims.utils import convert_unit
 from email.mime.multipart import MIMEMultipart
@@ -144,6 +145,7 @@ class AnalysisRequestPublishView(ARPV):
                 'remarks': to_utf8(ar.getRemarks().replace('\n', '').replace("===", "<br/>")),
                 'footer': to_utf8(self.context.bika_setup.getResultFooter()),
                 'prepublish': False,
+                'published': False,
                 #'child_analysisrequest': None,
                 #'parent_analysisrequest': None,
                 #'resultsinterpretation':ar.getResultsInterpretation(),
@@ -171,6 +173,9 @@ class AnalysisRequestPublishView(ARPV):
         wf = getToolByName(ar, 'portal_workflow')
         allowed_states = ['verified', 'published']
         data['prepublish'] = wf.getInfoFor(ar, 'review_state') not in allowed_states
+        if wf.getInfoFor(ar, 'review_state') == 'published':
+            data['published'] = True
+            data['id'] = '{}{}'.format(data['id'],generateUniqueId(self.context, portal_type='COA'))
 
         data['contact'] = self._contact_data(ar)
         data['client'] = self._client_data(ar)

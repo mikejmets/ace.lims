@@ -145,6 +145,10 @@
         <h1 i18n:translate="">Provisional report</h1>
     </div>
 
+    <div id="section-alert" tal:condition="python:analysisrequest['published']==True">
+        <span i18n:translate="">This COA replaces all earlier copies for this Analysis Request</span>
+    </div>
+
     <!-- Results section -->
     <tal:def tal:define="ar_data python:view.getARAnayses(analysisrequest['obj']);">
         <tal:category tal:repeat="cat ar_data">
