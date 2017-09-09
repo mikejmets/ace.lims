@@ -90,15 +90,6 @@
                           <div class="td label" i18n:translate="">LOT</div>
                           <div class="td" tal:content="analysisrequest/lot"> </div>
                         </div>
-                    </div>
-                    <!-- End of table -->
-                </div>
-                <!-- End of td -->
-                <!-- Start of td -->
-                <div class="td" style="width: 50%">
-                    <!-- Laboratory -->
-                    <!-- Start of table -->
-                    <div class="table table_header" >
                         <div class="row">
                           <div class="td label" i18n:translate="">Laboratory</div>
                           <div class="td" tal:content="laboratory/title"/>
@@ -117,6 +108,21 @@
                         </div>
                     </div>
                     <!-- End of table -->
+                </div>
+                <!-- End of td -->
+                <!-- Start of td -->
+                <div class="td" style="width: 50%">
+                    <tal:def tal:define="ar_data python:view.getARAnayses(analysisrequest['obj']);">
+                        <div class="an_table_image">
+                            <div class="row">
+                                  <div class="td">
+                                    <img class="ar-image" 
+                                        tal:condition="analysisrequest/attachment_src"
+                                        tal:attributes="src analysisrequest/attachment_src"/>
+                                  </div>
+                            </div>
+                        </div>
+                    </tal:def>
                 </div>
                 <!-- End of td -->
             </div>
@@ -141,12 +147,6 @@
 
     <!-- Results section -->
     <tal:def tal:define="ar_data python:view.getARAnayses(analysisrequest['obj']);">
-        <div class="an_table">
-            <img class="ar-image" 
-                tal:condition="analysisrequest/attachment_src"
-                tal:attributes="src analysisrequest/attachment_src"/>
-        </div>
-
         <tal:category tal:repeat="cat ar_data">
             <div class="table an_table">
                 <div class="row">
@@ -169,7 +169,7 @@
                     </div>
                 </tal:cat_analyses>
                 <tal:cat_data tal:repeat="note cat/notes">
-                  <div tal:content="note"/>
+                  <div tal:content="structure note"/>
                 </tal:cat_data>
             </div>
         </tal:category>
