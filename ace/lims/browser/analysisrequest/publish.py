@@ -121,7 +121,7 @@ class AnalysisRequestPublishView(ARPV):
         data = {'obj': ar,
                 'id': ar.getRequestID(),
                 #'client_order_num': ar.getClientOrderNumber(),
-                #'client_reference': ar.getClientReference(),
+                'client_reference': ar.getClientReference(),
                 #'client_sampleid': ar.getClientSampleID(),
                 #'adhoc': ar.getAdHoc(),
                 #'composite': ar.getComposite(),
@@ -483,6 +483,11 @@ class AnalysisRequestPublishView(ARPV):
                         idx = headers.index(unit['unit'])
                         row[idx] = unit['ars']
                 rows.append(row)
+
+            for idx in range(len(headers)):
+                if idx == 0:
+                    continue
+                headers[idx] = 'Results (%s)' % headers[idx]
             result.append(cat_dict_out)
         #print str(result)
         return result

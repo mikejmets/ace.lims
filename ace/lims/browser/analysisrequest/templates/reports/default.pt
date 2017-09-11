@@ -67,20 +67,28 @@
                           <div class="td" tal:content="python:laboratory['lab_license_id']">To be confirmed</div>
                         </div>
                         <div class="row">
-                          <div class="td label" i18n:translate="">MME Name</div>
+                          <div class="td label" i18n:translate="">Laboratory</div>
+                          <div class="td" tal:content="laboratory/title"/>
+                        </div>
+                        <div class="row">
+                          <div class="td label" i18n:translate="">ME Name</div>
                           <div class="td" tal:content="python:client['name']">To be confirmed</div>
                         </div>
                         <div class="row">
-                          <div class="td label" i18n:translate="">MME ID</div>
+                          <div class="td label" i18n:translate="">ME License</div>
                           <div class="td" tal:content="python:analysisrequest['mme_id']">To be confirmed</div>
                         </div>
                         <div class="row">
-                          <div class="td label" i18n:translate="">State ID</div>
+                          <div class="td label" i18n:translate="">ME ID</div>
                           <div class="td" tal:content="python:analysisrequest['state_id']">To be confirmed</div>
                         </div>
                         <div class="row">
-                          <div class="td label" i18n:translate="">Strain</div>
-                          <div class="td" tal:content="analysisrequest/strain"> </div>
+                          <div class="td label" i18n:translate="">Product</div>
+                          <div class="td" tal:content="analysisrequest/client_reference"/>
+                        </div>
+                        <div class="row">
+                          <div class="td label" i18n:translate="">Product Type</div>
+                          <div class="td" tal:content="analysisrequest/product"> </div>
                         </div>
                         <div class="row">
                           <div class="td label" i18n:translate="">Batch</div>
@@ -91,20 +99,8 @@
                           <div class="td" tal:content="analysisrequest/lot"> </div>
                         </div>
                         <div class="row">
-                          <div class="td label" i18n:translate="">Laboratory</div>
-                          <div class="td" tal:content="laboratory/title"/>
-                        </div>
-                        <div class="row">
-                          <div class="td label" i18n:translate="">Product</div>
-                          <div class="td" tal:content="analysisrequest/product"/>
-                        </div>
-                        <div class="row">
                           <div class="td label" i18n:translate="">Sampling Date</div>
                           <div class="td" tal:content="analysisrequest/sampling_date"> </div>
-                        </div>
-                        <div class="row">
-                          <div class="td label" i18n:translate="">Received Date</div>
-                          <div class="td" tal:content="analysisrequest/date_received"> </div>
                         </div>
                     </div>
                     <!-- End of table -->
@@ -204,10 +200,11 @@
                 tal:condition="laboratory/signature"
                 tal:attributes="src laboratory/signature"/>
             <hr style="width:100%"/>
-            <div class="lab-manager-name" tal:content="laboratory/lab_manager"></div>
+            <div class="lab-manager-name" tal:content="string:${laboratory/lab_manager}, PhD "></div>
             <div class="lab-manager-date" tal:content="laboratory/today"></div>
+            <div class="lab-manager-name">Scientific Director</div>
             <div class="lab-manager-terms">
-                This signature indicate the above material has been reviewed and verified
+                This signature indicate the above material has been reviewed and certified
             </div>
         </div>
         <table style="width:100%; text-align:center;">
