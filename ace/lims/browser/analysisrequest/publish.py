@@ -284,7 +284,10 @@ class AnalysisRequestPublishView(ARPV):
         lab_manager = ''
         if len(labcontact) == 1:
             labcontact = labcontact[0].getObject()
-            lab_manager = to_utf8(self.user_fullname(labcontact.getUsername()))
+            lab_manager_name = to_utf8(self.user_fullname(labcontact.getUsername()))
+            lab_manager_job_title = to_utf8(labcontact.getJobTitle())
+            lab_manager = '{} {}'.format(lab_manager_name, lab_manager_job_title)
+
             if labcontact.getSignature():
                 signature_url = labcontact.getSignature().absolute_url()
                 signature = '{}/Signature'.format(signature_url)
@@ -486,6 +489,10 @@ class AnalysisRequestPublishView(ARPV):
 
             for idx in range(len(headers)):
                 if idx == 0:
+                    continue
+                elif headers[idx] == 'Result':
+                    continue
+                elif headers[idx] == 'Limits':
                     continue
                 headers[idx] = 'Results (%s)' % headers[idx]
             result.append(cat_dict_out)
