@@ -490,6 +490,10 @@ class AnalysisRequestPublishView(ARPV):
             for idx in range(len(headers)):
                 if idx == 0:
                     continue
+                elif headers[idx] == 'Result':
+                    continue
+                elif headers[idx] == 'Limits':
+                    continue
                 headers[idx] = 'Results (%s)' % headers[idx]
             result.append(cat_dict_out)
         #print str(result)
