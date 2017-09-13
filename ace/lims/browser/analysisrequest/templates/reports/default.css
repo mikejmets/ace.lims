@@ -3,7 +3,7 @@
  */
 
 #report {
-    font: 9pt Helvetica, Verdana, serif;
+    font: 8pt Helvetica, Verdana, serif;
 }
 
 #report h1 { font-size:1.4em; }
@@ -62,7 +62,7 @@
     width:80mm;
 }
 #report #section-alert {
-    padding:20px;
+    padding:5px;
     border:1px solid #CDCDCD;
     background-color:#ffffff;
     margin:0px;
@@ -240,7 +240,7 @@
 }
 
 .an_table {
-    font-size: 82.5%;
+    font-size: 65%;
     /*
     border-top:1px solid #cdcdcd;
     border-left:1px solid #cdcdcd;
@@ -322,7 +322,7 @@
     padding-top:7px;
 }
 .an_table_image {
-    width:272px !important;
+    width:218px !important;
     min-height: 100px !important;
     display: inline-block;
     vertical-align: top;
