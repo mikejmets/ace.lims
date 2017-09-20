@@ -604,7 +604,15 @@ class AnalysisRequestPublishView(ARPV):
         # BIKA Cannabis hack.  Create the CSV they desire here now
         csvdata = self.create_cannabis_csv(ars)
         pdf_fn = to_utf8(lab.getLaboratoryLicenseID())
-	if ar['Lot']: #ar['Lot'] To be fixed
+        client_state_lincense_id = ar.getClientStateLicenseID().split(',')
+        mme_id = ''
+        if len(client_state_lincense_id) == 4:
+            mme_id = client_state_lincense_id[1] #LicenseID
+            pdf_fn = '{}-{}'.format(pdf_fn, mme_id)
+
+        if ar['CultivationBatch']:
+            pdf_fn = '{}-{}'.format(pdf_fn,  ar['CultivationBatch'])
+	if ar['Lot']:
             pdf_fn = '{}-{}'.format(pdf_fn, ar['Lot'])
         bsc =  self.bika_setup_catalog
         strains = bsc(UID=ar.getSample()['Strain'])
