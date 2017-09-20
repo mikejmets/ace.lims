@@ -7,7 +7,9 @@
 
   mmTopx = function(mm) {
     var px;
-    px = parseFloat(mm * $('<div style="height:1mm"/>').height());
+    //This works on Firefox but on Chrome 1mm is does not get converted
+    //px = parseFloat(mm * $('<div style="height:1mm"/>').height());
+    px = parseFloat(mm * 3.78333);
     if (px > 0) {
       return Math.ceil(px);
     } else {
@@ -17,8 +19,9 @@
 
   pxTomm = function(px) {
     var mm;
-    mm = parseFloat(px / $('<div style="height:1mm"/>').height());
-    if (mm > 0) {
+    //mm = parseFloat(px / $('<div style="height:1mm"/>').height());
+    mm = parseFloat(px / 3.78333);
+    if (mm > -1) {
       return Math.floor(mm);
     } else {
       return Math.ceil(mm);
@@ -35,7 +38,7 @@
       'A4': {
         size: 'A4',
         dimensions: [210, 297],
-        margins: [25, 10, 40, 10]
+        margins: [25, 10, 40, 10] //We have a big footer and there will be no need to calculate as the calculated one sometimes is diplayed funny
       },
       'letter': {
         size: 'letter',
@@ -132,6 +135,10 @@
         width: papersize.dimensions[0] - papersize.margins[1] - papersize.margins[3],
         height: papersize.dimensions[1] - papersize.margins[0] - papersize.margins[2]
       };
+      // I would not do a foreach here, not sure if its the first around only
+      // but $('div.ar_publish_body') returns the full html of the COA before
+      // it's chopped to multiple pages so maybe I would do
+      // $('div.ar_publish_body').html()
       $('div.ar_publish_body').each(function(i) {
         var aboveBreakHtml, accumHeight, arbody, elCurrent, elTopOffset, footer_height, footer_html, header_height, header_html, paddingTopFoot, pageBreak, pageHeight, pagecntidx, pagecounts, pagenum, pgf, pgh, split_at;
         arbody = $(this);
