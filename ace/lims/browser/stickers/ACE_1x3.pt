@@ -26,7 +26,9 @@
          tal:attributes="data-id ar_id;"
          data-code="code128"
          data-barHeight="36"
-         addQuietZone="false"
+         data-barWidth="5"
+         data-output="bmp"
+         data-addQuietZone="true"
          showHRI="false">
     </div>
 
