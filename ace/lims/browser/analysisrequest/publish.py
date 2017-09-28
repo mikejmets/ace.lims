@@ -35,6 +35,38 @@ class AnalysisRequestPublishView(ARPV):
     implements(IFolderContentsView)
     template = ViewPageTemplateFile("templates/analysisrequest_publish.pt")
 
+    def __call__(self):
+        if self.context.portal_type == 'AnalysisRequest':
+            self._ars = [self.context]
+        elif self.context.portal_type == 'AnalysisRequestsFolder' \
+            and self.request.get('items',''):
+            uids = self.request.get('items').split(',')
+            uc = getToolByName(self.context, 'uid_catalog')
+            self._ars = [obj.getObject() for obj in uc(UID=uids)]
+        else:
+            #Do nothing
+            self.destination_url = self.request.get_header("referer",
+                                   self.context.absolute_url())
+
+        # Group ARs by client
+        groups = {}
+        for ar in self._ars:
+            idclient = ar.aq_parent.id
+            if idclient not in groups:
+                groups[idclient] = [ar]
+            else:
+                groups[idclient].append(ar)
+        self._arsbyclient = [group for group in groups.values()]
+
+        # Report may want to print current date
+        self.current_date = self.ulocalized_time(DateTime(), long_format=True)
+
+        # Do publish?
+        if self.request.form.get('publish', '0') == '1':
+            self.publishFromPOST()
+        else:
+            return self.template()
+
     def getReportTemplate(self):
         """ Returns the html template for the current ar and moves to
             the next ar to be processed. Uses the selected template
@@ -567,11 +599,12 @@ class AnalysisRequestPublishView(ARPV):
     def publishFromHTML(self, aruid, results_html):
         # The AR can be published only and only if allowed
         uc = getToolByName(self.context, 'uid_catalog')
-        ars = uc(UID=aruid)
+        #ars = uc(UID=aruid)
+        ars = [p.getObject() for p in uc(UID=aruid)]
         if not ars or len(ars) != 1:
             return []
 
-        ar = ars[0].getObject();
+        ar = ars[0]
         wf = getToolByName(ar, 'portal_workflow')
         allowed_states = ['verified', 'published']
         # Publish/Republish allowed?
@@ -605,7 +638,15 @@ class AnalysisRequestPublishView(ARPV):
         # BIKA Cannabis hack.  Create the CSV they desire here now
         csvdata = self.create_cannabis_csv(ars)
         pdf_fn = to_utf8(lab.getLaboratoryLicenseID())
-	if ar['Lot']: #ar['Lot'] To be fixed
+        client_state_lincense_id = ar.getClientStateLicenseID().split(',')
+        mme_id = ''
+        if len(client_state_lincense_id) == 4:
+            mme_id = client_state_lincense_id[1] #LicenseID
+            pdf_fn = '{}-{}'.format(pdf_fn, mme_id)
+
+        if ar['CultivationBatch']:
+            pdf_fn = '{}-{}'.format(pdf_fn,  ar['CultivationBatch'])
+	if ar['Lot']:
             pdf_fn = '{}-{}'.format(pdf_fn, ar['Lot'])
         bsc =  self.bika_setup_catalog
         strains = bsc(UID=ar.getSample()['Strain'])
