@@ -401,9 +401,10 @@ class AnalysisRequestPublishView(ARPV):
                                             UID=unit_conversion['Unit'])
                         new['unit'] = conv.converted_unit
                         new['ars'] = convert_unit(
-                                        an.getFormattedResult(),
+                                        an.getResult(),
                                         conv.formula,
-                                        dmk)
+                                        dmk,
+                                        an.getPrecision())
                         an_dict['converted_units'].append(new)
                         if service.title in cat_dict.keys() and \
                            unit_conversion.get('HideOriginalUnit') == '1':
