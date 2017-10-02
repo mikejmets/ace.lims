@@ -200,7 +200,7 @@
                 tal:content="laboratory/lab_manager"></div>
             <div class="lab-manager-date" tal:content="laboratory/today"></div>
             <div class="lab-manager-terms">
-                This signature indicate the above material has been reviewed and certified
+                This signature indicates the above material has been reviewed and certified
             </div>
         </div>
         <table style="width:100%; text-align:center;">
