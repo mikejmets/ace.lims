@@ -117,7 +117,7 @@
         <table class="coc-items">
             <tr class="coc-table-header">
                 <td rowspan="2">Item</td>
-                <td rowspan="2">Sample ID & Strain</td>
+                <td rowspan="2">Sample ID & Client Ref</td>
                 <td rowspan="2" style="width:140px">Batch</td>
                 <td rowspan="2" style="width:30px">Lot</td>
                 <td colspan="3">Collection</td>

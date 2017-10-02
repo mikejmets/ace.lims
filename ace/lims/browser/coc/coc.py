@@ -60,15 +60,11 @@ class COC(BrowserView):
             client_state_id_lst = \
                     ar.getClientStateLicenseID().split(',')
             sample = ar.getSample()
-            strain = ''
-            bsc =  self.bika_setup_catalog
-            strains = bsc(UID=ar.getSample()['Strain'])
-            if strains:
-                 strain = strains[0].Title
+            client_reference =  ar.getClientReference()
             adict = {
                     'lic_id': client_state_id_lst[1],
                     'state_id': client_state_id_lst[2],
-                    'title': '{} - {}'.format(sample.Title(), strain),
+                    'title': '{} - {}'.format(sample.Title(), client_reference),
                     'batch': ar['CultivationBatch'],
                     'lot': ar['Lot'],
                     'sampler': ar.getSampler(),
