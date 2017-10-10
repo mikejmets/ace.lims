@@ -223,14 +223,14 @@
 }
 
 .lab-manager-name{
-    width:72%;
+    width:79%;
     float:left;
     font-size: 10px;
 }
 .lab-manager-date{
     float:right;
     font-size: 10px;
-    width:23%;
+    width:20%;
 }
 
 .lab-manager-terms{
