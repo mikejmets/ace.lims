@@ -770,21 +770,21 @@ class AnalysisRequestPublishView(ARPV):
                 raise WorkflowException(str(msg))
 
         # Save file on the filesystem
-        #home = os.path.expanduser('~')
         folder = os.environ.get('COAs_FOLDER', '')
-        client_path = '{}/{}/'.format(folder, ar.getClientID())
-        if not os.path.exists(client_path):
-            os.makedirs(client_path)
+        if len(folder) != 0:
+            client_path = '{}/{}/'.format(folder, ar.getClientID())
+            if not os.path.exists(client_path):
+                os.makedirs(client_path)
 
-        today = self.ulocalized_time(DateTime(), long_format=0)
-        today_path = '{}{}/'.format(client_path, today)
-        if not os.path.exists(today_path):
-            os.makedirs(today_path)
+            today = self.ulocalized_time(DateTime(), long_format=0)
+            today_path = '{}{}/'.format(client_path, today)
+            if not os.path.exists(today_path):
+                os.makedirs(today_path)
 
-        fname = '{}{}.pdf'.format(today_path, pdf_fn)
-        f = open(fname, 'w')
-        f.write(pdf_report)
-        f.close()
+            fname = '{}{}.pdf'.format(today_path, pdf_fn)
+            f = open(fname, 'w')
+            f.write(pdf_report)
+            f.close()
 
         return [ar]
 
