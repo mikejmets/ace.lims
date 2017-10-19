@@ -83,7 +83,7 @@
                           <div class="td" tal:content="python:analysisrequest['state_id']">To be confirmed</div>
                         </div>
                         <div class="row">
-                          <div class="td label" i18n:translate="">Product</div>
+                          <div class="td label" i18n:translate="">Client Reference</div>
                           <div class="td" tal:content="analysisrequest/client_reference"/>
                         </div>
                         <div class="row">
@@ -99,8 +99,8 @@
                           <div class="td" tal:content="analysisrequest/lot"> </div>
                         </div>
                         <div class="row">
-                          <div class="td label" i18n:translate="">Sampling Date</div>
-                          <div class="td" tal:content="analysisrequest/sampling_date"> </div>
+                          <div class="td label" i18n:translate="">Received Date</div>
+                          <div class="td" tal:content="analysisrequest/date_received"> </div>
                         </div>
                     </div>
                     <!-- End of table -->
