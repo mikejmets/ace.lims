@@ -87,6 +87,10 @@
                           <div class="td" tal:content="analysisrequest/client_reference"/>
                         </div>
                         <div class="row">
+                          <div class="td label" i18n:translate="">Client Sample ID</div>
+                          <div class="td" tal:content="analysisrequest/client_sampleid"/>
+                        </div>
+                        <div class="row">
                           <div class="td label" i18n:translate="">Product Type</div>
                           <div class="td" tal:content="analysisrequest/product"> </div>
                         </div>

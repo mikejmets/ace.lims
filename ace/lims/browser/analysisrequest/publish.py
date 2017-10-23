@@ -154,7 +154,7 @@ class AnalysisRequestPublishView(ARPV):
                 'id': ar.getRequestID(),
                 #'client_order_num': ar.getClientOrderNumber(),
                 'client_reference': ar.getClientReference(),
-                #'client_sampleid': ar.getClientSampleID(),
+                'client_sampleid': ar.getClientSampleID(),
                 #'adhoc': ar.getAdHoc(),
                 #'composite': ar.getComposite(),
                 #'report_drymatter': ar.getReportDryMatter(),
