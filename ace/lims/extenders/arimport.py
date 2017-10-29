@@ -80,6 +80,8 @@ class ARImportSchemaModifier(object):
 
         dgf = schema['SampleData']
         temp_var = [i for i in dgf.columns]
+        if "ClientReference" not in temp_var:
+            temp_var.append("ClientReference")
         if "Strain" not in temp_var:
             temp_var.append("Strain")
         if "Lot" not in temp_var:
@@ -88,10 +90,19 @@ class ARImportSchemaModifier(object):
             temp_var.append("CultivationBatch")
         if "ClientStateLicenseID" not in temp_var:
             temp_var.append("ClientStateLicenseID")
+        if "SamplePoint" in temp_var:
+            temp_var.remove("SamplePoint")
+        if "SampleMatrix" in temp_var:
+            temp_var.remove("SampleMatrix")
+        if "ContainerType" in temp_var:
+            temp_var.remove("ContainerType")
+        if "ReportDryMatter" in temp_var:
+            temp_var.remove("ReportDryMatter")
 
 
         dgf.columns = tuple(temp_var)
         strain_vocab = Vocabulary_Strain()
+        dgf.widget.columns["ClientReference"] = Column('ClientReference')
         dgf.widget.columns["Strain"] = SelectColumn(
                                                 'Strain',
                                                 vocabulary=strain_vocab)
@@ -101,6 +112,14 @@ class ARImportSchemaModifier(object):
         dgf.widget.columns["ClientStateLicenseID"] = SelectColumn(
                                                 "Client's State License ID",
                                                 vocabulary=cslid_vocab)
+        if "SamplePoint" in dgf.widget.columns.keys():
+            del dgf.widget.columns["SamplePoint"]
+        if "SampleMatrix" in dgf.widget.columns.keys():
+            del dgf.widget.columns["SampleMatrix"]
+        if "ContainerType" in dgf.widget.columns.keys():
+            del dgf.widget.columns["ContainerType"]
+        if "ReportDryMatter" in dgf.widget.columns.keys():
+            del dgf.widget.columns["ReportDryMatter"]
 
         return schema
 

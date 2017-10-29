@@ -9,17 +9,31 @@
     i18n_domain="bika">
 
   <monkey:patch
-      description="This adds the bika.lims category to controlpanel-overview."
+      description="This modifies the save_sample_data method"
       class="bika.lims.content.arimport.ARImport"
       original="save_sample_data"
       replacement="ace.lims.monkey.monkey_arimport.save_sample_data"
       />
 
   <monkey:patch
-      description="This adds the bika.lims category to controlpanel-overview."
+      description="This modifies the save_header_data method"
+      class="bika.lims.content.arimport.ARImport"
+      original="save_header_data"
+      replacement="ace.lims.monkey.monkey_arimport.save_header_data"
+      />
+
+  <monkey:patch
+      description="This modifies the workflow_before_validate method"
       class="bika.lims.content.arimport.ARImport"
       original="workflow_before_validate"
       replacement="ace.lims.monkey.monkey_arimport.workflow_before_validate"
+      />
+
+  <monkey:patch
+      description="This modifies the workflow_script_import method"
+      class="bika.lims.content.arimport.ARImport"
+      original="workflow_script_import"
+      replacement="ace.lims.monkey.monkey_arimport.workflow_script_import"
       />
 
 </configure>

@@ -10,9 +10,18 @@ from DateTime import DateTime
 from bika.lims.browser import ulocalized_time
 from bika.lims.content.analysisrequest import schema as ar_schema
 from bika.lims.content.sample import schema as sample_schema
+from bika.lims.idserver import renameAfterCreation
+from bika.lims.utils import tmpID, getUsers
 from bika.lims.vocabularies import CatalogVocabulary
+from collective.progressbar.events import InitialiseProgressBar
+from collective.progressbar.events import ProgressBar
+from collective.progressbar.events import ProgressState
+from collective.progressbar.events import UpdateProgressEvent
+from Products.CMFPlone.utils import _createObjectByType
+from Products.Archetypes.event import ObjectInitializedEvent
 from Products.Archetypes.utils import addStatusMessage
 from Products.CMFCore.utils import getToolByName
+from zope import event
 from zope.i18nmessageid import MessageFactory
 
 _p = MessageFactory(u"plone")
@@ -95,6 +104,9 @@ def save_sample_data(self):
                         gridrow['ClientStateLicenseID'] = id_value
         del (row['ClientStateLicenseID'])
 
+        gridrow['ClientReference'] = row['ClientReference']
+        del (row['ClientReference'])
+
         gridrow['Lot'] = row['Lot']
         del (row['Lot'])
 
@@ -162,6 +174,7 @@ def save_sample_data(self):
                             sample_schema, row_nr, k, v)
                         gridrow[k] = value
                     except ValueError as e:
+                        import pdb; pdb.set_trace()
                         errors.append(e.message)
 
         # match against ar schema
@@ -263,4 +276,193 @@ def workflow_before_validate(self):
     self.REQUEST.response.write(
         '<script>document.location.href="%s/view"</script>' % (
             self.absolute_url()))
+
+def save_header_data(self):
+    """Save values from the file's header row into their schema fields.
+    """
+    client = self.aq_parent
+
+    headers = self.get_header_values()
+    if not headers:
+        return False
+
+    if client:
+        self.setClient(client)
+
+    for h, f in [
+        ('File name', 'Filename'),
+        ('No of Samples', 'NrSamples'),
+        ('Client name', 'ClientName'),
+        ('Client ID', 'ClientID'),
+        ('Client Order Number', 'ClientOrderNumber'),
+        #('Client Reference', 'ClientReference')
+    ]:
+        v = headers.get(h, None)
+        if v:
+            field = self.schema[f]
+            field.set(self, v)
+        del (headers[h])
+    # Primary Contact
+    v = headers.get('Contact', None)
+    contacts = [x for x in client.objectValues('Contact')]
+    contact = [c for c in contacts if c.Title() == v]
+    if contact:
+        self.schema['Contact'].set(self, contact)
+    else:
+        self.error("Specified contact '%s' does not exist; using '%s'"%
+                   (v, contacts[0].Title()))
+        self.schema['Contact'].set(self, contacts[0])
+    del (headers['Contact'])
+
+    # CCContacts
+    field_value = {
+        'CCNamesReport': '',
+        'CCEmailsReport': '',
+        'CCNamesInvoice': '',
+        'CCEmailsInvoice': ''
+    }
+    for h, f in [
+        # csv header name      DataGrid Column ID
+        ('CC Names - Report', 'CCNamesReport'),
+        ('CC Emails - Report', 'CCEmailsReport'),
+        ('CC Names - Invoice', 'CCNamesInvoice'),
+        ('CC Emails - Invoice', 'CCEmailsInvoice'),
+    ]:
+        if h in headers:
+            values = [x.strip() for x in headers.get(h, '').split(",")]
+            field_value[f] = values if values else ''
+            del (headers[h])
+    self.schema['CCContacts'].set(self, [field_value])
+
+    if headers:
+        unexpected = ','.join(headers.keys())
+        self.error("Unexpected header fields: %s" % unexpected)
+
+
+def workflow_script_import(self):
+    """Create objects from valid ARImport
+    """
+
+    def convert_date_string(datestr):
+        return datestr.replace('-', '/')
+
+    def lookup_sampler_uid(import_user):
+        #Lookup sampler's uid
+        found = False
+        userid = None
+        user_ids = []
+        users = getUsers(self, ['LabManager', 'Sampler']).items()
+        for (samplerid, samplername) in users:
+            if import_user == samplerid:
+                found = True
+                userid = samplerid
+                break
+            if import_user == samplername:
+                user_ids.append(samplerid)
+        if found:
+            return userid
+        if len(user_ids) == 1:
+            return user_ids[0]
+        if len(user_ids) > 1:
+            #raise ValueError('Sampler %s is ambiguous' % import_user)
+            return ''
+        #Otherwise
+        #raise ValueError('Sampler %s not found' % import_user)
+        return ''
+
+    bsc = getToolByName(self, 'bika_setup_catalog')
+    workflow = getToolByName(self, 'portal_workflow')
+    client = self.aq_parent
+
+    title = _p('Submitting AR Import')
+    description = _p('Creating and initialising objects')
+    bar = ProgressBar(self, self.REQUEST, title, description)
+    event.notify(InitialiseProgressBar(bar))
+
+    profiles = [x.getObject() for x in bsc(portal_type='AnalysisProfile')]
+
+    gridrows = self.schema['SampleData'].get(self)
+    row_cnt = 0
+    for therow in gridrows:
+        row = therow.copy()
+        row_cnt += 1
+        # Create Sample
+        sample = _createObjectByType('Sample', client, tmpID())
+        sample.unmarkCreationFlag()
+        # First convert all row values into something the field can take
+        sample.edit(**row)
+        sample._renameAfterCreation()
+        event.notify(ObjectInitializedEvent(sample))
+        sample.at_post_create_script()
+        swe = self.bika_setup.getSamplingWorkflowEnabled()
+        if swe:
+            workflow.doActionFor(sample, 'sampling_workflow')
+        else:
+            workflow.doActionFor(sample, 'no_sampling_workflow')
+        part = _createObjectByType('SamplePartition', sample, 'part-1')
+        part.unmarkCreationFlag()
+        renameAfterCreation(part)
+        if swe:
+            workflow.doActionFor(part, 'sampling_workflow')
+        else:
+            workflow.doActionFor(part, 'no_sampling_workflow')
+        # Container is special... it could be a containertype.
+        container = self.get_row_container(row)
+        if container:
+            if container.portal_type == 'ContainerType':
+                containers = container.getContainers()
+            # XXX And so we must calculate the best container for this partition
+            part.edit(Container=containers[0])
+
+        # Profiles are titles, profile keys, or UIDS: convert them to UIDs.
+        newprofiles = []
+        for title in row['Profiles']:
+            objects = [x for x in profiles
+                       if title in (x.getProfileKey(), x.UID(), x.Title())]
+            for obj in objects:
+                newprofiles.append(obj.UID())
+        row['Profiles'] = newprofiles
+
+        # BBB in bika.lims < 3.1.9, only one profile is permitted
+        # on an AR.  The services are all added, but only first selected
+        # profile name is stored.
+        row['Profile'] = newprofiles[0] if newprofiles else None
+
+        # Same for analyses
+        newanalyses = set(self.get_row_services(row) +
+                          self.get_row_profile_services(row))
+        row['Analyses'] = []
+        # get batch
+        batch = self.schema['Batch'].get(self)
+        if batch:
+            row['Batch'] = batch
+        # Add AR fields from schema into this row's data
+        row['ClientReference'] = row.get('ClientReference')
+        row['ClientOrderNumber'] = self.getClientOrderNumber()
+        row['Contact'] = self.getContact()
+        row['DateSampled'] = convert_date_string(row['DateSampled'])
+        if row['Sampler']:
+            row['Sampler'] = lookup_sampler_uid(row['Sampler'])
+
+        # Create AR
+        ar = _createObjectByType("AnalysisRequest", client, tmpID())
+        ar.setSample(sample)
+        ar.unmarkCreationFlag()
+        ar.edit(**row)
+        ar._renameAfterCreation()
+        ar.setAnalyses(list(newanalyses))
+        for analysis in ar.getAnalyses(full_objects=True):
+            analysis.setSamplePartition(part)
+        ar.at_post_create_script()
+        if swe:
+            workflow.doActionFor(ar, 'sampling_workflow')
+        else:
+            workflow.doActionFor(ar, 'no_sampling_workflow')
+        progress_index = float(row_cnt) / len(gridrows) * 100
+        progress = ProgressState(self.REQUEST, progress_index)
+        event.notify(UpdateProgressEvent(progress))
+    # document has been written to, and redirect() fails here
+    self.REQUEST.response.write(
+        '<script>document.location.href="%s"</script>' % (
+            self.aq_parent.absolute_url()))
 
