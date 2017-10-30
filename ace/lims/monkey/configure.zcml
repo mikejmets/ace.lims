@@ -30,6 +30,13 @@
       />
 
   <monkey:patch
+      description="This modifies the get_sample_values method"
+      class="bika.lims.content.arimport.ARImport"
+      original="get_sample_values"
+      replacement="ace.lims.monkey.monkey_arimport.get_sample_values"
+      />
+
+  <monkey:patch
       description="This modifies the workflow_script_import method"
       class="bika.lims.content.arimport.ARImport"
       original="workflow_script_import"

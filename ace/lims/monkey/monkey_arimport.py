@@ -5,6 +5,7 @@
 # Copyright 2011-2017 by it's authors.
 # Some rights reserved. See LICENSE.txt, AUTHORS.txt.
 
+import csv
 import transaction
 from DateTime import DateTime
 from bika.lims.browser import ulocalized_time
@@ -294,7 +295,7 @@ def save_header_data(self):
         ('No of Samples', 'NrSamples'),
         ('Client name', 'ClientName'),
         ('Client ID', 'ClientID'),
-        ('Client Order Number', 'ClientOrderNumber'),
+        #('Client Order Number', 'ClientOrderNumber'),
         #('Client Reference', 'ClientReference')
     ]:
         v = headers.get(h, None)
@@ -465,4 +466,35 @@ def workflow_script_import(self):
     self.REQUEST.response.write(
         '<script>document.location.href="%s"</script>' % (
             self.aq_parent.absolute_url()))
+
+def get_sample_values(self):
+    """Read the rows specifying Samples and return a dictionary with
+    related data.
+
+    keys are:
+        headers - row with "Samples" in column 0.  These headers are
+           used as dictionary keys in the rows below.
+        prices - Row with "Analysis Price" in column 0.
+        total_analyses - Row with "Total analyses" in colmn 0
+        price_totals - Row with "Total price excl Tax" in column 0
+        samples - All other sample rows.
+
+    """
+    res = {'samples': []}
+    lines = self.getOriginalFile().data.splitlines()
+    reader = csv.reader(lines)
+    next_rows_are_sample_rows = False
+    for row in reader:
+        if not any(row):
+            continue
+
+        if next_rows_are_sample_rows:
+            vals = [x.strip() for x in row]
+            if not any(vals):
+                continue
+            res['samples'].append(zip(res['headers'], vals))
+        elif row[0].strip().lower() == 'samples':
+            res['headers'] = [x.strip() for x in row]
+            next_rows_are_sample_rows = True
+    return res
 
