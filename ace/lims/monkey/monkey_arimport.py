@@ -175,12 +175,11 @@ def save_sample_data(self):
                             sample_schema, row_nr, k, v)
                         gridrow[k] = value
                     except ValueError as e:
-                        import pdb; pdb.set_trace()
                         errors.append(e.message)
 
         # match against ar schema
         for k, v in row.items():
-            if k in ['Analyses', 'Profiles']:
+            if k in ['AnalysisProfile', 'Analyses', 'Profiles']:
                 continue
             if k in ar_schema:
                 del (row[k])
@@ -192,23 +191,16 @@ def save_sample_data(self):
                     except ValueError as e:
                         errors.append(e.message)
 
-        # Count and remove Keywords and Profiles from the list
-        gridrow['Analyses'] = []
-        for k, v in row.items():
-            if k in keywords:
-                del (row[k])
-                if str(v).strip().lower() not in ('', '0', 'false'):
-                    gridrow['Analyses'].append(k)
         gridrow['Profiles'] = []
         for k, v in row.items():
-            if k in profiles:
+            if v in profiles:
                 del (row[k])
-                if str(v).strip().lower() not in ('', '0', 'false'):
-                    gridrow['Profiles'].append(k)
-        if len(gridrow['Analyses']) + len(gridrow['Profiles']) != nr_an:
-            errors.append(
-                "Row %s: Number of analyses does not match provided value" %
-                row_nr)
+                gridrow['Profiles'].append(v)
+
+        #if len(gridrow['Profiles']) != nr_an:
+        #    errors.append(
+        #        "Row %s: Number of analyses does not match provided value" %
+        #        row_nr)
 
         grid_rows.append(gridrow)
 
@@ -292,7 +284,7 @@ def save_header_data(self):
 
     for h, f in [
         ('File name', 'Filename'),
-        ('No of Samples', 'NrSamples'),
+        #('No of Samples', 'NrSamples'),
         ('Client name', 'ClientName'),
         ('Client ID', 'ClientID'),
         #('Client Order Number', 'ClientOrderNumber'),
