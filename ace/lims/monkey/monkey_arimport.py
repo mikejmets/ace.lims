@@ -6,19 +6,23 @@
 # Some rights reserved. See LICENSE.txt, AUTHORS.txt.
 
 import csv
+import json
 import transaction
 from DateTime import DateTime
+from bika.lims import logger
 from bika.lims.browser import ulocalized_time
 from bika.lims.content.analysisrequest import schema as ar_schema
 from bika.lims.content.sample import schema as sample_schema
 from bika.lims.idserver import renameAfterCreation
 from bika.lims.utils import tmpID, getUsers
 from bika.lims.vocabularies import CatalogVocabulary
+from collective.taskqueue.interfaces import ITaskQueue
 from Products.CMFPlone.utils import _createObjectByType
 from Products.Archetypes.event import ObjectInitializedEvent
 from Products.Archetypes.utils import addStatusMessage
 from Products.CMFCore.utils import getToolByName
 from zope import event
+from zope.component import queryUtility
 from zope.i18nmessageid import MessageFactory
 
 _p = MessageFactory(u"plone")
@@ -338,8 +342,8 @@ def workflow_script_import(self):
     batch = self.schema['Batch'].get(self)
     contact = self.getContact()
 
-    title = _('Submitting AR Import')
-    description = _('Creating and initialising objects')
+    title = _p('Submitting AR Import')
+    description = _p('Creating and initialising objects')
 
     profiles = [x.getObject() for x in bsc(portal_type='AnalysisProfile')]
 
