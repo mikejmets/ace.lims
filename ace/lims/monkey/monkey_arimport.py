@@ -14,10 +14,6 @@ from bika.lims.content.sample import schema as sample_schema
 from bika.lims.idserver import renameAfterCreation
 from bika.lims.utils import tmpID, getUsers
 from bika.lims.vocabularies import CatalogVocabulary
-from collective.progressbar.events import InitialiseProgressBar
-from collective.progressbar.events import ProgressBar
-from collective.progressbar.events import ProgressState
-from collective.progressbar.events import UpdateProgressEvent
 from Products.CMFPlone.utils import _createObjectByType
 from Products.Archetypes.event import ObjectInitializedEvent
 from Products.Archetypes.utils import addStatusMessage
@@ -336,45 +332,42 @@ def workflow_script_import(self):
     """Create objects from valid ARImport
     """
 
-    def convert_date_string(datestr):
-        return datestr.replace('-', '/')
-
-    def lookup_sampler_uid(import_user):
-        #Lookup sampler's uid
-        found = False
-        userid = None
-        user_ids = []
-        users = getUsers(self, ['LabManager', 'Sampler']).items()
-        for (samplerid, samplername) in users:
-            if import_user == samplerid:
-                found = True
-                userid = samplerid
-                break
-            if import_user == samplername:
-                user_ids.append(samplerid)
-        if found:
-            return userid
-        if len(user_ids) == 1:
-            return user_ids[0]
-        if len(user_ids) > 1:
-            #raise ValueError('Sampler %s is ambiguous' % import_user)
-            return ''
-        #Otherwise
-        #raise ValueError('Sampler %s not found' % import_user)
-        return ''
-
     bsc = getToolByName(self, 'bika_setup_catalog')
     workflow = getToolByName(self, 'portal_workflow')
     client = self.aq_parent
+    batch = self.schema['Batch'].get(self)
+    contact = self.getContact()
 
-    title = _p('Submitting AR Import')
-    description = _p('Creating and initialising objects')
-    bar = ProgressBar(self, self.REQUEST, title, description)
-    event.notify(InitialiseProgressBar(bar))
+    title = _('Submitting AR Import')
+    description = _('Creating and initialising objects')
 
     profiles = [x.getObject() for x in bsc(portal_type='AnalysisProfile')]
 
     gridrows = self.schema['SampleData'].get(self)
+    task_queue = queryUtility(ITaskQueue, name='arimport-create')
+    if task_queue is not None:
+        path = [i for i in client.getPhysicalPath()]
+        path.append('ar_import_async')
+        path = '/'.join(path)
+
+        params = {
+                'gridrows': json.dumps(gridrows),
+                'client_uid': client.UID(),
+                'batch_uid': batch.UID(),
+                'client_order_num': self.getClientOrderNumber(),
+                'contact_uid': contact.UID(),
+                }
+        logger.info('Queue Task: path=%s' % path)
+        logger.debug('Que Task: path=%s, params=%s' % (
+                        path, params))
+        task_id = task_queue.add(path,
+                method='POST',
+                params=params)
+        # document has been written to, and redirect() fails here
+        self.REQUEST.response.write(
+            '<script>document.location.href="%s"</script>' % (
+                client.absolute_url()))
+        return
     row_cnt = 0
     for therow in gridrows:
         row = therow.copy()
@@ -400,7 +393,7 @@ def workflow_script_import(self):
         else:
             workflow.doActionFor(part, 'no_sampling_workflow')
         # Container is special... it could be a containertype.
-        container = self.get_row_container(row)
+        container = get_row_container(row)
         if container:
             if container.portal_type == 'ContainerType':
                 containers = container.getContainers()
@@ -422,15 +415,22 @@ def workflow_script_import(self):
         row['Profile'] = newprofiles[0] if newprofiles else None
 
         # Same for analyses
-        newanalyses = set(self.get_row_services(row) +
-                          self.get_row_profile_services(row))
+        (analyses, errors) = get_row_services(row)
+        if errors:
+            for err in errors:
+                self.error(err)
+        newanalyses = set(analyses)
+        (analyses, errors) = get_row_profile_services(row)
+        if errors:
+            for err in errors:
+                self.error(err)
+        newanalyses.update(analyses)
         row['Analyses'] = []
         # get batch
-        batch = self.schema['Batch'].get(self)
         if batch:
             row['Batch'] = batch
         # Add AR fields from schema into this row's data
-        row['ClientReference'] = row.get('ClientReference')
+        row['ClientReference'] = row['ClientReference']
         row['ClientOrderNumber'] = self.getClientOrderNumber()
         row['Contact'] = self.getContact()
         row['DateSampled'] = convert_date_string(row['DateSampled'])
@@ -451,9 +451,6 @@ def workflow_script_import(self):
             workflow.doActionFor(ar, 'sampling_workflow')
         else:
             workflow.doActionFor(ar, 'no_sampling_workflow')
-        progress_index = float(row_cnt) / len(gridrows) * 100
-        progress = ProgressState(self.REQUEST, progress_index)
-        event.notify(UpdateProgressEvent(progress))
     # document has been written to, and redirect() fails here
     self.REQUEST.response.write(
         '<script>document.location.href="%s"</script>' % (
