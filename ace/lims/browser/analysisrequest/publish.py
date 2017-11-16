@@ -851,6 +851,9 @@ class AnalysisRequestPublishView(ARPV):
             lines = []
             analyses = ar.getAnalyses(full_objects=True)
             for analysis in analyses:
+                service = analysis.getService()
+                if service.getHidden():
+                    continue
                 specification =  analysis.getResultsRange()
                 result =  analysis.getFormattedResult(html=False)
                 if not specification:
@@ -859,23 +862,22 @@ class AnalysisRequestPublishView(ARPV):
                     # No specs available, assume in range:
                     if not specification:
                         is_in_range = 'N/A'
-                if specification:
+                else:
                     minimum = specification.get('min', '')
                     maximum = specification.get('max', '')
                     error = specification.get('error', '')
                     if minimum == '' and maximum == '' and error == '':
                         is_in_range = 'N/A'
-
                     else:
                         outofrange, acceptable = \
                             isOutOfRange(result, minimum, maximum, error)
                         is_in_range = outofrange
 
-                unit = analysis.getService().getUnit()
+                unit = service.getUnit()
                 unit_and_ar_id = '{}-{}'.format(unit, ar_id)
                 line = {'sampling_date': sampling_date,
                         'client_sampleid': client_sampleid,
-                        'as_keyword': analysis.getService().getKeyword(),
+                        'as_keyword': service.getShortTitle(),
                         'result': analysis.getFormattedResult(html=False),
                         'is_in_range': is_in_range,
                         'unit_and_ar_id' : unit_and_ar_id,
