@@ -132,3 +132,75 @@ def localize_images(html):
 
         _html = _html.replace(url, "file://" + outfilename)
     return cleanup, _html
+
+def isOutOfRange(result, Min, Max, error):
+    spec_min = None
+    spec_max = None
+    try:
+        result = float(result)
+    except:
+        return False, False
+    try:
+        spec_min = float(Min)
+    except:
+        spec_min = None
+    try:
+        error = float(error)
+    except:
+        error = 0
+    try:
+        spec_max = float(Max)
+    except:
+        spec_max = None
+    if (spec_min is None and spec_max is None):
+        if isOutOfShoulderRange(result, Min, Max, error):
+            return True, True
+        else:
+            return False, False  # No Min and Max values defined
+    elif spec_min is not None and spec_max is not None and spec_min <= result <= spec_max:
+        if isOutOfShoulderRange(result, Min, Max, error):
+            return True, True
+        else:
+            return False, False  # Min and Max values defined
+    elif spec_min is not None and spec_max is None and spec_min <= result:
+        if isOutOfShoulderRange(result, Min, Max, error):
+            return True, True
+        else:
+            return False, False  # Max value not defined
+    elif spec_min is None and spec_max is not None and spec_max >= result:
+        if isOutOfShoulderRange(result, Min, Max, error):
+            return True, True
+        else:
+            return False, False  # Min value not defined
+    if isOutOfShoulderRange(result, Min, Max, error):
+        return True, True
+    return True, False
+
+def isOutOfShoulderRange(result, Min, Max, error):
+    # check if in 'shoulder' range - out of range, but in acceptable error
+    spec_min = None
+    spec_max = None
+    try:
+        result = float(result)
+    except:
+        return False, None
+    try:
+        spec_min = float(Min)
+    except:
+        spec_min = None
+    try:
+        error = float(error)
+    except:
+        error = 0
+    try:
+        spec_max = float(Max)
+    except:
+        spec_max = None
+    error_amount = (result / 100) * error
+    error_min = result - error_amount
+    error_max = result + error_amount
+    if (spec_min and result < spec_min and error_max >= spec_min) \
+            or (spec_max and result > spec_max and error_min <= spec_max):
+        return True
+    # Default: in range
+    return False

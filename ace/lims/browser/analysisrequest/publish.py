@@ -4,7 +4,7 @@ from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode, _createObjectByType
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 
-from ace.lims.utils import attachCSV, createPdf
+from ace.lims.utils import attachCSV, createPdf, isOutOfRange
 from ace.lims.vocabularies import  getACEARReportTemplates
 from bika.lims.browser.analysisrequest.publish import \
     AnalysisRequestPublishView as ARPV
@@ -14,6 +14,7 @@ from bika.lims import logger
 from bika.lims.idserver import generateUniqueId
 from bika.lims.utils import to_utf8, encode_header, attachPdf
 from bika.lims.utils import convert_unit
+from bika.lims.utils import dicts_to_dict
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.Utils import formataddr
@@ -21,6 +22,8 @@ from smtplib import SMTPServerDisconnected, SMTPRecipientsRefused
 from plone.app.content.browser.interfaces import IFolderContentsView
 from plone.resource.utils import  queryResourceDirectory
 from zope.interface import implements
+from zope.component import getAdapters
+from bika.lims.interfaces import IResultOutOfRange
 
 from plone import api as ploneapi
 
@@ -636,7 +639,8 @@ class AnalysisRequestPublishView(ARPV):
         lab = ar.bika_setup.laboratory
 
         # BIKA Cannabis hack.  Create the CSV they desire here now
-        csvdata = self.create_cannabis_csv(ars)
+        #csvdata = self.create_cannabis_csv(ars)
+        csvdata = self.create_metrc_csv(ars)
         pdf_fn = to_utf8(lab.getLaboratoryLicenseID())
         client_state_lincense_id = ar.getClientStateLicenseID().split(',')
         mme_id = ''
@@ -822,5 +826,68 @@ class AnalysisRequestPublishView(ARPV):
                 writer.writerow(["Analysis", "Result", "Unit"])
                 for a_info in group_cats[g_cat]:
                     writer.writerow([a_info['title'], a_info['result'], a_info['unit']])
+
+        return output.getvalue()
+
+    def create_metrc_csv(self, ars):
+        analyses = []
+        output = StringIO.StringIO()
+        writer = csv.writer(output)
+        for ar in ars:
+            ar_id = ar.id
+            sample = ar.getSample()
+            date_rec = ar.getDateReceived()
+            if date_rec:
+                date_rec = date_rec.strftime('%Y-%m-%d')
+            sampling_date = ar.getSamplingDate()
+            if sampling_date:
+                sampling_date = sampling_date.strftime('%m-%d-%y')
+            client_sampleid = to_utf8(ar.getClientSampleID())
+            as_keyword = ''
+            result = ''
+            is_in_range = 'True'
+            unit_and_ar_id = ''
+
+            lines = []
+            analyses = ar.getAnalyses(full_objects=True)
+            for analysis in analyses:
+                service = analysis.getService()
+                if service.getHidden():
+                    continue
+                specification =  analysis.getResultsRange()
+                result =  analysis.getFormattedResult(html=False)
+                if not specification:
+                    rr = dicts_to_dict(analysis.aq_parent.getResultsRange(), 'keyword')
+                    specification = rr.get(analysis.getKeyword(), None)
+                    # No specs available, assume in range:
+                    if not specification:
+                        is_in_range = 'N/A'
+                else:
+                    minimum = specification.get('min', '')
+                    maximum = specification.get('max', '')
+                    error = specification.get('error', '')
+                    if minimum == '' and maximum == '' and error == '':
+                        is_in_range = 'N/A'
+                    else:
+                        outofrange, acceptable = \
+                            isOutOfRange(result, minimum, maximum, error)
+                        is_in_range = outofrange
+
+                unit = service.getUnit()
+                unit_and_ar_id = '{}-{}'.format(unit, ar_id)
+                line = {'sampling_date': sampling_date,
+                        'client_sampleid': client_sampleid,
+                        'as_keyword': service.getShortTitle(),
+                        'result': analysis.getFormattedResult(html=False),
+                        'is_in_range': is_in_range,
+                        'unit_and_ar_id' : unit_and_ar_id,
+                        }
+                lines.append(line)
+
+            for l in lines:
+                writer.writerow([l['sampling_date'], l['client_sampleid'],
+                                l['as_keyword'], l['result'],
+                                l['is_in_range'], l['unit_and_ar_id'],
+                                ])
 
         return output.getvalue()
