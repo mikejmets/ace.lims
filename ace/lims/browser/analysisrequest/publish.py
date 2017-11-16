@@ -841,7 +841,7 @@ class AnalysisRequestPublishView(ARPV):
                 date_rec = date_rec.strftime('%Y-%m-%d')
             sampling_date = ar.getSamplingDate()
             if sampling_date:
-                sampling_date = sampling_date.strftime('%m-%d-%y')
+                sampling_date = sampling_date.strftime('%Y-%m-%d')
             client_sampleid = to_utf8(ar.getClientSampleID())
             as_keyword = ''
             result = ''
