@@ -739,8 +739,8 @@ class AnalysisRequestPublishView(ARPV):
             if pdf_report and 'pdf' in recip.get('pubpref'):
                 attachPdf(mime_msg, pdf_report, pdf_fn)
                 # BIKA Cannabis hack.  Create the CSV they desire here now
-                fn = self.current_certificate_number()
-                attachCSV(mime_msg,csvdata,fn)
+                fn = pdf_fn
+                attachCSV(mime_msg, csvdata, fn)
 
             # For now, I will simply ignore mail send under test.
             if hasattr(self.portal, 'robotframework'):
