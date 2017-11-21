@@ -881,7 +881,6 @@ class AnalysisRequestPublishView(ARPV):
                 #Check unit conversion
                 unit = analysis.getService().getUnit()
                 unit_and_ar_id = '{}-{}'.format(unit, ar_id)
-                result = analysis.getFormattedResult(html=False)
                 if sample_type_uid:
                     i = 0
                     new_text = []
