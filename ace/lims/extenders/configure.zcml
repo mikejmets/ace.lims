@@ -12,4 +12,5 @@
     <adapter name='ace.lims' factory=".sample.SampleSchemaModifier" />
 
     <adapter name='ace.lims' factory=".arimport.ARImportSchemaModifier" />
+    <adapter name='ace.lims' factory=".arreport.ARReportSchemaExtender" />
 </configure>

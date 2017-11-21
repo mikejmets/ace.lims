@@ -656,6 +656,7 @@ class AnalysisRequestPublishView(ARPV):
             report.edit(
                 AnalysisRequest=ar.UID(),
                 Pdf=pdf_report,
+                CSV=csvdata,
                 Html=results_html,
                 Recipients=recipients
             )
@@ -665,6 +666,9 @@ class AnalysisRequestPublishView(ARPV):
             fld = report.getField('Pdf')
             fld.get(report).setFilename(pdf_fn+ ".pdf")
             fld.get(report).setContentType('application/pdf')
+            fld = report.getField('CSV')
+            fld.get(report).setFilename(pdf_fn + ".csv")
+            fld.get(report).setContentType('text/csv')
 
             # Set status to prepublished/published/republished
             status = wf.getInfoFor(ar, 'review_state')
