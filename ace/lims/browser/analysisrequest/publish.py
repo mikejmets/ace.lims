@@ -863,13 +863,13 @@ class AnalysisRequestPublishView(ARPV):
                     specification = rr.get(analysis.getKeyword(), None)
                     # No specs available, assume in range:
                     if not specification:
-                        is_in_range = 'PASS'
+                        is_in_range = True
                 else:
                     minimum = specification.get('min', '')
                     maximum = specification.get('max', '')
                     error = specification.get('error', '')
                     if minimum == '' and maximum == '' and error == '':
-                        is_in_range = 'PASS'
+                        is_in_range = True
                     else:
                         outofrange, acceptable = \
                             isOutOfRange(result, minimum, maximum, error)
