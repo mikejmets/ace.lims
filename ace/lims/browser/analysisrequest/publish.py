@@ -641,17 +641,7 @@ class AnalysisRequestPublishView(ARPV):
         # BIKA Cannabis hack.  Create the CSV they desire here now
         #csvdata = self.create_cannabis_csv(ars)
         csvdata = self.create_metrc_csv(ars)
-        pdf_fn = to_utf8(lab.getLaboratoryLicenseID())
-        client_state_lincense_id = ar.getClientStateLicenseID().split(',')
-        mme_id = ''
-        if len(client_state_lincense_id) == 4:
-            mme_id = client_state_lincense_id[1] #LicenseID
-            pdf_fn = '{}-{}'.format(pdf_fn, mme_id)
-
-        if ar['CultivationBatch']:
-            pdf_fn = '{}-{}'.format(pdf_fn,  ar['CultivationBatch'])
-	if ar['Lot']:
-            pdf_fn = '{}-{}'.format(pdf_fn, ar['Lot'])
+        pdf_fn = to_utf8(ar.getRequestID())
 
         if pdf_report:
             if contact:
@@ -676,6 +666,20 @@ class AnalysisRequestPublishView(ARPV):
             fld = report.getField('Pdf')
             fld.get(report).setFilename(pdf_fn+ ".pdf")
             fld.get(report).setContentType('application/pdf')
+
+            #csv_report = ar.generateUniqueId('ARReport')
+            #csv_report = _createObjectByType("ARReport", ar, reportid)
+            #csv_report.edit(
+            #    AnalysisRequest=ar.UID(),
+            #    Pdf=csvdata,
+            #    Html=results_html,
+            #    Recipients=recipients
+            #)
+            #csv_report.unmarkCreationFlag()
+            #renameAfterCreation(csv_report)
+            #fld = csv_report.getField('Pdf')
+            #fld.get(csv_report).setFilename(pdf_fn+ ".csv")
+            ##fld.get(csv_report).setContentType('application/pdf')
 
             # Set status to prepublished/published/republished
             status = wf.getInfoFor(ar, 'review_state')
@@ -713,7 +717,7 @@ class AnalysisRequestPublishView(ARPV):
                 attachPdf(mime_msg, pdf_report, pdf_fn)
 
                 # BIKA Cannabis hack.  Create the CSV they desire here now
-                fn = self.current_certificate_number()
+                fn = pdf_fn
                 attachCSV(mime_msg,csvdata,fn)
 
                 try:
@@ -790,6 +794,11 @@ class AnalysisRequestPublishView(ARPV):
             f.write(pdf_report)
             f.close()
 
+            csvname = '{}{}.csv'.format(today_path, pdf_fn)
+            fcsv = open(csvname, 'w')
+            fcsv.write(csvdata)
+            fcsv.close()
+
         return [ar]
 
     def create_cannabis_csv(self, ars):
@@ -835,13 +844,11 @@ class AnalysisRequestPublishView(ARPV):
         writer = csv.writer(output)
         for ar in ars:
             ar_id = ar.id
-            sample = ar.getSample()
-            date_rec = ar.getDateReceived()
-            if date_rec:
-                date_rec = date_rec.strftime('%Y-%m-%d')
-            sampling_date = ar.getSamplingDate()
-            if sampling_date:
-                sampling_date = sampling_date.strftime('%Y-%m-%d')
+            date_published = ar.getDatePublished()
+            if date_published:
+                date_published = date_published.split(' ')[0]
+            else:
+                date_published = self.ulocalized_time(DateTime(), long_format=0)
             client_sampleid = to_utf8(ar.getClientSampleID())
             as_keyword = ''
             result = ''
@@ -861,21 +868,25 @@ class AnalysisRequestPublishView(ARPV):
                     specification = rr.get(analysis.getKeyword(), None)
                     # No specs available, assume in range:
                     if not specification:
-                        is_in_range = 'N/A'
+                        is_in_range = 'PASS'
                 else:
                     minimum = specification.get('min', '')
                     maximum = specification.get('max', '')
                     error = specification.get('error', '')
                     if minimum == '' and maximum == '' and error == '':
-                        is_in_range = 'N/A'
+                        is_in_range = 'PASS'
                     else:
                         outofrange, acceptable = \
                             isOutOfRange(result, minimum, maximum, error)
-                        is_in_range = outofrange
+                        if outofrange == False:
+                            is_in_range = True
+                        elif outofrange == True:
+                            is_in_range = False
 
                 unit = service.getUnit()
-                unit_and_ar_id = '{}-{}'.format(unit, ar_id)
-                line = {'sampling_date': sampling_date,
+                unit = '({})-'.format(unit) if unit else ''
+                unit_and_ar_id = '{}{}'.format(unit, ar_id)
+                line = {'date_published': date_published,
                         'client_sampleid': client_sampleid,
                         'as_keyword': service.getShortTitle(),
                         'result': analysis.getFormattedResult(html=False),
@@ -885,7 +896,7 @@ class AnalysisRequestPublishView(ARPV):
                 lines.append(line)
 
             for l in lines:
-                writer.writerow([l['sampling_date'], l['client_sampleid'],
+                writer.writerow([l['date_published'], l['client_sampleid'],
                                 l['as_keyword'], l['result'],
                                 l['is_in_range'], l['unit_and_ar_id'],
                                 ])
