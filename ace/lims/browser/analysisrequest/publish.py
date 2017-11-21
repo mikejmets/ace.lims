@@ -879,8 +879,6 @@ class AnalysisRequestPublishView(ARPV):
                 unit_and_ar_id = '{}{}'.format(unit, ar_id)
 
                 #Check unit conversion
-                unit = analysis.getService().getUnit()
-                unit_and_ar_id = '{}-{}'.format(unit, ar_id)
                 if sample_type_uid:
                     i = 0
                     new_text = []
@@ -894,7 +892,7 @@ class AnalysisRequestPublishView(ARPV):
                             new = dict({})
                             conv = ploneapi.content.get(
                                                 UID=unit_conversion['Unit'])
-                            unit_and_ar_id = '{}-{}'.format(
+                            unit_and_ar_id = '({})-{}'.format(
                                                     conv.converted_unit, ar_id)
                             result = convert_unit(
                                             analysis.getResult(),
