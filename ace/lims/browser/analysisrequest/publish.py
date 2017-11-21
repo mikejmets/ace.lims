@@ -395,10 +395,10 @@ class AnalysisRequestPublishView(ARPV):
         count = 0
         dmk = ar.bika_setup.getResultsDecimalMark()
         ans = [an.getObject() for an in ar.getAnalyses()]
-        sample_type_ui = ar.getSampleType().UID()
+        sample_type_uid = ar.getSampleType().UID()
         bsc = getToolByName(self, 'bika_setup_catalog')
         analysis_specs = bsc(portal_type='AnalysisSpec',
-                      getSampleTypeUID=sample_type_ui)
+                      getSampleTypeUID=sample_type_uid)
         analysis_spec = None
         if len(analysis_specs) > 0:
             analysis_spec = analysis_specs[0].getObject()
@@ -422,14 +422,14 @@ class AnalysisRequestPublishView(ARPV):
             an_dict['converted_units'] = []
             an_dict['limits_units'] = []
             # add unit conversion information
-            if sample_type_ui:
+            if sample_type_uid:
                 i = 0
                 new_text = []
                 hide_original = False
                 for unit_conversion in service.getUnitConversions():
                     if unit_conversion.get('SampleType') and \
                        unit_conversion.get('Unit') and \
-                       unit_conversion.get('SampleType') == sample_type_ui:
+                       unit_conversion.get('SampleType') == sample_type_uid:
                         i += 1
                         new = dict({})
                         conv = ploneapi.content.get(
@@ -641,18 +641,7 @@ class AnalysisRequestPublishView(ARPV):
         # BIKA Cannabis hack.  Create the CSV they desire here now
         #csvdata = self.create_cannabis_csv(ars)
         csvdata = self.create_metrc_csv(ars)
-        pdf_fn = to_utf8(lab.getLaboratoryLicenseID())
-        client_state_lincense_id = ar.getClientStateLicenseID().split(',')
-        mme_id = ''
-        if len(client_state_lincense_id) == 4:
-            mme_id = client_state_lincense_id[1] #LicenseID
-            pdf_fn = '{}-{}'.format(pdf_fn, mme_id)
-
-        if ar['CultivationBatch']:
-            pdf_fn = '{}-{}'.format(pdf_fn,  ar['CultivationBatch'])
-	if ar['Lot']:
-            pdf_fn = '{}-{}'.format(pdf_fn, ar['Lot'])
-
+        pdf_fn = to_utf8(ar.getRequestID())
         if pdf_report:
             if contact:
                 recipients = [{
@@ -713,7 +702,7 @@ class AnalysisRequestPublishView(ARPV):
                 attachPdf(mime_msg, pdf_report, pdf_fn)
 
                 # BIKA Cannabis hack.  Create the CSV they desire here now
-                fn = self.current_certificate_number()
+                fn = pdf_fn
                 attachCSV(mime_msg,csvdata,fn)
 
                 try:
@@ -750,8 +739,8 @@ class AnalysisRequestPublishView(ARPV):
             if pdf_report and 'pdf' in recip.get('pubpref'):
                 attachPdf(mime_msg, pdf_report, pdf_fn)
                 # BIKA Cannabis hack.  Create the CSV they desire here now
-                fn = self.current_certificate_number()
-                attachCSV(mime_msg,csvdata,fn)
+                fn = pdf_fn
+                attachCSV(mime_msg, csvdata, fn)
 
             # For now, I will simply ignore mail send under test.
             if hasattr(self.portal, 'robotframework'):
@@ -789,6 +778,11 @@ class AnalysisRequestPublishView(ARPV):
             f = open(fname, 'w')
             f.write(pdf_report)
             f.close()
+
+            csvname = '{}{}.csv'.format(today_path, pdf_fn)
+            fcsv = open(csvname, 'w')
+            fcsv.write(csvdata)
+            fcsv.close()
 
         return [ar]
 
@@ -835,18 +829,22 @@ class AnalysisRequestPublishView(ARPV):
         writer = csv.writer(output)
         for ar in ars:
             ar_id = ar.id
-            sample = ar.getSample()
-            date_rec = ar.getDateReceived()
-            if date_rec:
-                date_rec = date_rec.strftime('%Y-%m-%d')
-            sampling_date = ar.getSamplingDate()
-            if sampling_date:
-                sampling_date = sampling_date.strftime('%Y-%m-%d')
+            date_published = ar.getDatePublished()
+            if date_published:
+                date_published = date_published.split(' ')[0]
+            else:
+                date_published = self.ulocalized_time(DateTime(), long_format=0)
+
             client_sampleid = to_utf8(ar.getClientSampleID())
             as_keyword = ''
             result = ''
             is_in_range = 'True'
             unit_and_ar_id = ''
+            sample_type_uid = ar.getSampleType().UID()
+            bsc = getToolByName(self, 'bika_setup_catalog')
+            analysis_specs = bsc(portal_type='AnalysisSpec',
+                          getSampleTypeUID=sample_type_uid)
+            dmk = ar.bika_setup.getResultsDecimalMark()
 
             lines = []
             analyses = ar.getAnalyses(full_objects=True)
@@ -861,31 +859,61 @@ class AnalysisRequestPublishView(ARPV):
                     specification = rr.get(analysis.getKeyword(), None)
                     # No specs available, assume in range:
                     if not specification:
-                        is_in_range = 'N/A'
+                        is_in_range = 'PASS'
                 else:
                     minimum = specification.get('min', '')
                     maximum = specification.get('max', '')
                     error = specification.get('error', '')
                     if minimum == '' and maximum == '' and error == '':
-                        is_in_range = 'N/A'
+                        is_in_range = 'PASS'
                     else:
                         outofrange, acceptable = \
                             isOutOfRange(result, minimum, maximum, error)
-                        is_in_range = outofrange
+                        if outofrange == False:
+                            is_in_range = True
+                        elif outofrange == True:
+                            is_in_range = False
 
                 unit = service.getUnit()
+                unit = '({})-'.format(unit) if unit else ''
+                unit_and_ar_id = '{}{}'.format(unit, ar_id)
+
+                #Check unit conversion
+                unit = analysis.getService().getUnit()
                 unit_and_ar_id = '{}-{}'.format(unit, ar_id)
-                line = {'sampling_date': sampling_date,
+                if sample_type_uid:
+                    i = 0
+                    new_text = []
+                    hide_original = False
+                    an_dict = {'converted_units': []}
+                    for unit_conversion in service.getUnitConversions():
+                        if unit_conversion.get('SampleType') and \
+                           unit_conversion.get('Unit') and \
+                           unit_conversion.get('SampleType') == sample_type_uid:
+                            i += 1
+                            new = dict({})
+                            conv = ploneapi.content.get(
+                                                UID=unit_conversion['Unit'])
+                            unit_and_ar_id = '{}-{}'.format(
+                                                    conv.converted_unit, ar_id)
+                            result = convert_unit(
+                                            analysis.getResult(),
+                                            conv.formula,
+                                            dmk,
+                                            analysis.getPrecision())
+                            break
+
+                line = {'date_published': date_published,
                         'client_sampleid': client_sampleid,
                         'as_keyword': service.getShortTitle(),
-                        'result': analysis.getFormattedResult(html=False),
+                        'result': result,
                         'is_in_range': is_in_range,
                         'unit_and_ar_id' : unit_and_ar_id,
                         }
                 lines.append(line)
 
             for l in lines:
-                writer.writerow([l['sampling_date'], l['client_sampleid'],
+                writer.writerow([l['date_published'], l['client_sampleid'],
                                 l['as_keyword'], l['result'],
                                 l['is_in_range'], l['unit_and_ar_id'],
                                 ])
