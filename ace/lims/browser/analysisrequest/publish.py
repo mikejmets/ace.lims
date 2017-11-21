@@ -395,10 +395,10 @@ class AnalysisRequestPublishView(ARPV):
         count = 0
         dmk = ar.bika_setup.getResultsDecimalMark()
         ans = [an.getObject() for an in ar.getAnalyses()]
-        sample_type_ui = ar.getSampleType().UID()
+        sample_type_uid = ar.getSampleType().UID()
         bsc = getToolByName(self, 'bika_setup_catalog')
         analysis_specs = bsc(portal_type='AnalysisSpec',
-                      getSampleTypeUID=sample_type_ui)
+                      getSampleTypeUID=sample_type_uid)
         analysis_spec = None
         if len(analysis_specs) > 0:
             analysis_spec = analysis_specs[0].getObject()
@@ -422,14 +422,14 @@ class AnalysisRequestPublishView(ARPV):
             an_dict['converted_units'] = []
             an_dict['limits_units'] = []
             # add unit conversion information
-            if sample_type_ui:
+            if sample_type_uid:
                 i = 0
                 new_text = []
                 hide_original = False
                 for unit_conversion in service.getUnitConversions():
                     if unit_conversion.get('SampleType') and \
                        unit_conversion.get('Unit') and \
-                       unit_conversion.get('SampleType') == sample_type_ui:
+                       unit_conversion.get('SampleType') == sample_type_uid:
                         i += 1
                         new = dict({})
                         conv = ploneapi.content.get(
@@ -642,7 +642,6 @@ class AnalysisRequestPublishView(ARPV):
         #csvdata = self.create_cannabis_csv(ars)
         csvdata = self.create_metrc_csv(ars)
         pdf_fn = to_utf8(ar.getRequestID())
-
         if pdf_report:
             if contact:
                 recipients = [{
@@ -666,20 +665,6 @@ class AnalysisRequestPublishView(ARPV):
             fld = report.getField('Pdf')
             fld.get(report).setFilename(pdf_fn+ ".pdf")
             fld.get(report).setContentType('application/pdf')
-
-            #csv_report = ar.generateUniqueId('ARReport')
-            #csv_report = _createObjectByType("ARReport", ar, reportid)
-            #csv_report.edit(
-            #    AnalysisRequest=ar.UID(),
-            #    Pdf=csvdata,
-            #    Html=results_html,
-            #    Recipients=recipients
-            #)
-            #csv_report.unmarkCreationFlag()
-            #renameAfterCreation(csv_report)
-            #fld = csv_report.getField('Pdf')
-            #fld.get(csv_report).setFilename(pdf_fn+ ".csv")
-            ##fld.get(csv_report).setContentType('application/pdf')
 
             # Set status to prepublished/published/republished
             status = wf.getInfoFor(ar, 'review_state')
@@ -849,11 +834,17 @@ class AnalysisRequestPublishView(ARPV):
                 date_published = date_published.split(' ')[0]
             else:
                 date_published = self.ulocalized_time(DateTime(), long_format=0)
+
             client_sampleid = to_utf8(ar.getClientSampleID())
             as_keyword = ''
             result = ''
             is_in_range = 'True'
             unit_and_ar_id = ''
+            sample_type_uid = ar.getSampleType().UID()
+            bsc = getToolByName(self, 'bika_setup_catalog')
+            analysis_specs = bsc(portal_type='AnalysisSpec',
+                          getSampleTypeUID=sample_type_uid)
+            dmk = ar.bika_setup.getResultsDecimalMark()
 
             lines = []
             analyses = ar.getAnalyses(full_objects=True)
@@ -886,10 +877,37 @@ class AnalysisRequestPublishView(ARPV):
                 unit = service.getUnit()
                 unit = '({})-'.format(unit) if unit else ''
                 unit_and_ar_id = '{}{}'.format(unit, ar_id)
+
+                #Check unit conversion
+                unit = analysis.getService().getUnit()
+                unit_and_ar_id = '{}-{}'.format(unit, ar_id)
+                result = analysis.getFormattedResult(html=False)
+                if sample_type_uid:
+                    i = 0
+                    new_text = []
+                    hide_original = False
+                    an_dict = {'converted_units': []}
+                    for unit_conversion in service.getUnitConversions():
+                        if unit_conversion.get('SampleType') and \
+                           unit_conversion.get('Unit') and \
+                           unit_conversion.get('SampleType') == sample_type_uid:
+                            i += 1
+                            new = dict({})
+                            conv = ploneapi.content.get(
+                                                UID=unit_conversion['Unit'])
+                            unit_and_ar_id = '{}-{}'.format(
+                                                    conv.converted_unit, ar_id)
+                            result = convert_unit(
+                                            analysis.getResult(),
+                                            conv.formula,
+                                            dmk,
+                                            analysis.getPrecision())
+                            break
+
                 line = {'date_published': date_published,
                         'client_sampleid': client_sampleid,
                         'as_keyword': service.getShortTitle(),
-                        'result': analysis.getFormattedResult(html=False),
+                        'result': result,
                         'is_in_range': is_in_range,
                         'unit_and_ar_id' : unit_and_ar_id,
                         }
