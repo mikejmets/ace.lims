@@ -12,8 +12,8 @@ def folderitems(self, full_objects=False):
     items = super(AnalysisRequestsView, self).folderitems()
     #Sort on AR ID sequence number
     items.sort(lambda x, y: cmp(
-        y['id'].split('-')[3],
-        x['id'].split('-')[3]))
+        x['id'].split('-')[3],
+        y['id'].split('-')[3]))
     ids = [r['id'].split('-')[3] for r in items]
     return items
 
