@@ -24,7 +24,7 @@ class BatchSchemaModifier(object):
                 'view': 'invisible'}
                 schema[fn].required = False
 
-        schema['Client'].required = True
+        #schema['Client'].required = True
 
         return schema
 
