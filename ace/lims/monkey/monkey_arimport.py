@@ -12,6 +12,11 @@ from DateTime import DateTime
 from bika.lims import logger
 from bika.lims.browser import ulocalized_time
 from bika.lims.content.analysisrequest import schema as ar_schema
+from bika.lims.content.arimport import convert_date_string 
+from bika.lims.content.arimport import get_row_container 
+from bika.lims.content.arimport import get_row_profile_services 
+from bika.lims.content.arimport import get_row_services 
+from bika.lims.content.arimport import lookup_sampler_uid 
 from bika.lims.content.sample import schema as sample_schema
 from bika.lims.idserver import renameAfterCreation
 from bika.lims.utils import tmpID, getUsers
