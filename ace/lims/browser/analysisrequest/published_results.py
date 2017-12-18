@@ -67,6 +67,8 @@ class AnalysisRequestPublishedResults(ARPR):
         recipients = obj.getRecipients()
         links = ["<a href='mailto:{EmailAddress}'>{Fullname}</a>".format(**r)
                  for r in recipients if r['EmailAddress']]
+        if len(links) == 0:
+            links = ["{Fullname}".format(**r) for r in recipients]
         item['replace']['Recipients'] = ', '.join(links)
 
         # download link 'Download PDF (size)'
