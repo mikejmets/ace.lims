@@ -693,29 +693,29 @@ class AnalysisRequestPublishView(ARPV):
             mime_msg.attach(msg_txt)
 
             to = []
-            mngrs = ar.getResponsible()
-            for mngrid in mngrs['ids']:
-                name = mngrs['dict'][mngrid].get('name', '')
-                email = mngrs['dict'][mngrid].get('email', '')
-                if (email != ''):
-                    to.append(formataddr((encode_header(name), email)))
+            #mngrs = ar.getResponsible()
+            #for mngrid in mngrs['ids']:
+            #    name = mngrs['dict'][mngrid].get('name', '')
+            #    email = mngrs['dict'][mngrid].get('email', '')
+            #    if (email != ''):
+            #        to.append(formataddr((encode_header(name), email)))
 
-            if len(to) > 0:
-                # Send the email to the managers
-                mime_msg['To'] = ','.join(to)
-                attachPdf(mime_msg, pdf_report, pdf_fn)
+            #if len(to) > 0:
+            #    # Send the email to the managers
+            #    mime_msg['To'] = ','.join(to)
+            #    attachPdf(mime_msg, pdf_report, pdf_fn)
 
-                # BIKA Cannabis hack.  Create the CSV they desire here now
-                fn = pdf_fn
-                attachCSV(mime_msg,csvdata,fn)
+            #    # BIKA Cannabis hack.  Create the CSV they desire here now
+            #    fn = pdf_fn
+            #    attachCSV(mime_msg,csvdata,fn)
 
-                try:
-                    host = getToolByName(ar, 'MailHost')
-                    host.send(mime_msg.as_string(), immediate=True)
-                except SMTPServerDisconnected as msg:
-                    logger.warn("SMTPServerDisconnected: %s." % msg)
-                except SMTPRecipientsRefused as msg:
-                    raise WorkflowException(str(msg))
+            #    try:
+            #        host = getToolByName(ar, 'MailHost')
+            #        host.send(mime_msg.as_string(), immediate=True)
+            #    except SMTPServerDisconnected as msg:
+            #        logger.warn("SMTPServerDisconnected: %s." % msg)
+            #    except SMTPRecipientsRefused as msg:
+            #        raise WorkflowException(str(msg))
 
         # Send report to recipients
         recips = self.get_recipients(ar)
