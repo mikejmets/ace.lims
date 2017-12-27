@@ -12,11 +12,6 @@ from DateTime import DateTime
 from bika.lims import logger
 from bika.lims.browser import ulocalized_time
 from bika.lims.content.analysisrequest import schema as ar_schema
-from bika.lims.content.arimport import convert_date_string 
-from bika.lims.content.arimport import get_row_container 
-from bika.lims.content.arimport import get_row_profile_services 
-from bika.lims.content.arimport import get_row_services 
-from bika.lims.content.arimport import lookup_sampler_uid 
 from bika.lims.content.sample import schema as sample_schema
 from bika.lims.idserver import renameAfterCreation
 from bika.lims.utils import tmpID, getUsers
@@ -495,4 +490,83 @@ def get_sample_values(self):
             res['headers'] = [x.strip() for x in row]
             next_rows_are_sample_rows = True
     return res
+
+def convert_date_string(datestr):
+    return datestr.replace('-', '/')
+
+def get_row_container(row):
+    """Return a sample container
+    """
+    bsc = ploneapi.portal.get_tool('bika_setup_catalog')
+    val = row.get('Container', False)
+    if val:
+        brains = bsc(portal_type='Container', UID=row['Container'])
+        if brains:
+            brains[0].getObject()
+        brains = bsc(portal_type='ContainerType', UID=row['Container'])
+        if brains:
+            # XXX Cheating.  The calculation of capacity vs. volume  is not done.
+            return brains[0].getObject()
+    return None
+
+def get_row_services(row):
+    """Return a list of services which are referenced in Analyses.
+    values may be UID, Title or Keyword.
+    """
+    bsc = ploneapi.portal.get_tool('bika_setup_catalog')
+    services = set()
+    errors = []
+    for val in row.get('Analyses', []):
+        brains = bsc(portal_type='AnalysisService', getKeyword=val)
+        if not brains:
+            brains = bsc(portal_type='AnalysisService', title=val)
+        if not brains:
+            brains = bsc(portal_type='AnalysisService', UID=val)
+        if brains:
+            services.add(brains[0].UID)
+        else:
+            errors.append("Invalid analysis specified: %s" % val)
+    return list(services), errors
+
+def get_row_profile_services(row):
+    """Return a list of services which are referenced in profiles
+    values may be UID, Title or ProfileKey.
+    """
+    bsc = ploneapi.portal.get_tool('bika_setup_catalog')
+    services = set()
+    errors = []
+    profiles = [x.getObject() for x in bsc(portal_type='AnalysisProfile')]
+    for val in row.get('Profiles', []):
+        objects = [x for x in profiles
+                   if val in (x.getProfileKey(), x.UID(), x.Title())]
+        if objects:
+            for service in objects[0].getService():
+                services.add(service.UID())
+        else:
+            errors.append("Invalid analysis specified: %s" % val)
+    return list(services), errors
+
+def lookup_sampler_uid(import_user):
+    #Lookup sampler's uid
+    found = False
+    userid = None
+    user_ids = []
+    users = getUsers(['LabManager', 'Sampler']).items()
+    for (samplerid, samplername) in users:
+        if import_user == samplerid:
+            found = True
+            userid = samplerid
+            break
+        if import_user == samplername:
+            user_ids.append(samplerid)
+    if found:
+        return userid
+    if len(user_ids) == 1:
+        return user_ids[0]
+    if len(user_ids) > 1:
+        #raise ValueError('Sampler %s is ambiguous' % import_user)
+        return ''
+    #Otherwise
+    #raise ValueError('Sampler %s not found' % import_user)
+    return ''
 
