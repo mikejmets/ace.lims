@@ -8,13 +8,17 @@ from ace.lims.utils import attachCSV, createPdf, isOutOfRange
 from ace.lims.vocabularies import  getACEARReportTemplates
 from bika.lims.browser.analysisrequest.publish import \
     AnalysisRequestPublishView as ARPV
-from bika.lims.idserver import renameAfterCreation
+from bika.lims.browser.analysisrequest.publish import \
+    AnalysisRequestDigester as ARD
 from bika.lims import bikaMessageFactory as _, t
 from bika.lims import logger
+from bika.lims.browser import BrowserView, ulocalized_time
+from bika.lims.idserver import renameAfterCreation
 from bika.lims.idserver import generateUniqueId
 from bika.lims.utils import to_utf8, encode_header, attachPdf
 #from bika.lims.utils import convert_unit
 from bika.lims.utils import dicts_to_dict
+from bika.lims.workflow import wasTransitionPerformed
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.Utils import formataddr
@@ -37,6 +41,15 @@ import time
 class AnalysisRequestPublishView(ARPV):
     implements(IFolderContentsView)
     template = ViewPageTemplateFile("templates/analysisrequest_publish.pt")
+
+    def __init__(self, context, request, publish=False):
+        BrowserView.__init__(self, context, request)
+        self.context = context
+        self.request = request
+        self._publish = publish
+        self._ars = [self.context]
+        self._digester = AnalysisRequestDigester()
+
 
     def __call__(self):
         if self.context.portal_type == 'AnalysisRequest':
@@ -62,7 +75,7 @@ class AnalysisRequestPublishView(ARPV):
         self._arsbyclient = [group for group in groups.values()]
 
         # Report may want to print current date
-        self.current_date = self.ulocalized_time(DateTime(), long_format=True)
+        self.current_date = ulocalized_time(DateTime(), long_format=True)
 
         # Do publish?
         if self.request.form.get('publish', '0') == '1':
@@ -132,174 +145,13 @@ class AnalysisRequestPublishView(ARPV):
         """ Returns the dict for the Analysis Request specified. If no AR set,
             returns the current analysis request
         """
-        return self._ar_data(analysisrequest) if analysisrequest \
-                else self._ar_data(self._ars[self._current_ar_index])
-
-    def _ar_data(self, ar, excludearuids=[]):
-        """ Creates an ar dict, accessible from the view and from each
-            specific template.
-        """
-        if ar.UID() in self._cache['_ar_data']:
-            return self._cache['_ar_data'][ar.UID()]
-        #Not sure why the following 2 lines are need, doing ar.getStrain or ar.getSample().getStrain does not work
-        strain = ''
-        bsc =  self.bika_setup_catalog
-        strains = bsc(UID=ar.getSample()['Strain'])
-        if strains:
-             strain = strains[0].Title
-
-        mme_id = state_id = ''
-        client_state_lincense_id = ar.getClientStateLicenseID().split(',')
-        if len(client_state_lincense_id) == 4:
-            mme_id = client_state_lincense_id[1] #LicenseID
-            state_id = client_state_lincense_id[2] #LicenseNumber
-        data = {'obj': ar,
-                'id': ar.getRequestID(),
-                #'client_order_num': ar.getClientOrderNumber(),
-                'client_reference': ar.getClientReference(),
-                'client_sampleid': ar.getClientSampleID(),
-                #'adhoc': ar.getAdHoc(),
-                #'composite': ar.getComposite(),
-                #'report_drymatter': ar.getReportDryMatter(),
-                #'invoice_exclude': ar.getInvoiceExclude(),
-                'sampling_date': self.ulocalized_time(
-                    ar.getSamplingDate(), long_format=1),
-                'date_received': self.ulocalized_time(
-                    ar.getDateReceived(), long_format=1),
-                #'member_discount': ar.getMemberDiscount(),
-                'date_sampled': self.ulocalized_time(
-                    ar.getDateSampled(), long_format=1),
-                'date_published': self.ulocalized_time(DateTime(), long_format=1),
-                #'invoiced': ar.getInvoiced(),
-                #'late': ar.getLate(),
-                #'subtotal': ar.getSubtotal(),
-                #'vat_amount': ar.getVATAmount(),
-                #'totalprice': ar.getTotalPrice(),
-                'invalid': ar.isInvalid(),
-                'url': ar.absolute_url(),
-                'remarks': to_utf8(ar.getRemarks().replace('\n', '').replace("===", "<br/>")),
-                'footer': to_utf8(self.context.bika_setup.getResultFooter()),
-                'prepublish': False,
-                'published': False,
-                #'child_analysisrequest': None,
-                #'parent_analysisrequest': None,
-                #'resultsinterpretation':ar.getResultsInterpretation(),
-                'lot': ar['Lot'],#To be fixed
-                'strain': strain, # To be fixed
-                'cultivation_batch': ar['CultivationBatch'],
-                #'resultsinterpretation':ar.getResultsInterpretation(),
-                'ar_attachments': self._get_ar_attachments(ar),
-                'an_attachments': self._get_an_attachments(ar),
-                'attachment_src': None,
-                'attachment_width': None,
-                'attachment_height': None,
-                'mme_id': mme_id,
-                'state_id': state_id,}
-
-        # Sub-objects
-        #excludearuids.append(ar.UID())
-        #puid = ar.getRawParentAnalysisRequest()
-        #if puid and puid not in excludearuids:
-        #    data['parent_analysisrequest'] = self._ar_data(ar.getParentAnalysisRequest(), excludearuids)
-        #cuid = ar.getRawChildAnalysisRequest()
-        #if cuid and cuid not in excludearuids:
-        #    data['child_analysisrequest'] = self._ar_data(ar.getChildAnalysisRequest(), excludearuids)
-
-        wf = getToolByName(ar, 'portal_workflow')
-        allowed_states = ['verified', 'published']
-        data['prepublish'] = wf.getInfoFor(ar, 'review_state') not in allowed_states
-        if wf.getInfoFor(ar, 'review_state') == 'published':
-            data['published'] = True
-
-        data['contact'] = self._contact_data(ar)
-        data['client'] = self._client_data(ar)
-        #data['sample'] = self._sample_data(ar)
-        data['product'] = self._sample_type(ar).get('title', '')
-        #data['batch'] = self._batch_data(ar)
-        #data['specifications'] = self._specs_data(ar)
-        #data['analyses'] = self._analyses_data(ar, ['verified', 'published'])
-        #data['qcanalyses'] = self._qcanalyses_data(ar, ['verified', 'published'])
-        #data['points_of_capture'] = sorted(set([an['point_of_capture'] for an in data['analyses']]))
-        #data['categories'] = sorted(set([an['category'] for an in data['analyses']]))
-        #data['hasblanks'] = len([an['reftype'] for an in data['qcanalyses'] if an['reftype'] == 'b']) > 0
-        #data['hascontrols'] = len([an['reftype'] for an in data['qcanalyses'] if an['reftype'] == 'c']) > 0
-        #data['hasduplicates'] = len([an['reftype'] for an in data['qcanalyses'] if an['reftype'] == 'd']) > 0
-        # Attachment src/link
-        attachments = ar.getAttachment()
-        for attachment in attachments:
-            if attachment.getReportOption() != 'r':
-                continue
-            filename = attachment.getAttachmentFile().filename 
-            extension = filename.split('.')[-1]
-            if extension in ['png', 'jpg', 'jpeg']: #Check other image extensions
-                file_url =  attachment.absolute_url()
-                data['attachment_src'] = '{}/at_download/AttachmentFile'.format(file_url)
-                [width, height] = attachment.getAttachmentFile().getSize()
-                maxwidth = 248 # 80% of 310px
-                maxheight = 100
-                resize_ratio = min(maxwidth/float(width), maxheight/float(height))
-                data['attachment_width'] = width*resize_ratio
-                data['attachment_height'] = height*resize_ratio
-                break
-
-        # Categorize analyses
-        #data['categorized_analyses'] = {}
-        data['department_analyses'] = {}
-        #for an in data['analyses']:
-        #    poc = an['point_of_capture']
-        #    cat = an['category']
-        #    pocdict = data['categorized_analyses'].get(poc, {})
-        #    catlist = pocdict.get(cat, [])
-        #    catlist.append(an)
-        #    pocdict[cat] = catlist
-        #    data['categorized_analyses'][poc] = pocdict
-
-        #    # Group by department too
-        #    anobj = an['obj']
-        #    dept = anobj.getService().getDepartment() if anobj.getService() else None
-        #    if dept:
-        #        dept = dept.UID()
-        #        dep = data['department_analyses'].get(dept, {})
-        #        dep_pocdict = dep.get(poc, {})
-        #        dep_catlist = dep_pocdict.get(cat, [])
-        #        dep_catlist.append(an)
-        #        dep_pocdict[cat] = dep_catlist
-        #        dep[poc] = dep_pocdict
-        #        data['department_analyses'][dept] = dep
-
-        # Categorize qcanalyses
-        #data['categorized_qcanalyses'] = {}
-        #for an in data['qcanalyses']:
-        #    qct = an['reftype']
-        #    poc = an['point_of_capture']
-        #    cat = an['category']
-        #    qcdict = data['categorized_qcanalyses'].get(qct, {})
-        #    pocdict = qcdict.get(poc, {})
-        #    catlist = pocdict.get(cat, [])
-        #    catlist.append(an)
-        #    pocdict[cat] = catlist
-        #    qcdict[poc] = pocdict
-        #    data['categorized_qcanalyses'][qct] = qcdict
-
-        #data['reporter'] = self._reporter_data(ar)
-        data['managers'] = self._managers_data(ar)
-
-        portal = self.context.portal_url.getPortalObject()
-        data['portal'] = {'obj': portal,
-                          'url': portal.absolute_url()}
-        data['laboratory'] = self._lab_data()
-
-        #results interpretation
-        ri = {}
-        if (ar.getResultsInterpretationByDepartment(None)):
-            ri[''] = ar.getResultsInterpretationByDepartment(None)
-        depts = ar.getDepartments()
-        for dept in depts:
-            ri[dept.Title()] = ar.getResultsInterpretationByDepartment(dept)
-        data['resultsinterpretationdepts'] = ri
-
-        self._cache['_ar_data'][ar.UID()] = data
-        return data
+        #return self._ar_data(analysisrequest) if analysisrequest \
+        #        else self._ar_data(self._ars[self._current_ar_index])
+        if analysisrequest:
+            return self._digester(analysisrequest)
+        else:
+            folder = self._ars[self._current_ar_index]
+            return self._digester(folder)
 
     def format_address(self, address):
         if address:
@@ -308,41 +160,6 @@ class AnalysisRequestPublishView(ARPV):
                      if address.get(v)]
             return ''.join(_list)
         return ''
-
-    def _lab_data(self):
-        portal = self.context.portal_url.getPortalObject()
-        lab = self.context.bika_setup.laboratory
-        supervisor = lab.getLaboratorySupervisor()
-        bsc = getToolByName(self.context, "bika_setup_catalog")
-        labcontact = bsc(portal_type="LabContact", id=supervisor)
-        signature = None
-        lab_manager = ''
-        if len(labcontact) == 1:
-            labcontact = labcontact[0].getObject()
-            lab_manager_name = to_utf8(self.user_fullname(labcontact.getUsername()))
-            lab_manager_job_title = to_utf8(labcontact.getJobTitle())
-            lab_manager = '{} {}'.format(lab_manager_name, lab_manager_job_title)
-
-            if labcontact.getSignature():
-                signature_url = labcontact.getSignature().absolute_url()
-                signature = '{}/Signature'.format(signature_url)
-
-
-        return {'obj': lab,
-                'title': to_utf8(lab.Title()),
-                'lab_license_id': to_utf8(lab.getLaboratoryLicenseID()),
-                'url': to_utf8(lab.getLabURL()),
-                'phone': to_utf8(lab.getPhone()),
-                'address': to_utf8(self._lab_address(lab)),
-                'email': to_utf8(lab.getEmailAddress()),
-                'confidence': lab.getConfidence(),
-                'accredited': lab.getLaboratoryAccredited(),
-                'accreditation_body': to_utf8(lab.getAccreditationBody()),
-                'accreditation_logo': lab.getAccreditationBodyLogo(),
-                'logo': "%s/logo_print.png" % portal.absolute_url(),
-                'lab_manager': to_utf8(lab_manager),
-                'signature': signature,
-                'today':self.ulocalized_time(DateTime(), long_format=0),}
 
     def sorted_by_sort_key(self, category_keys):
         """ Sort categories via catalog lookup on title. """
@@ -641,7 +458,7 @@ class AnalysisRequestPublishView(ARPV):
         # BIKA Cannabis hack.  Create the CSV they desire here now
         #csvdata = self.create_cannabis_csv(ars)
         csvdata = self.create_metrc_csv(ars)
-        pdf_fn = to_utf8(ar.getRequestID())
+        pdf_fn = to_utf8(ar.getId())
         if pdf_report:
             if contact:
                 recipients = [{
@@ -773,7 +590,7 @@ class AnalysisRequestPublishView(ARPV):
             if not os.path.exists(client_path):
                 os.makedirs(client_path)
 
-            today = self.ulocalized_time(DateTime(), long_format=0)
+            today = ulocalized_time(DateTime(), long_format=0)
             today_path = '{}{}/'.format(client_path, today)
             if not os.path.exists(today_path):
                 os.makedirs(today_path)
@@ -837,7 +654,7 @@ class AnalysisRequestPublishView(ARPV):
             if date_published:
                 date_published = date_published.split(' ')[0]
             else:
-                date_published = self.ulocalized_time(DateTime(), long_format=0)
+                date_published = ulocalized_time(DateTime(), long_format=0)
 
             client_sampleid = to_utf8(ar.getClientSampleID())
             as_keyword = ''
@@ -921,3 +738,248 @@ class AnalysisRequestPublishView(ARPV):
                                 ])
 
         return output.getvalue()
+
+class AnalysisRequestDigester(ARD):
+
+    def __call__(self, ar, overwrite=False):
+        # cheating
+        self.context = ar
+        self.request = ar.REQUEST
+        #self._cache = {}
+
+        # if AR was previously digested, use existing data (if exists)
+        verified = wasTransitionPerformed(ar, 'verify')
+        if not overwrite and verified:
+            # Prevent any error related with digest
+            data = ar.getDigest() if hasattr(ar, 'getDigest') else {}
+            if False: #data:
+                # Check if the department managers have changed since
+                # verification:
+                saved_managers = data.get('managers', {})
+                saved_managers_ids = set(saved_managers.get('ids', []))
+                current_managers = self.context.getManagers()
+                current_managers_ids = set([man.getId() for man in
+                                            current_managers])
+                # The symmetric difference of two sets A and B is the set of
+                # elements which are in either of the sets A or B but not
+                # in both.
+                are_different = saved_managers_ids.symmetric_difference(
+                    current_managers_ids)
+                if len(are_different) == 0:
+                    # Seems that sometimes the 'obj' is wrong in the saved
+                    # data.
+                    data['obj'] = ar
+                    # Always set results interpretation
+                    self._set_results_interpretation(ar, data)
+                    return data
+
+        logger.info("=========== creating new data for %s" % ar)
+
+        # Set data to the AR schema field, and return it.
+        data = self._ar_data(ar)
+        if hasattr(ar, 'setDigest'):
+            ar.setDigest(data)
+        logger.info("=========== new data for %s created." % ar)
+        return data
+
+    def _ar_data(self, ar, excludearuids=[]):
+        """ Creates an ar dict, accessible from the view and from each
+            specific template.
+        """
+        #if ar.UID() in self._cache['_ar_data']:
+        #    return self._cache['_ar_data'][ar.UID()]
+        #Not sure why the following 2 lines are need, doing ar.getStrain or ar.getSample().getStrain does not work
+        bsc = getToolByName(self.context, 'bika_setup_catalog')
+        strain = ''
+        strains = bsc(UID=ar.getSample()['Strain'])
+        if strains:
+             strain = strains[0].Title
+
+        mme_id = state_id = ''
+        #client_state_lincense_id = ar.getClientStateLicenseID().split(',')
+        #if len(client_state_lincense_id) == 4:
+        #    mme_id = client_state_lincense_id[1] #LicenseID
+        #    state_id = client_state_lincense_id[2] #LicenseNumber
+        data = {'obj': ar,
+                'id': ar.getId(),
+                #'client_order_num': ar.getClientOrderNumber(),
+                'client_reference': ar.getClientReference(),
+                'client_sampleid': ar.getClientSampleID(),
+                #'adhoc': ar.getAdHoc(),
+                #'composite': ar.getComposite(),
+                #'report_drymatter': ar.getReportDryMatter(),
+                #'invoice_exclude': ar.getInvoiceExclude(),
+                'sampling_date': ulocalized_time(
+                    ar.getSamplingDate(), long_format=1),
+                'date_received': ulocalized_time(
+                    ar.getDateReceived(), long_format=1),
+                #'member_discount': ar.getMemberDiscount(),
+                'date_sampled': ulocalized_time(
+                    ar.getDateSampled(), long_format=1),
+                'date_published': ulocalized_time(DateTime(), long_format=1),
+                #'invoiced': ar.getInvoiced(),
+                #'late': ar.getLate(),
+                #'subtotal': ar.getSubtotal(),
+                #'vat_amount': ar.getVATAmount(),
+                #'totalprice': ar.getTotalPrice(),
+                'invalid': ar.isInvalid(),
+                'url': ar.absolute_url(),
+                'remarks': to_utf8(ar.getRemarks().replace('\n', '').replace("===", "<br/>")),
+                'footer': to_utf8(self.context.bika_setup.getResultFooter()),
+                'prepublish': False,
+                'published': False,
+                #'child_analysisrequest': None,
+                #'parent_analysisrequest': None,
+                #'resultsinterpretation':ar.getResultsInterpretation(),
+                'lot': ar['Lot'],#To be fixed
+                'strain': strain, # To be fixed
+                'cultivation_batch': ar['CultivationBatch'],
+                #'resultsinterpretation':ar.getResultsInterpretation(),
+                'ar_attachments': self._get_ar_attachments(ar),
+                'an_attachments': self._get_an_attachments(ar),
+                'attachment_src': None,
+                'attachment_width': None,
+                'attachment_height': None,
+                'mme_id': mme_id,
+                'state_id': state_id,}
+
+        # Sub-objects
+        #excludearuids.append(ar.UID())
+        #puid = ar.getRawParentAnalysisRequest()
+        #if puid and puid not in excludearuids:
+        #    data['parent_analysisrequest'] = self._ar_data(ar.getParentAnalysisRequest(), excludearuids)
+        #cuid = ar.getRawChildAnalysisRequest()
+        #if cuid and cuid not in excludearuids:
+        #    data['child_analysisrequest'] = self._ar_data(ar.getChildAnalysisRequest(), excludearuids)
+
+        wf = getToolByName(ar, 'portal_workflow')
+        allowed_states = ['verified', 'published']
+        data['prepublish'] = wf.getInfoFor(ar, 'review_state') not in allowed_states
+        if wf.getInfoFor(ar, 'review_state') == 'published':
+            data['published'] = True
+
+        data['contact'] = self._contact_data(ar)
+        data['client'] = self._client_data(ar)
+        #data['sample'] = self._sample_data(ar)
+        data['product'] = self._sample_type(ar).get('title', '')
+        #data['batch'] = self._batch_data(ar)
+        #data['specifications'] = self._specs_data(ar)
+        #data['analyses'] = self._analyses_data(ar, ['verified', 'published'])
+        #data['qcanalyses'] = self._qcanalyses_data(ar, ['verified', 'published'])
+        #data['points_of_capture'] = sorted(set([an['point_of_capture'] for an in data['analyses']]))
+        #data['categories'] = sorted(set([an['category'] for an in data['analyses']]))
+        #data['hasblanks'] = len([an['reftype'] for an in data['qcanalyses'] if an['reftype'] == 'b']) > 0
+        #data['hascontrols'] = len([an['reftype'] for an in data['qcanalyses'] if an['reftype'] == 'c']) > 0
+        #data['hasduplicates'] = len([an['reftype'] for an in data['qcanalyses'] if an['reftype'] == 'd']) > 0
+        # Attachment src/link
+        attachments = ar.getAttachment()
+        for attachment in attachments:
+            if attachment.getReportOption() != 'r':
+                continue
+            filename = attachment.getAttachmentFile().filename 
+            extension = filename.split('.')[-1]
+            if extension in ['png', 'jpg', 'jpeg']: #Check other image extensions
+                file_url =  attachment.absolute_url()
+                data['attachment_src'] = '{}/at_download/AttachmentFile'.format(file_url)
+                [width, height] = attachment.getAttachmentFile().getSize()
+                maxwidth = 248 # 80% of 310px
+                maxheight = 100
+                resize_ratio = min(maxwidth/float(width), maxheight/float(height))
+                data['attachment_width'] = width*resize_ratio
+                data['attachment_height'] = height*resize_ratio
+                break
+
+        # Categorize analyses
+        #data['categorized_analyses'] = {}
+        data['department_analyses'] = {}
+        #for an in data['analyses']:
+        #    poc = an['point_of_capture']
+        #    cat = an['category']
+        #    pocdict = data['categorized_analyses'].get(poc, {})
+        #    catlist = pocdict.get(cat, [])
+        #    catlist.append(an)
+        #    pocdict[cat] = catlist
+        #    data['categorized_analyses'][poc] = pocdict
+
+        #    # Group by department too
+        #    anobj = an['obj']
+        #    dept = anobj.getService().getDepartment() if anobj.getService() else None
+        #    if dept:
+        #        dept = dept.UID()
+        #        dep = data['department_analyses'].get(dept, {})
+        #        dep_pocdict = dep.get(poc, {})
+        #        dep_catlist = dep_pocdict.get(cat, [])
+        #        dep_catlist.append(an)
+        #        dep_pocdict[cat] = dep_catlist
+        #        dep[poc] = dep_pocdict
+        #        data['department_analyses'][dept] = dep
+
+        # Categorize qcanalyses
+        #data['categorized_qcanalyses'] = {}
+        #for an in data['qcanalyses']:
+        #    qct = an['reftype']
+        #    poc = an['point_of_capture']
+        #    cat = an['category']
+        #    qcdict = data['categorized_qcanalyses'].get(qct, {})
+        #    pocdict = qcdict.get(poc, {})
+        #    catlist = pocdict.get(cat, [])
+        #    catlist.append(an)
+        #    pocdict[cat] = catlist
+        #    qcdict[poc] = pocdict
+        #    data['categorized_qcanalyses'][qct] = qcdict
+
+        #data['reporter'] = self._reporter_data(ar)
+        data['managers'] = self._managers_data(ar)
+
+        portal = self.context.portal_url.getPortalObject()
+        data['portal'] = {'obj': portal,
+                          'url': portal.absolute_url()}
+        data['laboratory'] = self._lab_data()
+
+        #results interpretation
+        ri = {}
+        if (ar.getResultsInterpretationByDepartment(None)):
+            ri[''] = ar.getResultsInterpretationByDepartment(None)
+        depts = ar.getDepartments()
+        for dept in depts:
+            ri[dept.Title()] = ar.getResultsInterpretationByDepartment(dept)
+        data['resultsinterpretationdepts'] = ri
+
+        #self._cache['_ar_data'][ar.UID()] = data
+        return data
+
+    def _lab_data(self):
+        portal = self.context.portal_url.getPortalObject()
+        lab = self.context.bika_setup.laboratory
+        #supervisor = lab.getLaboratorySupervisor()
+        #bsc = getToolByName(self.context, "bika_setup_catalog")
+        labcontact = '' #bsc(portal_type="LabContact", id=supervisor)
+        signature = None
+        lab_manager = ''
+        if len(labcontact) == 1:
+            labcontact = labcontact[0].getObject()
+            lab_manager_name = to_utf8(self.user_fullname(labcontact.getUsername()))
+            lab_manager_job_title = to_utf8(labcontact.getJobTitle())
+            lab_manager = '{} {}'.format(lab_manager_name, lab_manager_job_title)
+
+            if labcontact.getSignature():
+                signature_url = labcontact.getSignature().absolute_url()
+                signature = '{}/Signature'.format(signature_url)
+
+
+        return {'obj': lab,
+                'title': to_utf8(lab.Title()),
+                'lab_license_id': 'Dunno', #to_utf8(lab.getLaboratoryLicenseID()),
+                'url': to_utf8(lab.getLabURL()),
+                'phone': to_utf8(lab.getPhone()),
+                'address': to_utf8(self._lab_address(lab)),
+                'email': to_utf8(lab.getEmailAddress()),
+                'confidence': lab.getConfidence(),
+                'accredited': lab.getLaboratoryAccredited(),
+                'accreditation_body': to_utf8(lab.getAccreditationBody()),
+                'accreditation_logo': lab.getAccreditationBodyLogo(),
+                'logo': "%s/logo_print.png" % portal.absolute_url(),
+                'lab_manager': to_utf8(lab_manager),
+                'signature': signature,
+                'today':ulocalized_time(DateTime(), long_format=0),}
+
