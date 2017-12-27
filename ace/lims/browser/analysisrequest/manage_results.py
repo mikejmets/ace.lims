@@ -13,7 +13,6 @@ from bika.lims import bikaMessageFactory as _, t
 from bika.lims import logger
 from bika.lims.idserver import generateUniqueId
 from bika.lims.utils import to_utf8, encode_header, attachPdf
-from bika.lims.utils import convert_unit
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.Utils import formataddr

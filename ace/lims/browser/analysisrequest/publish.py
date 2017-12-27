@@ -13,7 +13,7 @@ from bika.lims import bikaMessageFactory as _, t
 from bika.lims import logger
 from bika.lims.idserver import generateUniqueId
 from bika.lims.utils import to_utf8, encode_header, attachPdf
-from bika.lims.utils import convert_unit
+#from bika.lims.utils import convert_unit
 from bika.lims.utils import dicts_to_dict
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -421,39 +421,39 @@ class AnalysisRequestPublishView(ARPV):
             an_dict['include_original'] = True
             an_dict['converted_units'] = []
             an_dict['limits_units'] = []
-            # add unit conversion information
-            if sample_type_uid:
-                i = 0
-                new_text = []
-                hide_original = False
-                for unit_conversion in service.getUnitConversions():
-                    if unit_conversion.get('SampleType') and \
-                       unit_conversion.get('Unit') and \
-                       unit_conversion.get('SampleType') == sample_type_uid:
-                        i += 1
-                        new = dict({})
-                        conv = ploneapi.content.get(
-                                            UID=unit_conversion['Unit'])
-                        new['unit'] = conv.converted_unit
-                        new['ars'] = convert_unit(
-                                        an.getResult(),
-                                        conv.formula,
-                                        dmk,
-                                        an.getPrecision())
-                        an_dict['converted_units'].append(new)
-                        if service.title in cat_dict.keys() and \
-                           unit_conversion.get('HideOriginalUnit') == '1':
-                               an_dict['include_original'] = False
+            ## add unit conversion information
+            #if sample_type_uid:
+            #    i = 0
+            #    new_text = []
+            #    hide_original = False
+            #    for unit_conversion in service.getUnitConversions():
+            #        if unit_conversion.get('SampleType') and \
+            #           unit_conversion.get('Unit') and \
+            #           unit_conversion.get('SampleType') == sample_type_uid:
+            #            i += 1
+            #            new = dict({})
+            #            conv = ploneapi.content.get(
+            #                                UID=unit_conversion['Unit'])
+            #            new['unit'] = conv.converted_unit
+            #            new['ars'] = convert_unit(
+            #                            an.getResult(),
+            #                            conv.formula,
+            #                            dmk,
+            #                            an.getPrecision())
+            #            an_dict['converted_units'].append(new)
+            #            if service.title in cat_dict.keys() and \
+            #               unit_conversion.get('HideOriginalUnit') == '1':
+            #                   an_dict['include_original'] = False
 
-                if analysis_spec:
-                    keyword = service.getKeyword()
-                    if keyword:
-                        spec_string = analysis_spec.getAnalysisSpecsStr(keyword)
-                        if spec_string:
-                            new = dict({})
-                            new['unit'] = 'Limits'
-                            new['ars'] = spec_string.split(' ')[-1]
-                            an_dict['limits_units'].append(new)
+            #    if analysis_spec:
+            #        keyword = service.getKeyword()
+            #        if keyword:
+            #            spec_string = analysis_spec.getAnalysisSpecsStr(keyword)
+            #            if spec_string:
+            #                new = dict({})
+            #                new['unit'] = 'Limits'
+            #                new['ars'] = spec_string.split(' ')[-1]
+            #                an_dict['limits_units'].append(new)
 
             if '_data' not in cat_dict:
                 cat_dict['_data'] = {}
@@ -882,28 +882,28 @@ class AnalysisRequestPublishView(ARPV):
                 unit = '({})-'.format(unit) if unit else ''
                 unit_and_ar_id = '{}{}'.format(unit, ar_id)
 
-                #Check unit conversion
-                if sample_type_uid:
-                    i = 0
-                    new_text = []
-                    hide_original = False
-                    an_dict = {'converted_units': []}
-                    for unit_conversion in service.getUnitConversions():
-                        if unit_conversion.get('SampleType') and \
-                           unit_conversion.get('Unit') and \
-                           unit_conversion.get('SampleType') == sample_type_uid:
-                            i += 1
-                            new = dict({})
-                            conv = ploneapi.content.get(
-                                                UID=unit_conversion['Unit'])
-                            unit_and_ar_id = '({})-{}'.format(
-                                                    conv.converted_unit, ar_id)
-                            result = convert_unit(
-                                            analysis.getResult(),
-                                            conv.formula,
-                                            dmk,
-                                            analysis.getPrecision())
-                            break
+                ##Check unit conversion
+                #if sample_type_uid:
+                #    i = 0
+                #    new_text = []
+                #    hide_original = False
+                #    an_dict = {'converted_units': []}
+                #    for unit_conversion in service.getUnitConversions():
+                #        if unit_conversion.get('SampleType') and \
+                #           unit_conversion.get('Unit') and \
+                #           unit_conversion.get('SampleType') == sample_type_uid:
+                #            i += 1
+                #            new = dict({})
+                #            conv = ploneapi.content.get(
+                #                                UID=unit_conversion['Unit'])
+                #            unit_and_ar_id = '({})-{}'.format(
+                #                                    conv.converted_unit, ar_id)
+                #            result = convert_unit(
+                #                            analysis.getResult(),
+                #                            conv.formula,
+                #                            dmk,
+                #                            analysis.getPrecision())
+                #            break
 
                 line = {'date_published': date_published,
                         'client_sampleid': client_sampleid,
