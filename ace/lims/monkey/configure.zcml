@@ -43,6 +43,7 @@
       replacement="ace.lims.monkey.monkey_arimport.workflow_script_import"
       />
 
+<!--
   <monkey:patch
       description="This modifies the AnalysisRequestsView __init__ method"
       class="bika.lims.browser.analysisrequest.analysisrequests.AnalysisRequestsView"
@@ -56,5 +57,6 @@
       original="folderitems"
       replacement="ace.lims.monkey.monkey_analyses.folderitems"
       />
+-->
 
 </configure>
