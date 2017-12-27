@@ -1,7 +1,7 @@
 <tal:sticker define="
     item              python:view.current_item;
     ar                python:item[0];
-    priority          python:ar.getPriority().Title() if ar else '';
+    priority          python:ar and ar.getPriority() or '';
     sample            python:item[1];
     ar_id             ar/getId|sample/getId;
     client_ref        ar/getClientReference|sample/getClientReference;
