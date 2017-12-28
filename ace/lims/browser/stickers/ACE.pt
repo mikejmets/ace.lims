@@ -1,7 +1,7 @@
   <tal:sticker define="
     item              python:view.current_item;
     ar                python:item[0];
-    priority          python:ar and ar.getPriority() or '';
+    priority          ar/getPriorityText;
     sample            python:item[1];
     bsc               python:view.bika_setup_catalog;
     strains           python:bsc(UID=sample['Strain']);
