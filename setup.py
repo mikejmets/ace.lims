@@ -1,7 +1,7 @@
 import os
 from setuptools import setup, find_packages
 
-version = '0.1'
+version = '0.2'
 
 
 def read(*rnames):
@@ -33,7 +33,7 @@ setup(name='ace.lims',
       zip_safe=False,
       install_requires=[
           'setuptools',
-          'bika.lims',
+          'senaite.core',
           'archetypes.schemaextender',
       ],
       extras_require={
