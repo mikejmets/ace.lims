@@ -254,7 +254,6 @@ class AnalysisRequestPublishView(ARPV):
                         new['ars'] = convert_unit(
                                         an.getResult(),
                                         conv.formula,
-                                        dmk,
                                         an.getPrecision())
                         an_dict['converted_units'].append(new)
                         if service.title in cat_dict.keys() and \
@@ -717,7 +716,6 @@ class AnalysisRequestPublishView(ARPV):
                             result = convert_unit(
                                             analysis.getResult(),
                                             conv.formula,
-                                            dmk,
                                             analysis.getPrecision())
                             break
 

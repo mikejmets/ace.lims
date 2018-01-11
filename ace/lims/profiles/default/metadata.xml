@@ -2,6 +2,6 @@
 <metadata>
   <version>0.2</version>
   <dependencies>
-      <dependency>profile-senaite.core:default</dependency>
+      <dependency>profile-bika.lims:default</dependency>
   </dependencies>
 </metadata>
