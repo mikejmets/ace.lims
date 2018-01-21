@@ -801,10 +801,10 @@ class AnalysisRequestDigester(ARD):
              strain = strains[0].Title
 
         mme_id = state_id = ''
-        #client_state_lincense_id = ar.getClientStateLicenseID().split(',')
-        #if len(client_state_lincense_id) == 4:
-        #    mme_id = client_state_lincense_id[1] #LicenseID
-        #    state_id = client_state_lincense_id[2] #LicenseNumber
+        client_state_lincense_id = ar.getClientLicenceID().split(',')
+        if len(client_state_lincense_id) == 4:
+            mme_id = client_state_lincense_id[1] #LicenseID
+            state_id = client_state_lincense_id[2] #LicenseNumber
         data = {'obj': ar,
                 'id': ar.getId(),
                 #'client_order_num': ar.getClientOrderNumber(),

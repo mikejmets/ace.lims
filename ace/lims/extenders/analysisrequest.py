@@ -248,8 +248,7 @@ class AnalysisRequestSchemaModifier(object):
                 'view': 'invisible'}
                 schema[fn].required = False
 
-        #schema['ClientStateLicenseID'].required = True
-        schema['Priority'].required = True
+        schema['ClientLicenceID'].required = True
 
         sampler_fields = (
                 'Sampler', 
