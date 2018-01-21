@@ -74,7 +74,9 @@ class AnalysisRequestPublishView(ARPV):
         self._arsbyclient = [group for group in groups.values()]
 
         # Report may want to print current date
-        self.current_date = ulocalized_time(DateTime(), long_format=True)
+        self.current_date = ulocalized_time(DateTime(),
+                                            long_format=True,
+                                            context=self.context)
 
         # Do publish?
         if self.request.form.get('publish', '0') == '1':
@@ -588,7 +590,9 @@ class AnalysisRequestPublishView(ARPV):
             if not os.path.exists(client_path):
                 os.makedirs(client_path)
 
-            today = ulocalized_time(DateTime(), long_format=0)
+            today = ulocalized_time(DateTime(),
+                                    long_format=0,
+                                    context=self.context)
             today_path = '{}{}/'.format(client_path, today)
             if not os.path.exists(today_path):
                 os.makedirs(today_path)
@@ -650,9 +654,13 @@ class AnalysisRequestPublishView(ARPV):
             ar_id = ar.id
             date_published = ar.getDatePublished()
             if date_published:
-                date_published = date_published.split(' ')[0]
+                date_published = ulocalized_time(date_published,
+                                                 long_format=False,
+                                                 context=self.context)
             else:
-                date_published = ulocalized_time(DateTime(), long_format=0)
+                date_published = ulocalized_time(DateTime(),
+                                                 long_format=False,
+                                                 context=self.context)
 
             client_sampleid = to_utf8(ar.getClientSampleID())
             as_keyword = ''
@@ -807,13 +815,14 @@ class AnalysisRequestDigester(ARD):
                 #'report_drymatter': ar.getReportDryMatter(),
                 #'invoice_exclude': ar.getInvoiceExclude(),
                 'sampling_date': ulocalized_time(
-                    ar.getSamplingDate(), long_format=1),
+                    ar.getSamplingDate(), long_format=1, context=self.context),
                 'date_received': ulocalized_time(
-                    ar.getDateReceived(), long_format=1),
+                    ar.getDateReceived(), long_format=1, context=self.context),
                 #'member_discount': ar.getMemberDiscount(),
                 'date_sampled': ulocalized_time(
-                    ar.getDateSampled(), long_format=1),
-                'date_published': ulocalized_time(DateTime(), long_format=1),
+                    ar.getDateSampled(), long_format=1, context=self.context),
+                'date_published': ulocalized_time(
+                    DateTime(), long_format=1, context=self.context),
                 #'invoiced': ar.getInvoiced(),
                 #'late': ar.getLate(),
                 #'subtotal': ar.getSubtotal(),
@@ -978,5 +987,8 @@ class AnalysisRequestDigester(ARD):
                 'logo': "%s/logo_print.png" % portal.absolute_url(),
                 'lab_manager': to_utf8(lab_manager),
                 'signature': signature,
-                'today':ulocalized_time(DateTime(), long_format=0),}
+                'today':ulocalized_time(DateTime(),
+                                        long_format=0,
+                                        context=self.context),
+                }
 
