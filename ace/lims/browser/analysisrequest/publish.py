@@ -1,11 +1,12 @@
 from ace.lims.utils import attachCSV, createPdf, isOutOfRange
 from ace.lims.vocabularies import  getACEARReportTemplates
+from bika.lims import api
+from bika.lims import bikaMessageFactory as _, t
+from bika.lims import logger
 from bika.lims.browser.analysisrequest.publish import \
     AnalysisRequestPublishView as ARPV
 from bika.lims.browser.analysisrequest.publish import \
     AnalysisRequestDigester as ARD
-from bika.lims import bikaMessageFactory as _, t
-from bika.lims import logger
 from bika.lims.browser import BrowserView, ulocalized_time
 from bika.lims.idserver import renameAfterCreation
 from bika.lims.idserver import generateUniqueId
@@ -801,10 +802,10 @@ class AnalysisRequestDigester(ARD):
              strain = strains[0].Title
 
         mme_id = state_id = ''
-        client_state_lincense_id = ar.getClientLicenceID().split(',')
-        if len(client_state_lincense_id) == 4:
-            mme_id = client_state_lincense_id[1] #LicenseID
-            state_id = client_state_lincense_id[2] #LicenseNumber
+        client_licence_id = ar.getClientLicenceID().split(',')
+        if len(client_licence_id) == 4:
+            mme_id = client_licence_id[1] #LicenceID
+            state_id = client_licence_id[2] #LicenceNumber
         data = {'obj': ar,
                 'id': ar.getId(),
                 #'client_order_num': ar.getClientOrderNumber(),
@@ -957,13 +958,13 @@ class AnalysisRequestDigester(ARD):
     def _lab_data(self):
         portal = self.context.portal_url.getPortalObject()
         lab = self.context.bika_setup.laboratory
-        #supervisor = lab.getLaboratorySupervisor()
-        #bsc = getToolByName(self.context, "bika_setup_catalog")
-        labcontact = '' #bsc(portal_type="LabContact", id=supervisor)
+        supervisor = lab.getSupervisor()
+        bsc = getToolByName(self.context, "bika_setup_catalog")
+        labcontacts = bsc(portal_type="LabContact", id=supervisor)
         signature = None
         lab_manager = ''
-        if len(labcontact) == 1:
-            labcontact = labcontact[0].getObject()
+        if len(labcontacts) == 1:
+            labcontact = api.get_object(labcontact[0])
             lab_manager_name = to_utf8(self.user_fullname(labcontact.getUsername()))
             lab_manager_job_title = to_utf8(labcontact.getJobTitle())
             lab_manager = '{} {}'.format(lab_manager_name, lab_manager_job_title)
@@ -975,7 +976,7 @@ class AnalysisRequestDigester(ARD):
 
         return {'obj': lab,
                 'title': to_utf8(lab.Title()),
-                'lab_license_id': to_utf8(lab.getLaboratoryLicenseID()),
+                'lab_licence_id': to_utf8(lab.getLaboratoryLicenceID()),
                 'url': to_utf8(lab.getLabURL()),
                 'phone': to_utf8(lab.getPhone()),
                 'address': to_utf8(self._lab_address(lab)),

@@ -63,8 +63,8 @@
                     <!-- Start of table -->
                     <div class="table table_header" >
                         <div class="row">
-                          <div class="td label" i18n:translate="">Laboratory License ID</div>
-                          <div class="td" tal:content="python:laboratory['lab_license_id']">To be confirmed</div>
+                          <div class="td label" i18n:translate="">Laboratory Licence ID</div>
+                          <div class="td" tal:content="python:laboratory['lab_licence_id']">To be confirmed</div>
                         </div>
                         <div class="row">
                           <div class="td label" i18n:translate="">Laboratory</div>
@@ -75,7 +75,7 @@
                           <div class="td" tal:content="python:client['name']">To be confirmed</div>
                         </div>
                         <div class="row">
-                          <div class="td label" i18n:translate="">ME License</div>
+                          <div class="td label" i18n:translate="">ME Licence</div>
                           <div class="td" tal:content="python:analysisrequest['mme_id']">To be confirmed</div>
                         </div>
                         <div class="row">

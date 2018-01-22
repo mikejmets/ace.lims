@@ -40,7 +40,7 @@ class Vocabulary_Strain(object):
             items.append([strain.UID, strain.Title])
         return DisplayList(items)
 
-class Vocabulary_ClientStateLicenseID(object):
+class Vocabulary_ClientLicenceID(object):
     implements(IVocabulary)
 
     def getDisplayList(self, context):
@@ -52,20 +52,20 @@ class Vocabulary_ClientStateLicenseID(object):
 
         portal = api.portal.get()
         bsc = getToolByName(portal, 'portal_catalog')
-        licenses = [['', ''], ]
+        licences = [['', ''], ]
         client = context.getClient()
-        for license in client.getLicenses():
-            license_types = bsc(
+        for licence in client.getLicences():
+            licence_types = bsc(
                                 portal_type='ClientType',
-                                UID=license['LicenseType'])
-            if len(license_types) == 1:
-                license_type = license_types[0].Title
-                longstring ='{},{LicenseID},{LicenseNumber},{Authority}'
-                id_value = longstring.format(license_type, **license)
-                value = license_type
-                licenses.append([id_value, value])
+                                UID=licence['LicenceType'])
+            if len(licence_types) == 1:
+                licence_type = licence_types[0].Title
+                longstring ='{},{LicenceID},{LicenceNumber},{Authority}'
+                id_value = longstring.format(licence_type, **licence)
+                value = licence_type
+                licences.append([id_value, value])
 
-        return DisplayList(licenses)
+        return DisplayList(licences)
 
 class ARImportSchemaModifier(object):
     adapts(IARImport)
@@ -88,8 +88,8 @@ class ARImportSchemaModifier(object):
             temp_var.append("Lot")
         if "CultivationBatch" not in temp_var:
             temp_var.append("CultivationBatch")
-        if "ClientStateLicenseID" not in temp_var:
-            temp_var.append("ClientStateLicenseID")
+        if "ClientLicenceID" not in temp_var:
+            temp_var.append("ClientLicenceID")
         if "SamplePoint" in temp_var:
             temp_var.remove("SamplePoint")
         if "SampleMatrix" in temp_var:
@@ -108,9 +108,9 @@ class ARImportSchemaModifier(object):
                                                 vocabulary=strain_vocab)
         dgf.widget.columns["Lot"] = Column('Lot')
         dgf.widget.columns["CultivationBatch"] = Column('Cultivation Batch')
-        cslid_vocab = Vocabulary_ClientStateLicenseID()
-        dgf.widget.columns["ClientStateLicenseID"] = SelectColumn(
-                                                "Client's State License ID",
+        cslid_vocab = Vocabulary_ClientLicenceID()
+        dgf.widget.columns["ClientLicenceID"] = SelectColumn(
+                                                "Client's State Licence ID",
                                                 vocabulary=cslid_vocab)
         if "SamplePoint" in dgf.widget.columns.keys():
             del dgf.widget.columns["SamplePoint"]
