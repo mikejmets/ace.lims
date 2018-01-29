@@ -85,25 +85,25 @@ def save_sample_data(self):
 
 
         try:
-            gridrow['ClientStateLicenseID'] = row['ClientStateLicenseID']
+            gridrow['ClientLicenceID'] = row['ClientLicenceID']
         except KeyError, e:
             raise RuntimeError(
-                    'AR Import: ClientStateLicenseID not in input file')
-        title = row['ClientStateLicenseID']
+                    'AR Import: ClientLicenceID not in input file')
+        title = row['ClientLicenceID']
         if len(title) == 0:
-            errors.append("Row %s: ClientStateLicenseID is required" % row_nr)
+            errors.append("Row %s: ClientLicenceID is required" % row_nr)
         if title:
-            for license in self.aq_parent.getLicenses():
-                license_types = bsc(
+            for licence in self.aq_parent.getLicences():
+                licence_types = bsc(
                                     portal_type='ClientType',
-                                    UID=license['LicenseType'])
-                if len(license_types) == 1:
-                    license_type = license_types[0].Title
-                    if license_type == title:
-                        longstring ='{},{LicenseID},{LicenseNumber},{Authority}'
-                        id_value = longstring.format(license_type, **license)
-                        gridrow['ClientStateLicenseID'] = id_value
-        del (row['ClientStateLicenseID'])
+                                    UID=licence['LicenceType'])
+                if len(licence_types) == 1:
+                    licence_type = licence_types[0].Title
+                    if licence_type == title:
+                        longstring ='{},{LicenceID},{LicenceNumber},{Authority}'
+                        id_value = longstring.format(licence_type, **licence)
+                        gridrow['ClientLicenceID'] = id_value
+        del (row['ClientLicenceID'])
 
         gridrow['ClientReference'] = row['ClientReference']
         del (row['ClientReference'])
@@ -243,7 +243,7 @@ def workflow_before_validate(self):
     for gridrow in self.getSampleData():
         row_nr += 1
         for key in (
-                'SamplingDate', 'Priority', 'Strain', 'ClientStateLicenseID'):
+                'SamplingDate', 'Priority', 'Strain', 'ClientLicenceID'):
             if item_empty(gridrow, key):
                 self.error("Row %s: %s is required" % (row_nr, key))
         samplingDate = gridrow['SamplingDate']

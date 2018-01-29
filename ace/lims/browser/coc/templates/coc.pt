@@ -109,8 +109,8 @@
                <td colspan="2" class='label td_top' i18n:translate="">
                        <p>Lab ID:</p>
                        <p style="padding-left:3px"
-                            tal:condition="lab_data/lab_license_id"
-                            tal:content="lab_data/lab_license_id">hello</p>
+                            tal:condition="lab_data/lab_licence_id"
+                            tal:content="lab_data/lab_licence_id">hello</p>
                </td>
             </tr>
         </table>

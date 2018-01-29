@@ -58,7 +58,7 @@ class COC(BrowserView):
         for item in self.items:
             ar = item[0]
             client_state_id_lst = \
-                    ar.getClientStateLicenseID().split(',')
+                    ar.getClientLicenceID().split(',')
             sample = ar.getSample()
             client_reference =  ar.getClientReference()
             adict = {
@@ -112,7 +112,7 @@ class COC(BrowserView):
                 address['city'],address['state'], address['zip']))
         adict = {
                 'title': to_utf8(lab.Title()),
-                'lab_license_id': to_utf8(lab.getLaboratoryLicenseID()),
+                'lab_licence_id': to_utf8(lab.getLaboratoryLicenceID()),
                 'name': to_utf8(lab.getName()),
                 'url': to_utf8(lab.getLabURL()),
                 'phone': to_utf8(lab.getPhone()),
