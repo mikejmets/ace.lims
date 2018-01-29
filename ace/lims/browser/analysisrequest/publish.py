@@ -583,29 +583,30 @@ class AnalysisRequestPublishView(ARPV):
             except SMTPRecipientsRefused as msg:
                 raise WorkflowException(str(msg))
 
+        # BC-284 Moved this functionality in a seperate add-on
         # Save file on the filesystem
-        folder = os.environ.get('COAs_FOLDER', '')
-        if len(folder) != 0:
-            client_path = '{}/{}/'.format(folder, ar.getClientID())
-            if not os.path.exists(client_path):
-                os.makedirs(client_path)
+        #folder = os.environ.get('COAs_FOLDER', '')
+        #if len(folder) != 0:
+        #    client_path = '{}/{}/'.format(folder, ar.getClientID())
+        #    if not os.path.exists(client_path):
+        #        os.makedirs(client_path)
 
-            today = ulocalized_time(DateTime(),
-                                    long_format=0,
-                                    context=self.context)
-            today_path = '{}{}/'.format(client_path, today)
-            if not os.path.exists(today_path):
-                os.makedirs(today_path)
+        #    today = ulocalized_time(DateTime(),
+        #                            long_format=0,
+        #                            context=self.context)
+        #    today_path = '{}{}/'.format(client_path, today)
+        #    if not os.path.exists(today_path):
+        #        os.makedirs(today_path)
 
-            fname = '{}{}.pdf'.format(today_path, pdf_fn)
-            f = open(fname, 'w')
-            f.write(pdf_report)
-            f.close()
+        #    fname = '{}{}.pdf'.format(today_path, pdf_fn)
+        #    f = open(fname, 'w')
+        #    f.write(pdf_report)
+        #    f.close()
 
-            csvname = '{}{}.csv'.format(today_path, pdf_fn)
-            fcsv = open(csvname, 'w')
-            fcsv.write(csvdata)
-            fcsv.close()
+        #    csvname = '{}{}.csv'.format(today_path, pdf_fn)
+        #    fcsv = open(csvname, 'w')
+        #    fcsv.write(csvdata)
+        #    fcsv.close()
 
         return [ar]
 
