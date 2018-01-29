@@ -21,6 +21,9 @@ def create_analysisrequest(client, request, values, analyses=None,
                            partitions=None, specifications=None, prices=None):
     """
     See ace.lims.__init__ for HARD monkey patching - congigure.czml not used
+
+    The reason to override this method is to transition
+
     This is meant for general use and should do everything necessary to
     create and initialise an AR and any other required auxilliary objects
     (Sample, SamplePartition, Analysis...)
@@ -152,5 +155,7 @@ def create_analysisrequest(client, request, values, analyses=None,
     if reject_field and reject_field.get('checkbox', False):
         doActionFor(ar, 'reject')
 
+    # This is the reason for the monkey patching
+    # Transition AR and analyses to Received state
     doActionFor(ar, 'receive')
     return ar

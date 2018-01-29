@@ -1,6 +1,6 @@
 # -*- extra stuff goes here -*-
 from ace.lims.monkey.monkey_ar_utils \
-    import create_analysisrequest as money_create_analysisrequest
+    import create_analysisrequest as patched_create_analysisrequest
 from bika.lims.permissions import ADD_CONTENT_PERMISSIONS
 from bika.lims.permissions import ADD_CONTENT_PERMISSION
 from bika.lims.utils import analysisrequest
@@ -14,7 +14,7 @@ PROJECTNAME = 'ace.lims'
 # Monkey Patch utils.create_analysisrequest the hard way
 # See https://pypi.python.org/pypi/ ...
 # collective.monkeypatcher#patching-module-level-functions
-analysisrequest.create_analysisrequest = money_create_analysisrequest
+analysisrequest.create_analysisrequest = patched_create_analysisrequest
 
 
 def initialize(context):
