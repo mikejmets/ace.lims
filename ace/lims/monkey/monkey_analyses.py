@@ -5,718 +5,148 @@
 # Copyright 2011-2017 by it's authors.
 # Some rights reserved. See LICENSE.txt, AUTHORS.txt.
 
+import json
 from bika.lims import api
-from bika.lims import bikaMessageFactory as _
-from bika.lims.browser.analysisrequest.analysisrequests \
-        import AnalysisRequestsView
-from bika.lims.utils import t
-from Products.Archetypes import PloneMessageFactory as PMF
+from bika.lims.browser.analyses import AnalysesView
+from bika.lims.permissions import AddAnalysis
+from bika.lims.permissions import EditFieldResults
+from bika.lims.permissions import EditResults
 
 
-def __init__(self, context, request):
-    super(AnalysisRequestsView, self).__init__(context, request)
+def folderitems(self):
+    # Patch folderitems to hide columns Method, Instrument and Uncertainty
+    # Changes made on lines 146 - 150
 
-    request.set('disable_plone.rightcolumn', 1)
-    self.pagesize = 500
+    # Check if mtool has been initialized
+    self.mtool = self.mtool if self.mtool \
+        else api.get_tool('portal_membership')
+    # Getting the current user
+    self.member = self.member if self.member \
+        else self.mtool.getAuthenticatedMember()
+    # Getting analysis categories
+    analysis_categories = self.bsc(
+        portal_type="AnalysisCategory",
+        sort_on="sortable_title")
+    # Sorting analysis categories
+    self.analysis_categories_order = dict([
+        (b.Title, "{:04}".format(a)) for a, b in
+        enumerate(analysis_categories)])
+    # Can the user edit?
+    if not self.allow_edit:
+        can_edit_analyses = False
+    else:
+        checkPermission = self.mtool.checkPermission
+        if self.contentFilter.get('getPointOfCapture', '') == 'field':
+            can_edit_analyses = checkPermission(
+                EditFieldResults, self.context)
+        else:
+            can_edit_analyses = checkPermission(EditResults, self.context)
+        self.allow_edit = can_edit_analyses
+    self.show_select_column = self.allow_edit
 
-    self.catalog = "bika_catalog"
-    self.contentFilter = {'portal_type': 'AnalysisRequest',
-                          'sort_on': 'created',
-                          'sort_order': 'reverse',
-                          'path': {"query": "/", "level": 0},
-                          'cancellation_state': 'active',
-                          }
+    # Users that can Add Analyses to an Analysis Request must be able to
+    # set the visibility of the analysis in results report, also if the
+    # current state of the Analysis Request (e.g. verified) does not allow
+    # the edition of other fields. Note that an analyst has no privileges
+    # by default to edit this value, cause this "visibility" field is
+    # related with results reporting and/or visibility from the client side.
+    # This behavior only applies to routine analyses, the visibility of QC
+    # analyses is managed in publish and are not visible to clients.
+    if not self.mtool.checkPermission(AddAnalysis, self.context):
+        self.remove_column('Hidden')
 
-    self.context_actions = {}
+    self.categories = []
+    # Getting the multi-verification type of bika_setup
+    self.mv_type = self.context.bika_setup.getTypeOfmultiVerification()
+    self.show_methodinstr_columns = False
+    self.dmk = self.context.bika_setup.getResultsDecimalMark()
+    self.scinot = self.context.bika_setup.getScientificNotationResults()
+    # Gettin all the items
+    items = super(AnalysesView, self).folderitems(classic=False)
 
-    if self.context.portal_type == "AnalysisRequestsFolder":
-        self.request.set('disable_border', 1)
+    # the TAL requires values for all interim fields on all
+    # items, so we set blank values in unused cells
+    for item in items:
+        for field in self.interim_columns:
+            if field not in item:
+                item[field] = ''
 
-    if self.view_url.find("analysisrequests") == -1:
-        self.view_url = self.view_url + "/analysisrequests"
+    # XXX order the list of interim columns
+    interim_keys = self.interim_columns.keys()
+    interim_keys.reverse()
 
-    self.allow_edit = True
+    # add InterimFields keys to columns
+    for col_id in interim_keys:
+        if col_id not in self.columns:
+            self.columns[col_id] = {'title': self.interim_columns[col_id],
+                                    'input_width': '6',
+                                    'input_class': 'ajax_calculate numeric',
+                                    'sortable': False}
 
-    self.show_sort_column = False
-    self.show_select_row = False
-    self.show_select_column = True
-    self.form_id = "analysisrequests"
+    if can_edit_analyses:
+        new_states = []
+        for state in self.review_states:
+            # InterimFields are displayed in review_state
+            # They are anyway available through View.columns though.
+            # In case of hidden fields, the calcs.py should check
+            # calcs/services
+            # for additional InterimFields!!
+            pos = 'Result' in state['columns'] and \
+                  state['columns'].index('Result') or len(state['columns'])
+            for col_id in interim_keys:
+                if col_id not in state['columns']:
+                    state['columns'].insert(pos, col_id)
+            # retested column is added after Result.
+            pos = 'Result' in state['columns'] and \
+                  state['columns'].index('Uncertainty') + 1 or len(
+                state['columns'])
+            state['columns'].insert(pos, 'retested')
+            new_states.append(state)
+        self.review_states = new_states
+        # Allow selecting individual analyses
+        self.show_select_column = True
 
-    self.icon = self.portal_url + "/++resource++bika.lims.images/analysisrequest_big.png"
-    self.title = self.context.translate(_("Analysis Requests"))
-    self.description = ""
+    # Dry Matter.
+    # The Dry Matter column is never enabled for reference sample contexts
+    # and refers to getReportDryMatter in ARs.
+    if items and \
+            (hasattr(self.context, 'getReportDryMatter') and
+             self.context.getReportDryMatter()):
 
-    SamplingWorkflowEnabled = \
-            self.context.bika_setup.getSamplingWorkflowEnabled()
+        # look through all items
+        # if the item's Service supports ReportDryMatter, add getResultDM().
+        for item in items:
+            full_object = item['obj'].getObject()
+            if full_object.getReportDryMatter():
+                dry_matter = full_object.getResultDM()
+                item['ResultDM'] = dry_matter
+            else:
+                item['ResultDM'] = ''
+            if item['ResultDM']:
+                item['after']['ResultDM'] = "<em class='discreet'>%</em>"
 
-    mtool = api.get_tool('portal_membership')
-    member = mtool.getAuthenticatedMember()
-    user_is_preserver = 'Preserver' in member.getRoles()
+        # modify the review_states list to include the ResultDM column
+        new_states = []
+        for state in self.review_states:
+            pos = 'Result' in state['columns'] and \
+                  state['columns'].index('Uncertainty') + 1 or len(
+                state['columns'])
+            state['columns'].insert(pos, 'ResultDM')
+            new_states.append(state)
+        self.review_states = new_states
 
-    self.columns = {
-        'getRequestID': {'title': _('Request ID'),
-                         'index': 'getRequestID'},
-        'getClientOrderNumber': {'title': _('Client Order'),
-                                 'index': 'getClientOrderNumber',
-                                 'toggle': True},
-        'Creator': {'title': PMF('Creator'),
-                                 'index': 'Creator',
-                                 'toggle': True},
-        'Created': {'title': PMF('Date Created'),
-                    'index': 'created',
-                    'toggle': False},
-        'getSample': {'title': _("Sample"),
-                      'toggle': True, },
-        'BatchID': {'title': _("Batch ID"), 'toggle': True},
-        'SubGroup': {'title': _('Sub-group')},
-        'Client': {'title': _('Client'),
-                   'toggle': True},
-        'getClientReference': {'title': _('Client Ref'),
-                               'index': 'getClientReference',
-                               'toggle': True},
-        'getClientSampleID': {'title': _('Client SID'),
-                              'index': 'getClientSampleID',
-                              'toggle': True},
-        'ClientContact': {'title': _('Contact'),
-                             'toggle': False},
-        'getSampleTypeTitle': {'title': _('Sample Type'),
-                               'index': 'getSampleTypeTitle',
-                               'toggle': True},
-        'getSamplePointTitle': {'title': _('Sample Point'),
-                                'index': 'getSamplePointTitle',
-                                'toggle': False},
-        'getStorageLocation': {'title': _('Storage Location'),
-                                'toggle': False},
-        'SamplingDeviation': {'title': _('Sampling Deviation'),
-                              'toggle': False},
-        'Priority': {'title': _('Priority'),
-                        'toggle': True,
-                        'index': 'Priority',
-                        'sortable': True},
-        'AdHoc': {'title': _('Ad-Hoc'),
-                  'toggle': False},
-        'SamplingDate': {'title': _('Sampling Date'),
-                         'index': 'getSamplingDate',
-                         'toggle': True},
-        'getDateSampled': {'title': _('Date Sampled'),
-                           'index': 'getDateSampled',
-                           'toggle': SamplingWorkflowEnabled,
-                           'input_class': 'datetimepicker_nofuture',
-                           'input_width': '10'},
-        'getDateVerified': {'title': _('Date Verified'),
-                            'input_width': '10'},
-        'getSampler': {'title': _('Sampler'),
-                       'toggle': SamplingWorkflowEnabled},
-        'getDatePreserved': {'title': _('Date Preserved'),
-                             'toggle': user_is_preserver,
-                             'input_class': 'datetimepicker_nofuture',
-                             'input_width': '10',
-                             'sortable': False},  # no datesort without index
-        'getPreserver': {'title': _('Preserver'),
-                         'toggle': user_is_preserver},
-        'getDateReceived': {'title': _('Date Received'),
-                            'index': 'getDateReceived',
-                            'toggle': False},
-        'getDatePublished': {'title': _('Date Published'),
-                             'index': 'getDatePublished',
-                             'toggle': False},
-        'state_title': {'title': _('State'),
-                        'index': 'review_state'},
-        'getProfilesTitle': {'title': _('Profile'),
-                            'index': 'getProfilesTitle',
-                            'toggle': False},
-        'getAnalysesNum': {'title': _('Number of Analyses'),
-                           'index': 'getAnalysesNum',
-                           'sortable': True,
-                           'toggle': False},
-        'getTemplateTitle': {'title': _('Template'),
-                             'index': 'getTemplateTitle',
-                             'toggle': False},
-    }
-    self.review_states = [
-        {'id': 'default',
-         'title': _('None'),
-         'contentFilter': {'review_state': 'impossible'},
-         'custom_actions': [],
-         'columns': ['getRequestID',
-                    'getSample',
-                    'BatchID',
-                    'SubGroup',
-                    'Client',
-                    'Creator',
-                    'Created',
-                    'getClientOrderNumber',
-                    'getClientReference',
-                    'ClientContact',
-                    'getClientSampleID',
-                    'getProfilesTitle',
-                    'getTemplateTitle',
-                    'getSampleTypeTitle',
-                    'getSamplePointTitle',
-                    'getStorageLocation',
-                    'SamplingDeviation',
-                    'Priority',
-                    'AdHoc',
-                    'SamplingDate',
-                    'getDateSampled',
-                    'getSampler',
-                    'getDatePreserved',
-                    'getPreserver',
-                    'getDateReceived',
-                    'getAnalysesNum',
-                    'getDateVerified',
-                    'state_title']},
-        {'id': 'active',
-         'title': _('Active'),
-         'contentFilter': {'sort_on': 'created',
-                           'sort_order': 'reverse'},
-         'transitions': [{'id': 'sample'},
-                         {'id': 'preserve'},
-                         {'id': 'receive'},
-                         {'id': 'retract'},
-                         {'id': 'verify'},
-                         {'id': 'prepublish'},
-                         {'id': 'publish'},
-                         {'id': 'republish'},
-                         {'id': 'cancel'},
-                         {'id': 'reinstate'}],
-         'custom_actions': [],
-         'columns': ['getRequestID',
-                    'getSample',
-                    'BatchID',
-                    'SubGroup',
-                    'Client',
-                    'Creator',
-                    'Created',
-                    'getClientOrderNumber',
-                    'getClientReference',
-                    'ClientContact',
-                    'getClientSampleID',
-                    'getProfilesTitle',
-                    'getTemplateTitle',
-                    'getSampleTypeTitle',
-                    'getSamplePointTitle',
-                    'getStorageLocation',
-                    'SamplingDeviation',
-                    'Priority',
-                    'AdHoc',
-                    'SamplingDate',
-                    'getDateSampled',
-                    'getSampler',
-                    'getDatePreserved',
-                    'getPreserver',
-                    'getDateReceived',
-                    'getAnalysesNum',
-                    'getDateVerified',
-                    'state_title']},
-        {'id': 'to_be_sampled',
-         'title': _('To Be Sampled'),
-         'contentFilter': {'review_state': ('to_be_sampled',),
-                           'sort_on': 'created',
-                           'sort_order': 'reverse'},
-         'transitions': [{'id': 'sample'},
-                         {'id': 'submit'},
-                         {'id': 'cancel'},
-                        ],
-         'custom_actions': [],
-         'columns': ['getRequestID',
-                    'getSample',
-                    'BatchID',
-                    'SubGroup',
-                    'Client',
-                    'getProfilesTitle',
-                    'getTemplateTitle',
-                    'Creator',
-                    'Created',
-                    'getClientOrderNumber',
-                    'getClientReference',
-                    'getClientSampleID',
-                    'ClientContact',
-                    'getDateSampled',
-                    'getSampler',
-                    'getDatePreserved',
-                    'getPreserver',
-                    'getSampleTypeTitle',
-                    'getSamplePointTitle',
-                    'getStorageLocation',
-                    'SamplingDeviation',
-                    'Priority',
-                    'AdHoc',
-                    'getAnalysesNum',
-                    'getDateVerified',
-                    'state_title']},
-        {'id': 'to_be_preserved',
-         'title': _('To Be Preserved'),
-         'contentFilter': {'review_state': ('to_be_preserved',),
-                           'sort_on': 'created',
-                           'sort_order': 'reverse'},
-         'transitions': [{'id': 'preserve'},
-                         {'id': 'cancel'},
-                         ],
-         'custom_actions': [],
-         'columns': ['getRequestID',
-                    'getSample',
-                    'BatchID',
-                    'SubGroup',
-                    'Client',
-                    'getProfilesTitle',
-                    'getTemplateTitle',
-                    'Creator',
-                    'Created',
-                    'getClientOrderNumber',
-                    'getClientReference',
-                    'getClientSampleID',
-                    'ClientContact',
-                    'getDateSampled',
-                    'getSampler',
-                    'getDatePreserved',
-                    'getPreserver',
-                    'getSampleTypeTitle',
-                    'getSamplePointTitle',
-                    'getStorageLocation',
-                    'SamplingDeviation',
-                    'Priority',
-                    'AdHoc',
-                    'getAnalysesNum',
-                    'getDateVerified',
-                    'state_title']},
-        {'id': 'scheduled_sampling',
-         'title': _('Scheduled sampling'),
-         'contentFilter': {'review_state': ('scheduled_sampling',),
-                           'sort_on': 'created',
-                           'sort_order': 'reverse'},
-         'transitions': [{'id': 'sample'},
-                         {'id': 'cancel'},
-                         ],
-         'custom_actions': [],
-         'columns': ['getRequestID',
-                    'getSample',
-                    'BatchID',
-                    'SubGroup',
-                    'Client',
-                    'getProfilesTitle',
-                    'getTemplateTitle',
-                    'Creator',
-                    'Created',
-                    'getClientOrderNumber',
-                    'getClientReference',
-                    'getClientSampleID',
-                    'ClientContact',
-                    'getDateSampled',
-                    'getSampler',
-                    'getDatePreserved',
-                    'getPreserver',
-                    'getSampleTypeTitle',
-                    'getSamplePointTitle',
-                    'getStorageLocation',
-                    'SamplingDeviation',
-                    'Priority',
-                    'AdHoc',
-                    'getAnalysesNum',
-                    'getDateVerified',
-                    'state_title']},
-        {'id': 'sample_due',
-         'title': _('Due'),
-         'contentFilter': {'review_state': ('to_be_sampled',
-                                            'to_be_preserved',
-                                            'sample_due'),
-                           'sort_on': 'created',
-                           'sort_order': 'reverse'},
-         'transitions': [{'id': 'sample'},
-                         {'id': 'preserve'},
-                         {'id': 'receive'},
-                         {'id': 'cancel'},
-                         {'id': 'reinstate'}],
-         'custom_actions': [],
-         'columns': ['getRequestID',
-                    'getSample',
-                    'BatchID',
-                    'SubGroup',
-                    'Client',
-                    'getProfilesTitle',
-                    'getTemplateTitle',
-                    'Creator',
-                    'Created',
-                    'getClientOrderNumber',
-                    'getClientReference',
-                    'getClientSampleID',
-                    'ClientContact',
-                    'getDateSampled',
-                    'getSampler',
-                    'getDatePreserved',
-                    'getPreserver',
-                    'getSampleTypeTitle',
-                    'getSamplePointTitle',
-                    'getStorageLocation',
-                    'SamplingDeviation',
-                    'Priority',
-                    'AdHoc',
-                    'getAnalysesNum',
-                    'getDateVerified',
-                    'state_title']},
-       {'id': 'sample_received',
-         'title': _('Received'),
-         'contentFilter': {'review_state': 'sample_received',
-                           'sort_on': 'created',
-                           'sort_order': 'reverse'},
-         'transitions': [{'id': 'prepublish'},
-                         {'id': 'cancel'},
-                         {'id': 'reinstate'}],
-         'custom_actions': [],
-         'columns': ['getRequestID',
-                    'getSample',
-                    'BatchID',
-                    'SubGroup',
-                    'Client',
-                    'getProfilesTitle',
-                    'getTemplateTitle',
-                    'Creator',
-                    'Created',
-                    'getClientOrderNumber',
-                    'getClientReference',
-                    'getClientSampleID',
-                    'ClientContact',
-                    'getSampleTypeTitle',
-                    'getSamplePointTitle',
-                    'getStorageLocation',
-                    'SamplingDeviation',
-                    'Priority',
-                    'AdHoc',
-                    'getDateSampled',
-                    'getSampler',
-                    'getDatePreserved',
-                    'getPreserver',
-                    'getAnalysesNum',
-                    'getDateVerified',
-                    'getDateReceived']},
-        {'id': 'to_be_verified',
-         'title': _('To be verified'),
-         'contentFilter': {'review_state': 'to_be_verified',
-                           'sort_on': 'created',
-                           'sort_order': 'reverse'},
-         'transitions': [{'id': 'retract'},
-                         {'id': 'verify'},
-                         {'id': 'prepublish'},
-                         {'id': 'cancel'},
-                         {'id': 'reinstate'}],
-         'custom_actions': [],
-         'columns': ['getRequestID',
-                    'getSample',
-                    'BatchID',
-                    'SubGroup',
-                    'Client',
-                    'getProfilesTitle',
-                    'getTemplateTitle',
-                    'Creator',
-                    'Created',
-                    'getClientOrderNumber',
-                    'getClientReference',
-                    'getClientSampleID',
-                    'ClientContact',
-                    'getSampleTypeTitle',
-                    'getSamplePointTitle',
-                    'getStorageLocation',
-                    'SamplingDeviation',
-                    'Priority',
-                    'AdHoc',
-                    'getDateSampled',
-                    'getSampler',
-                    'getDatePreserved',
-                    'getPreserver',
-                    'getAnalysesNum',
-                    'getDateVerified',
-                    'getDateReceived']},
-        {'id': 'verified',
-         'title': _('Verified'),
-         'contentFilter': {'review_state': 'verified',
-                           'sort_on': 'created',
-                           'sort_order': 'reverse'},
-         'transitions': [{'id': 'publish'},
-                         {'id': 'cancel'},
-                         ],
-         'custom_actions': [],
-         'columns': ['getRequestID',
-                    'getSample',
-                    'BatchID',
-                    'SubGroup',
-                    'Client',
-                    'getProfilesTitle',
-                    'getTemplateTitle',
-                    'Creator',
-                    'Created',
-                    'getClientOrderNumber',
-                    'getClientReference',
-                    'getClientSampleID',
-                    'ClientContact',
-                    'getSampleTypeTitle',
-                    'getSamplePointTitle',
-                    'getStorageLocation',
-                    'SamplingDeviation',
-                    'Priority',
-                    'AdHoc',
-                    'getDateSampled',
-                    'getSampler',
-                    'getDatePreserved',
-                    'getPreserver',
-                    'getAnalysesNum',
-                    'getDateVerified',
-                    'getDateReceived']},
-        {'id': 'published',
-         'title': _('Published'),
-         'contentFilter': {'review_state': ('published', 'invalid'),
-                           'sort_on': 'created',
-                           'sort_order': 'reverse'},
-         'transitions': [{'id': 'republish'}],
-         'custom_actions': [],
-         'columns': ['getRequestID',
-                    'getSample',
-                    'BatchID',
-                    'SubGroup',
-                    'Client',
-                    'getProfilesTitle',
-                    'getTemplateTitle',
-                    'Creator',
-                    'Created',
-                    'getClientOrderNumber',
-                    'getClientReference',
-                    'getClientSampleID',
-                    'ClientContact',
-                    'getSampleTypeTitle',
-                    'getSamplePointTitle',
-                    'getStorageLocation',
-                    'SamplingDeviation',
-                    'Priority',
-                    'AdHoc',
-                    'getDateSampled',
-                    'getSampler',
-                    'getDatePreserved',
-                    'getPreserver',
-                    'getDateReceived',
-                    'getAnalysesNum',
-                    'getDateVerified',
-                    'getDatePublished']},
-        {'id': 'cancelled',
-         'title': _('Cancelled'),
-         'contentFilter': {'cancellation_state': 'cancelled',
-                           'review_state': (
-                               'sample_registered',
-                               'to_be_sampled',
-                               'to_be_preserved',
-                               'sample_due',
-                               'sample_received',
-                               'to_be_verified',
-                               'attachment_due',
-                               'verified',
-                               'published'),
-                           'sort_on': 'created',
-                           'sort_order': 'reverse'},
-         'transitions': [{'id': 'reinstate'}],
-         'custom_actions': [],
-         'columns': ['getRequestID',
-                    'getSample',
-                    'BatchID',
-                    'SubGroup',
-                    'Client',
-                    'getProfilesTitle',
-                    'getTemplateTitle',
-                    'Creator',
-                    'Created',
-                    'getClientOrderNumber',
-                    'getClientReference',
-                    'getClientSampleID',
-                    'ClientContact',
-                    'getSampleTypeTitle',
-                    'getSamplePointTitle',
-                    'getStorageLocation',
-                    'SamplingDeviation',
-                    'Priority',
-                    'AdHoc',
-                    'getDateSampled',
-                    'getSampler',
-                    'getDatePreserved',
-                    'getPreserver',
-                    'getDateReceived',
-                    'getDatePublished',
-                    'getAnalysesNum',
-                    'getDateVerified',
-                    'state_title']},
-        {'id': 'invalid',
-         'title': _('Invalid'),
-         'contentFilter': {'review_state': 'invalid',
-                           'sort_on': 'created',
-                           'sort_order': 'reverse'},
-         'transitions': [],
-         'custom_actions': [],
-         'columns':['getRequestID',
-                    'getSample',
-                    'BatchID',
-                    'SubGroup',
-                    'Client',
-                    'getProfilesTitle',
-                    'getTemplateTitle',
-                    'Creator',
-                    'Created',
-                    'getClientOrderNumber',
-                    'getClientReference',
-                    'getClientSampleID',
-                    'ClientContact',
-                    'getSampleTypeTitle',
-                    'getSamplePointTitle',
-                    'getStorageLocation',
-                    'SamplingDeviation',
-                    'Priority',
-                    'AdHoc',
-                    'getDateSampled',
-                    'getSampler',
-                    'getDatePreserved',
-                    'getPreserver',
-                    'getDateReceived',
-                    'getAnalysesNum',
-                    'getDateVerified',
-                    'getDatePublished']},
-        {'id': 'assigned',
-         'title': "<img title='%s'\
-                   src='%s/++resource++bika.lims.images/assigned.png'/>" % (
-                   t(_("Assigned")), self.portal_url),
-         'contentFilter': {'worksheetanalysis_review_state': 'assigned',
-                           'review_state': ('sample_received', 'to_be_verified',
-                                            'attachment_due', 'verified',
-                                            'published'),
-                           'sort_on': 'created',
-                           'sort_order': 'reverse'},
-         'transitions': [{'id': 'retract'},
-                         {'id': 'verify'},
-                         {'id': 'prepublish'},
-                         {'id': 'publish'},
-                         {'id': 'republish'},
-                         {'id': 'cancel'},
-                         {'id': 'reinstate'}],
-         'custom_actions': [],
-         'columns': ['getRequestID',
-                    'getSample',
-                    'BatchID',
-                    'SubGroup',
-                    'Client',
-                    'getProfilesTitle',
-                    'getTemplateTitle',
-                    'Creator',
-                    'Created',
-                    'getClientOrderNumber',
-                    'getClientReference',
-                    'getClientSampleID',
-                    'ClientContact',
-                    'getSampleTypeTitle',
-                    'getSamplePointTitle',
-                    'getStorageLocation',
-                    'SamplingDeviation',
-                    'Priority',
-                    'AdHoc',
-                    'getDateSampled',
-                    'getSampler',
-                    'getDatePreserved',
-                    'getPreserver',
-                    'getDateReceived',
-                    'getAnalysesNum',
-                    'getDateVerified',
-                    'state_title']},
-        {'id': 'unassigned',
-         'title': "<img title='%s'\
-                   src='%s/++resource++bika.lims.images/unassigned.png'/>" % (
-                   t(_("Unassigned")), self.portal_url),
-         'contentFilter': {'worksheetanalysis_review_state': 'unassigned',
-                           'review_state': ('sample_received', 'to_be_verified',
-                                            'attachment_due', 'verified',
-                                            'published'),
-                           'sort_on': 'created',
-                           'sort_order': 'reverse'},
-         'transitions': [{'id': 'receive'},
-                         {'id': 'retract'},
-                         {'id': 'verify'},
-                         {'id': 'prepublish'},
-                         {'id': 'publish'},
-                         {'id': 'republish'},
-                         {'id': 'cancel'},
-                         {'id': 'reinstate'}],
-         'custom_actions': [],
-         'columns': ['getRequestID',
-                    'getSample',
-                    'BatchID',
-                    'SubGroup',
-                    'Client',
-                    'getProfilesTitle',
-                    'getTemplateTitle',
-                    'Creator',
-                    'Created',
-                    'getClientOrderNumber',
-                    'getClientReference',
-                    'getClientSampleID',
-                    'ClientContact',
-                    'getSampleTypeTitle',
-                    'getSamplePointTitle',
-                    'getStorageLocation',
-                    'SamplingDeviation',
-                    'Priority',
-                    'AdHoc',
-                    'SamplingDate',
-                    'getDateSampled',
-                    'getSampler',
-                    'getDatePreserved',
-                    'getPreserver',
-                    'getDateReceived',
-                    'getAnalysesNum',
-                    'getDateVerified',
-                    'state_title']},
-        {'id': 'rejected',
-         'title': _('Rejected'),
-         'contentFilter': {'review_state': 'rejected',
-                           'sort_on': 'created',
-                           'sort_order': 'reverse'},
-         'transitions': [],
-         'custom_actions': [],
-         'columns': ['getRequestID',
-                    'getSample',
-                    'BatchID',
-                    'SubGroup',
-                    'Client',
-                    'getProfilesTitle',
-                    'getTemplateTitle',
-                    'Creator',
-                    'Created',
-                    'getClientOrderNumber',
-                    'getClientReference',
-                    'getClientSampleID',
-                    'ClientContact',
-                    'getSampleTypeTitle',
-                    'getSamplePointTitle',
-                    'getStorageLocation',
-                    'SamplingDeviation',
-                    'Priority',
-                    'AdHoc',
-                    'getDateSampled',
-                    'getSampler',
-                    'getDatePreserved',
-                    'getPreserver',
-                    'getDateReceived',
-                    'getDatePublished',
-                    'getAnalysesNum',
-                    'state_title']},
-        ]
+    if self.show_categories:
+        self.categories = map(lambda x: x[0],
+                              sorted(self.categories, key=lambda x: x[1]))
+    else:
+        self.categories.sort()
 
-def folderitems(self, full_objects=False):
-    items = super(AnalysisRequestsView, self).folderitems()
-    if not self.request.get('analysisrequests_sort_on') or \
-       self.request.analysisrequests_sort_on in (
-                'created', 'getRequestID', 'getSample'):
-        #Sort on AR ID sequence number
-        reverse = False
-        if self.request.get('analysisrequests_sort_on') and \
-           self.request.analysisrequests_sort_on != 'created' and \
-           self.request.analysisrequests_sort_order == 'descending':
-            reverse = True
-        items = sorted(
-                items, 
-                lambda x, y: cmp( x['id'].split('-')[3], y['id'].split('-')[3]),
-                reverse=reverse)
+    # self.json_specs = json.dumps(self.specs)
+    self.json_interim_fields = json.dumps(self.interim_fields)
+    self.items = items
+
+    # Hide columns Method, Instrument and Uncertainty
+    self.columns['Method']['toggle'] = False
+    self.columns['Instrument']['toggle'] = False
+    self.columns['Uncertainty']['toggle'] = False
     return items
-
-
