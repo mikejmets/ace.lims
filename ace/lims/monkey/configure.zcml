@@ -43,20 +43,11 @@
       replacement="ace.lims.monkey.monkey_arimport.workflow_script_import"
       />
 
-<!--
   <monkey:patch
-      description="This modifies the AnalysisRequestsView __init__ method"
-      class="bika.lims.browser.analysisrequest.analysisrequests.AnalysisRequestsView"
-      original="__init__"
-      replacement="ace.lims.monkey.monkey_analyses.__init__"
-      />
-
-  <monkey:patch
-      description="This modifies the analysisrequests folderitems method"
-      class="bika.lims.browser.analysisrequest.analysisrequests.AnalysisRequestsView"
+      description="This modifies the analyses folderitem method"
+      class="bika.lims.browser.analyses.AnalysesView"
       original="folderitems"
       replacement="ace.lims.monkey.monkey_analyses.folderitems"
       />
--->
 
 </configure>
