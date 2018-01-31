@@ -1,20 +1,12 @@
 # -*- extra stuff goes here -*-
-from ace.lims.monkey.monkey_ar_utils \
-    import create_analysisrequest as patched_create_analysisrequest
 from bika.lims.permissions import ADD_CONTENT_PERMISSIONS
 from bika.lims.permissions import ADD_CONTENT_PERMISSION
-from bika.lims.utils import analysisrequest
 from Products.Archetypes.atapi import process_types, listTypes
 from Products.CMFCore.utils import ContentInit
 from zope.i18nmessageid import MessageFactory
 
 aceMessageFactory = MessageFactory('ace')
 PROJECTNAME = 'ace.lims'
-
-# Monkey Patch utils.create_analysisrequest the hard way
-# See https://pypi.python.org/pypi/ ...
-# collective.monkeypatcher#patching-module-level-functions
-analysisrequest.create_analysisrequest = patched_create_analysisrequest
 
 
 def initialize(context):
