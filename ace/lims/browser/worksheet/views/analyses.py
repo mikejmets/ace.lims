@@ -37,11 +37,13 @@ class AnalysesView(AV):
                     obj.getReferenceAnalysesGroupID()
         elif obj.portal_type == 'DuplicateAnalysis' and \
                 obj.getAnalysis().portal_type == 'ReferenceAnalysis':
-            pos_text += "<td class='pos_top'><a href='%s'>%s</a></td>" % \
-                        (obj.aq_parent.absolute_url(), obj.aq_parent.id)
+                    pos_text += "<td class='pos_top'>"
+                    pos_text += "<a href='%s'>%s</a></td>" % \
+                        (parent.absolute_url(), parent.id)
         else:
-            pos_text += "<td class='pos_top'>{}</td>".format(
-                                                parent.getClientReference())
+            if obj.portal_type != 'DuplicateAnalysis':
+                client_ref = parent.getClientReference()
+                pos_text += "<td class='pos_top'>{}</td>".format(client_ref)
 
         pos_text += "<td class='pos_top_icons' rowspan='3'>"
         if obj.portal_type == 'DuplicateAnalysis':
