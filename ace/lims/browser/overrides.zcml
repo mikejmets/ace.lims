@@ -35,5 +35,12 @@
       layer="bika.lims.interfaces.IBikaLIMS"
     />
 
+    <browser:page
+      for="bika.lims.interfaces.IWorksheet"
+      name="manage_results"
+      class="ace.lims.browser.worksheet.views.results.ManageResultsView"
+      permission="bika.lims.ViewResults"
+      layer="bika.lims.interfaces.IBikaLIMS"
+    />
 
 </configure>
