@@ -12,6 +12,10 @@ PROJECTNAME = 'ace.lims'
 def initialize(context):
     """Initializer called when used as a Zope 2 product."""
 
+    # Do not delete this next import for flake8!!
+    # If it is not imported here, Strain is an invalid content type
+    from ace.lims.content.strain import Strain
+
     content_types, constructors, ftis = process_types(
         listTypes(PROJECTNAME),
         PROJECTNAME)
