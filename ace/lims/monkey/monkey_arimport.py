@@ -68,7 +68,7 @@ def save_sample_data(self):
         try:
             gridrow = {'sid': row['Samples']}
         except KeyError, e:
-            raise RuntimeError('AR Import: CultivationBatch not in input file')
+            raise RuntimeError('AR Import: Samples not in input file')
         del (row['Samples'])
 
         try:
@@ -123,24 +123,21 @@ def save_sample_data(self):
         del (row['Strain'])
 
         #Validation only
-        samplingDate = row['SamplingDate']
-        if len(samplingDate) == 0:
-            errors.append("Row %s: SamplingDate is required" % row_nr)
+        DateSampled = row['DateSampled']
+        if len(DateSampled) == 0:
+            errors.append("Row %s: DateSampled is required" % row_nr)
         try:
-            dummy = DateTime(samplingDate)
+            dummy = DateTime(DateSampled)
         except:
-            errors.append("Row %s: SamplingDate format is incorrect" % row_nr)
+            errors.append("Row %s: DateSampled format is incorrect" % row_nr)
 
         #Validation only
         if 'Sampler' not in row.keys():
             row['Sampler'] = ''
         else:
             if row['Sampler'] is None and len(row['Sampler']) == 0:
+                errors.append("Row %s: Sampler is missing" % row_nr)
                 row['Sampler'] = ''
-
-        #Validation only
-        if len(row['Priority']) == 0:
-            errors.append("Row %s: Priority is required" % row_nr)
 
         # We'll use this later to verify the number against selections
         if 'Total number of Analyses or Profiles' in row:
@@ -228,7 +225,7 @@ def workflow_before_validate(self):
     """
     # Re-set the errors on this ARImport each time validation is attempted.
     # When errors are detected they are immediately appended to this field.
-    if not self.getClient():
+    if self.aq_parent.portal_type != 'Client':
         #Modified from ProcessForm only
         return
 
@@ -243,17 +240,17 @@ def workflow_before_validate(self):
     for gridrow in self.getSampleData():
         row_nr += 1
         for key in (
-                'SamplingDate', 'Priority', 'Strain', 'ClientLicenceID'):
+                'DateSampled', 'Strain', 'ClientLicenceID'):
             if item_empty(gridrow, key):
                 self.error("Row %s: %s is required" % (row_nr, key))
-        samplingDate = gridrow['SamplingDate']
+        dateSampled = gridrow.get('DateSampled', '')
         try:
-            new = DateTime(samplingDate)
+            new = DateTime(dateSampled)
             ulocalized_time(new, long_format=True, time_only=False, context=self)
         except:
             self.error(
-                "Row %s: SamplingDate format must be 2017-06-21" % row_nr)
-        sampler = gridrow['Sampler']
+                "Row %s: DateSampled format must be 2017-06-21" % row_nr)
+        sampler = gridrow.get('Sampler')
         if not sampler:
             gridrow['Sampler'] = ''
 
@@ -261,6 +258,7 @@ def workflow_before_validate(self):
     self.validate_samples()
 
     if self.getErrors() and self.getErrors() != ():
+        logger.error('ARImport Errors: {}'.format(self.getErrors()))
         addStatusMessage(self.REQUEST, _p('Validation errors.'), 'error')
         transaction.commit()
         self.REQUEST.response.write(
@@ -279,12 +277,12 @@ def save_header_data(self):
     if not headers:
         return False
 
-    if client:
-        self.setClient(client)
+    #if client:
+    #    self.setClient(client)
 
     for h, f in [
         ('File name', 'Filename'),
-        #('No of Samples', 'NrSamples'),
+        ('No of Samples', 'NrSamples'),
         ('Client name', 'ClientName'),
         ('Client ID', 'ClientID'),
         #('Client Order Number', 'ClientOrderNumber'),
@@ -330,6 +328,8 @@ def save_header_data(self):
     if headers:
         unexpected = ','.join(headers.keys())
         self.error("Unexpected header fields: %s" % unexpected)
+
+    print 'HEADERS: ClientID={}'.format(self.getClientID())
 
 
 def workflow_script_import(self):
@@ -435,9 +435,10 @@ def workflow_script_import(self):
             row['Batch'] = batch
         # Add AR fields from schema into this row's data
         row['ClientReference'] = row['ClientReference']
-        row['ClientOrderNumber'] = self.getClientOrderNumber()
+        # row['ClientOrderNumber'] = self.getClientOrderNumber()
         row['Contact'] = self.getContact()
-        row['DateSampled'] = convert_date_string(row['DateSampled'])
+        if row['DateSampled']:
+            row['DateSampled'] = convert_date_string(row['DateSampled'])
         if row['Sampler']:
             row['Sampler'] = lookup_sampler_uid(row['Sampler'])
 

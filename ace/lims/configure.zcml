@@ -30,7 +30,6 @@
   <include package=".browser"/>
   <include package=".setupdata"/>
   <include package=".monkey"/>
-  <include package=".subscribers" />
 
   <include file="profiles.zcml" />
 </configure>

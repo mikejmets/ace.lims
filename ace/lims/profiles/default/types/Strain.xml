@@ -2,8 +2,7 @@
 <object name="Strain"
         meta_type="Factory-based Type Information with dynamic views"
         xmlns:i18n="http://xml.zope.org/namespaces/i18n"
-        i18n:domain="plone"
-        purge="True">
+        i18n:domain="ace.lims">
  <property name="title" i18n:translate="">Strain</property>
  <property name="description"></property>
  <property name="content_icon">++resource++ace.lims.images/strain.png</property>
@@ -44,12 +43,4 @@
   <permission value="Modify portal content"/>
  </action>
 
- <action action_id="strains"
-         title="Strains"
-         category="object"
-         url_expr="string:${object_url}/strains"
-         i18n:attributes="title"
-         visible="True">
-  <permission value="List folder contents"/>
- </action>
 </object>

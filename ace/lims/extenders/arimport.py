@@ -53,7 +53,7 @@ class Vocabulary_ClientLicenceID(object):
         portal = api.portal.get()
         bsc = getToolByName(portal, 'portal_catalog')
         licences = [['', ''], ]
-        client = context.getClient()
+        client = context.aq_parent
         for licence in client.getLicences():
             licence_types = bsc(
                                 portal_type='ClientType',
@@ -98,6 +98,8 @@ class ARImportSchemaModifier(object):
             temp_var.remove("ContainerType")
         if "ReportDryMatter" in temp_var:
             temp_var.remove("ReportDryMatter")
+        if "SamplingDate" in temp_var:
+            temp_var.remove("SamplingDate")
 
 
         dgf.columns = tuple(temp_var)
@@ -110,7 +112,7 @@ class ARImportSchemaModifier(object):
         dgf.widget.columns["CultivationBatch"] = Column('Cultivation Batch')
         cslid_vocab = Vocabulary_ClientLicenceID()
         dgf.widget.columns["ClientLicenceID"] = SelectColumn(
-                                                "Client's State Licence ID",
+                                                "Client's Licence ID",
                                                 vocabulary=cslid_vocab)
         if "SamplePoint" in dgf.widget.columns.keys():
             del dgf.widget.columns["SamplePoint"]
