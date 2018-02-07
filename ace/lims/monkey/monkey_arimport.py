@@ -15,8 +15,8 @@ from bika.lims.content.analysisrequest import schema as ar_schema
 from bika.lims.content.sample import schema as sample_schema
 from bika.lims.idserver import renameAfterCreation
 from bika.lims.utils import tmpID, getUsers
-from bika.lims.vocabularies import CatalogVocabulary
 from collective.taskqueue.interfaces import ITaskQueue
+from plone import api as ploneapi
 from Products.CMFPlone.utils import _createObjectByType
 from Products.Archetypes.event import ObjectInitializedEvent
 from Products.Archetypes.utils import addStatusMessage
@@ -27,12 +27,12 @@ from zope.i18nmessageid import MessageFactory
 
 _p = MessageFactory(u"plone")
 
+
 def save_sample_data(self):
     """Save values from the file's header row into the DataGrid columns
     after doing some very basic validation
     """
     bsc = getToolByName(self, 'bika_setup_catalog')
-    keywords = self.bika_setup_catalog.uniqueValuesFor('getKeyword')
     profiles = []
     for p in bsc(portal_type='AnalysisProfile'):
         p = p.getObject()
@@ -67,26 +67,25 @@ def save_sample_data(self):
         # in put spreadsheet
         try:
             gridrow = {'sid': row['Samples']}
-        except KeyError, e:
+        except KeyError as e:
             raise RuntimeError('AR Import: Samples not in input file')
         del (row['Samples'])
 
         try:
             gridrow = {'ClientSampleID': row['ClientSampleID']}
-        except KeyError, e:
+        except KeyError as e:
             raise RuntimeError('AR Import: ClientSampleID not in input file')
         del (row['ClientSampleID'])
 
         try:
             gridrow['CultivationBatch'] = row['CultivationBatch']
-        except KeyError, e:
+        except KeyError as e:
             raise RuntimeError('AR Import: CultivationBatch not in input file')
         del (row['CultivationBatch'])
 
-
         try:
             gridrow['ClientLicenceID'] = row['ClientLicenceID']
-        except KeyError, e:
+        except KeyError as e:
             raise RuntimeError(
                     'AR Import: ClientLicenceID not in input file')
         title = row['ClientLicenceID']
@@ -100,7 +99,8 @@ def save_sample_data(self):
                 if len(licence_types) == 1:
                     licence_type = licence_types[0].Title
                     if licence_type == title:
-                        longstring ='{},{LicenceID},{LicenceNumber},{Authority}'
+                        longstring = \
+                            '{},{LicenceID},{LicenceNumber},{Authority}'
                         id_value = longstring.format(licence_type, **licence)
                         gridrow['ClientLicenceID'] = id_value
         del (row['ClientLicenceID'])
@@ -122,16 +122,16 @@ def save_sample_data(self):
                 gridrow['Strain'] = obj[0].UID
         del (row['Strain'])
 
-        #Validation only
+        # Validation only
         DateSampled = row['DateSampled']
         if len(DateSampled) == 0:
             errors.append("Row %s: DateSampled is required" % row_nr)
         try:
-            dummy = DateTime(DateSampled)
+            DateTime(DateSampled)
         except:
             errors.append("Row %s: DateSampled format is incorrect" % row_nr)
 
-        #Validation only
+        # Validation only
         if 'Sampler' not in row.keys():
             row['Sampler'] = ''
         else:
@@ -194,11 +194,6 @@ def save_sample_data(self):
                 del (row[k])
                 gridrow['Profiles'].append(v)
 
-        #if len(gridrow['Profiles']) != nr_an:
-        #    errors.append(
-        #        "Row %s: Number of analyses does not match provided value" %
-        #        row_nr)
-
         grid_rows.append(gridrow)
 
     self.setSampleData(grid_rows)
@@ -214,6 +209,7 @@ def save_sample_data(self):
         self.error("Unexpected header fields: %s" %
                    ','.join(unexpected))
 
+
 def workflow_before_validate(self):
     """This function transposes values from the provided file into the
     ARImport object's fields, and checks for invalid values.
@@ -226,7 +222,7 @@ def workflow_before_validate(self):
     # Re-set the errors on this ARImport each time validation is attempted.
     # When errors are detected they are immediately appended to this field.
     if self.aq_parent.portal_type != 'Client':
-        #Modified from ProcessForm only
+        # Modified from ProcessForm only
         return
 
     self.setErrors([])
@@ -246,7 +242,8 @@ def workflow_before_validate(self):
         dateSampled = gridrow.get('DateSampled', '')
         try:
             new = DateTime(dateSampled)
-            ulocalized_time(new, long_format=True, time_only=False, context=self)
+            ulocalized_time(
+                new, long_format=True, time_only=False, context=self)
         except:
             self.error(
                 "Row %s: DateSampled format must be 2017-06-21" % row_nr)
@@ -268,6 +265,7 @@ def workflow_before_validate(self):
         '<script>document.location.href="%s/view"</script>' % (
             self.absolute_url()))
 
+
 def save_header_data(self):
     """Save values from the file's header row into their schema fields.
     """
@@ -277,16 +275,11 @@ def save_header_data(self):
     if not headers:
         return False
 
-    #if client:
-    #    self.setClient(client)
-
     for h, f in [
         ('File name', 'Filename'),
         ('No of Samples', 'NrSamples'),
         ('Client name', 'ClientName'),
         ('Client ID', 'ClientID'),
-        #('Client Order Number', 'ClientOrderNumber'),
-        #('Client Reference', 'ClientReference')
     ]:
         v = headers.get(h, None)
         if v:
@@ -300,7 +293,7 @@ def save_header_data(self):
     if contact:
         self.schema['Contact'].set(self, contact)
     else:
-        self.error("Specified contact '%s' does not exist; using '%s'"%
+        self.error("Specified contact '%s' does not exist; using '%s'" %
                    (v, contacts[0].Title()))
         self.schema['Contact'].set(self, contacts[0])
     del (headers['Contact'])
@@ -329,7 +322,7 @@ def save_header_data(self):
         unexpected = ','.join(headers.keys())
         self.error("Unexpected header fields: %s" % unexpected)
 
-    print 'HEADERS: ClientID={}'.format(self.getClientID())
+    # print 'HEADERS: ClientID={}'.format(self.getClientID())
 
 
 def workflow_script_import(self):
@@ -343,8 +336,6 @@ def workflow_script_import(self):
     contact = self.getContact()
 
     title = _p('Submitting AR Import')
-    description = _p('Creating and initialising objects')
-
     profiles = [x.getObject() for x in bsc(portal_type='AnalysisProfile')]
 
     gridrows = self.schema['SampleData'].get(self)
@@ -364,9 +355,7 @@ def workflow_script_import(self):
         logger.info('Queue Task: path=%s' % path)
         logger.debug('Que Task: path=%s, params=%s' % (
                         path, params))
-        task_id = task_queue.add(path,
-                method='POST',
-                params=params)
+        task_queue.add(path, method='POST', params=params)
         # document has been written to, and redirect() fails here
         self.REQUEST.response.write(
             '<script>document.location.href="%s"</script>' % (
@@ -401,7 +390,7 @@ def workflow_script_import(self):
         if container:
             if container.portal_type == 'ContainerType':
                 containers = container.getContainers()
-            # XXX And so we must calculate the best container for this partition
+            # And so we must calculate the best container for this partition
             part.edit(Container=containers[0])
 
         # Profiles are titles, profile keys, or UIDS: convert them to UIDs.
@@ -461,6 +450,7 @@ def workflow_script_import(self):
         '<script>document.location.href="%s"</script>' % (
             self.aq_parent.absolute_url()))
 
+
 def get_sample_values(self):
     """Read the rows specifying Samples and return a dictionary with
     related data.
@@ -492,8 +482,10 @@ def get_sample_values(self):
             next_rows_are_sample_rows = True
     return res
 
+
 def convert_date_string(datestr):
     return datestr.replace('-', '/')
+
 
 def get_row_container(row):
     """Return a sample container
@@ -506,9 +498,10 @@ def get_row_container(row):
             brains[0].getObject()
         brains = bsc(portal_type='ContainerType', UID=row['Container'])
         if brains:
-            # XXX Cheating.  The calculation of capacity vs. volume  is not done.
+            # The calculation of capacity vs. volume  is not done.
             return brains[0].getObject()
     return None
+
 
 def get_row_services(row):
     """Return a list of services which are referenced in Analyses.
@@ -529,6 +522,7 @@ def get_row_services(row):
             errors.append("Invalid analysis specified: %s" % val)
     return list(services), errors
 
+
 def get_row_profile_services(row):
     """Return a list of services which are referenced in profiles
     values may be UID, Title or ProfileKey.
@@ -547,8 +541,9 @@ def get_row_profile_services(row):
             errors.append("Invalid analysis specified: %s" % val)
     return list(services), errors
 
+
 def lookup_sampler_uid(import_user):
-    #Lookup sampler's uid
+    # Lookup sampler's uid
     found = False
     userid = None
     user_ids = []
@@ -565,9 +560,8 @@ def lookup_sampler_uid(import_user):
     if len(user_ids) == 1:
         return user_ids[0]
     if len(user_ids) > 1:
-        #raise ValueError('Sampler %s is ambiguous' % import_user)
+        # raise ValueError('Sampler %s is ambiguous' % import_user)
         return ''
-    #Otherwise
-    #raise ValueError('Sampler %s not found' % import_user)
+    # Otherwise
+    # raise ValueError('Sampler %s not found' % import_user)
     return ''
-
