@@ -12,7 +12,8 @@ from bika.lims import bikaMessageFactory as _
 
 from bika.lims.browser.worksheet.tools import (checkUserAccess,
                                                showRejectionMessage)
-from bika.lims.browser.worksheet.views import AnalysesTransposedView
+from ace.lims.browser.worksheet.views.analyses_transposed import \
+    AnalysesTransposedView
 from ace.lims.browser.worksheet.views.analyses import AnalysesView
 from bika.lims.config import WORKSHEET_LAYOUT_OPTIONS
 
