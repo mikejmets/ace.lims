@@ -9,6 +9,8 @@ from bika.lims.browser.worksheet.views.analyses_transposed import \
         AnalysesTransposedTable as ATB
 from ace.lims.browser.worksheet.views.analyses import AnalysesView
 
+from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
+
 
 class AnalysesTransposedView(AnalysesView):
     """ The view for displaying the table of manage_results transposed.
@@ -26,5 +28,13 @@ class AnalysesTransposedView(AnalysesView):
             BikaListingView, using the transposed template instead
             of the classic template.
         """
-        table = ATB(bika_listing=self, table_only=True)
+        table = AnalysesTransposedTable(bika_listing=self, table_only=True)
         return table.render(self)
+
+
+class AnalysesTransposedTable(ATB):
+    """ The BikaListingTable that uses a transposed template for
+        displaying the results.
+    """
+    render_cell = ViewPageTemplateFile(
+        "../templates/analyses_transposed_cell.pt")

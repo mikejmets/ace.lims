@@ -6,6 +6,7 @@
         row_head python:view.current_rowhead;
         row_type python:row_head['row_type'];
         column python:'Result' if row_type == 'analysis' else row_head['id'];
+        convertedcol python:'ConvertedResult' if row_type == 'analysis' else row_head['id'];
         allow_edit python:view.bika_listing.allow_edit
                         and column in item.get('allow_edit',[])
                         and item.get('edit_condition', {}).get(column, True);
@@ -248,6 +249,82 @@
             <em class="discreet"
                 style="white-space:nowrap;"
                 tal:content="structure python:item.get('Unit', '')"/>
+            <!-- Copied -->
+            <tal:regular_result
+                condition="python:not item.get('interim_fields', {})">
+                <tal:edit condition="python:allow_edit">
+                    <!-- String result -->
+                    <input
+                        tal:condition="python:field_type=='string'"
+                        type="hidden"
+                        autocomplete="off"
+                        tal:attributes="
+                            selector string:${convertedcol}_${item/id};
+                            class python:'listing_string_entry %s' % input_class;
+                            tabindex tabindex/next;
+                            size input_width;
+                            uid string:${item/uid};
+                            as_uid string:${item/service_uid|nothing};
+                            st_uid string:${item/st_uid|nothing};
+                            objectId string:${item/id};
+                            field python:convertedcol;
+                            name python:convertedcol == view.bika_listing.select_checkbox_name and '%s_column_value.%s:records'%(convertedcol, item['uid']) or '%s.%s:records'%(convertedcol, item['uid']);
+                            value python:item[convertedcol] if item[convertedcol] is not None else '';"/>
+                    <!-- Choices result -->
+                    <select class="listing_select_entry" style="font-size: 100%"
+                        tal:condition="python:field_type=='choices' and convertedcol in item['choices']"
+                        tal:attributes="
+                            selector string:${convertedcol}_${item/id};
+                            tabindex tabindex/next;
+                            field column;
+                            as_uid string:${item/service_uid|nothing};
+                            name string:${convertedcol}.${item/uid}:records;
+                            uid item/uid;">
+                        <option value="" tal:condition="not:required"></option>
+                        <tal:options tal:repeat="option python:item['choices'][convertedcol]">
+                            <option
+                                tal:attributes="
+                                    value python:option['ResultValue'];
+                                    selected python:item[convertedcol] == option['ResultValue']
+                                                    and 'selected' or '';"
+                                tal:content="python:option['ResultText']">
+                            </option>
+                        </tal:options>
+                    </select>
+                </tal:edit>
+                <tal:view condition="python:not allow_edit"
+                    tal:define="val python:item.get(convertedcol, '')">
+                    <span tal:content="structure python:item.get('ConvertedResult', val)"
+                          tal:attributes="class python:item.get('state_class') + ' result'"/>
+                    <!-- String result -->
+                    <tal:stringresult tal:condition="python:field_type=='string'">
+                        <input
+                            type="hidden"
+                            tal:attributes="
+                                selector string:${convertedcol}_${item/id};
+                                size input_width;
+                                uid string:${item/uid};
+                                as_uid string:${item/service_uid|nothing};
+                                st_uid string:${item/st_uid|nothing};
+                                objectId string:${item/id};
+                                field python:convertedcol;
+                                name python:convertedcol == view.bika_listing.select_checkbox_name and '%s_column_value.%s:records'%(convertedcol, item['uid']) or '%s.%s:records'%(convertedcol, item['uid']);
+                                value val;"/>
+                    </tal:stringresult>
+                    <!-- Choices result -->
+                    <tal:choicesresult condition="python:field_type=='choices' and convertedcol in item['choices']">
+                        <input
+                            type="hidden"
+                            tal:attributes="
+                                uid string:${item/uid};
+                                field python:convertedcol;
+                                value val;
+                                as_uid string:${item/service_uid|nothing};
+                                name string:${convertedcol}.${item/uid}:records"/>
+                    </tal:choicesresult>
+                </tal:view>
+            </tal:regular_result>
+            <!-- End copied -->
 
             <!-- Retested? -->
             <input
