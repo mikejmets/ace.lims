@@ -93,14 +93,16 @@ class AnalysesView(AV):
         # sampletype
         pos_text += "<tr><td>"
         if obj.portal_type == 'Analysis':
-            pos_text += obj.aq_parent.getSample().getSampleType().Title()
+            # pos_text += obj.aq_parent.getSample().getSampleType().Title()
+            pos_text += ''
         elif obj.portal_type == 'ReferenceAnalysis' or \
                 (obj.portal_type == 'DuplicateAnalysis' and
                     obj.getAnalysis().portal_type == 'ReferenceAnalysis'):
             pos_text += ""  # obj.aq_parent.getReferenceDefinition().Title()
         elif obj.portal_type == 'DuplicateAnalysis':
-            pos_text += \
-                obj.getAnalysis().aq_parent.getSample().getSampleType().Title()
+            # pos_text += \
+            #   obj.getAnalysis().aq_parent.getSample().getSampleType().Title()
+            pos_text += ""
         pos_text += "</td></tr>"
 
         # samplingdeviation
