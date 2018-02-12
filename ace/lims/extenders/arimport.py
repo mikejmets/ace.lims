@@ -90,6 +90,8 @@ class ARImportSchemaModifier(object):
             temp_var.append("CultivationBatch")
         if "ClientLicenceID" not in temp_var:
             temp_var.append("ClientLicenceID")
+        if "Sampler" not in temp_var:
+            temp_var.append("Sampler")
         if "SamplePoint" in temp_var:
             temp_var.remove("SamplePoint")
         if "SampleMatrix" in temp_var:
@@ -105,6 +107,7 @@ class ARImportSchemaModifier(object):
         dgf.columns = tuple(temp_var)
         strain_vocab = Vocabulary_Strain()
         dgf.widget.columns["ClientReference"] = Column('ClientReference')
+        dgf.widget.columns["Sampler"] = Column('Sampler')
         dgf.widget.columns["Strain"] = SelectColumn(
                                                 'Strain',
                                                 vocabulary=strain_vocab)

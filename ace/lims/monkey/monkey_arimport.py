@@ -348,7 +348,7 @@ def workflow_script_import(self):
         params = {
                 'gridrows': json.dumps(gridrows),
                 'client_uid': client.UID(),
-                'batch_uid': batch.UID(),
+                'batch_uid': batch.UID() if hasattr(batch, 'UID') else '',
                 'client_order_num': self.getClientOrderNumber(),
                 'contact_uid': contact.UID(),
                 }
@@ -547,7 +547,8 @@ def lookup_sampler_uid(import_user):
     found = False
     userid = None
     user_ids = []
-    users = getUsers(['LabManager', 'Sampler']).items()
+    portal = ploneapi.portal.get()
+    users = getUsers(portal, ['LabManager', 'Sampler']).items()
     for (samplerid, samplername) in users:
         if import_user == samplerid:
             found = True
