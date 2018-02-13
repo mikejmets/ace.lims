@@ -9,6 +9,7 @@ import csv
 import json
 import transaction
 from DateTime import DateTime
+from bika.lims import bikaMessageFactory as _
 from bika.lims import logger
 from bika.lims.browser import ulocalized_time
 from bika.lims.content.analysisrequest import schema as ar_schema
@@ -340,7 +341,7 @@ def workflow_script_import(self):
 
     gridrows = self.schema['SampleData'].get(self)
     task_queue = queryUtility(ITaskQueue, name='arimport-create')
-    if task_queue is not None:
+    if task_queue is not None and len(gridrows) > 4:
         path = [i for i in client.getPhysicalPath()]
         path.append('ar_import_async')
         path = '/'.join(path)
@@ -356,6 +357,10 @@ def workflow_script_import(self):
         logger.debug('Que Task: path=%s, params=%s' % (
                         path, params))
         task_queue.add(path, method='POST', params=params)
+        # Display a portal message
+        message = _('${ARs} Analysis requests were queue for creation.',
+                    mapping={'ARs': len(gridrows)})
+        self.plone_utils.addPortalMessage(message, 'info')
         # document has been written to, and redirect() fails here
         self.REQUEST.response.write(
             '<script>document.location.href="%s"</script>' % (
