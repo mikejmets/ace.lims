@@ -126,6 +126,20 @@ class ARImportSchemaModifier(object):
         if "ReportDryMatter" in dgf.widget.columns.keys():
             del dgf.widget.columns["ReportDryMatter"]
 
+        hide_fields = (
+                       'ClientReference',
+                       'ClientOrderNumber',
+                       'NrSamples',
+                       'Filename',
+                       'CCContacts',
+                      )
+        for fn in hide_fields:
+            if fn in schema:
+                schema[fn].widget.visible = {
+                'add': 'invisible',
+                'edit': 'invisible',
+                'view': 'invisible'}
+                schema[fn].required = False
         return schema
 
 
