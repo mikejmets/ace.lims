@@ -9,6 +9,7 @@ import csv
 import json
 import transaction
 from DateTime import DateTime
+from bika.lims import api
 from bika.lims import bikaMessageFactory as _
 from bika.lims import logger
 from bika.lims.browser import ulocalized_time
@@ -34,6 +35,7 @@ def save_sample_data(self):
     after doing some very basic validation
     """
     bsc = getToolByName(self, 'bika_setup_catalog')
+    catalog = api.get_tool("portal_catalog")
     profiles = []
     for p in bsc(portal_type='AnalysisProfile'):
         p = p.getObject()
@@ -87,22 +89,19 @@ def save_sample_data(self):
         try:
             gridrow['ClientLicenceID'] = row['ClientLicenceID']
         except KeyError as e:
-            raise RuntimeError(
-                    'AR Import: ClientLicenceID not in input file')
+            raise RuntimeError('AR Import: ClientLicenceID not in input file')
         title = row['ClientLicenceID']
         if len(title) == 0:
             errors.append("Row %s: ClientLicenceID is required" % row_nr)
         if title:
             for licence in self.aq_parent.getLicences():
-                licence_types = bsc(
-                                    portal_type='ClientType',
-                                    UID=licence['LicenceType'])
+                licence_types = catalog(portal_type='ClientLicenceType',
+                                        UID=licence['LicenceType'])
                 if len(licence_types) == 1:
                     licence_type = licence_types[0].Title
                     if licence_type == title:
-                        longstring = \
-                            '{},{LicenceID},{LicenceNumber},{Authority}'
-                        id_value = longstring.format(licence_type, **licence)
+                        id_value = '{},{LicenceID},{LicenceNumber},{Authority}'.format(licence_type, **licence)
+                        value = licence_type
                         gridrow['ClientLicenceID'] = id_value
         del (row['ClientLicenceID'])
 
@@ -277,8 +276,8 @@ def save_header_data(self):
         return False
 
     for h, f in [
-        ('File name', 'Filename'),
-        ('No of Samples', 'NrSamples'),
+        # ('File name', 'Filename'),
+        # ('No of Samples', 'NrSamples'),
         ('Client name', 'ClientName'),
         ('Client ID', 'ClientID'),
     ]:
@@ -346,16 +345,13 @@ def workflow_script_import(self):
         path.append('ar_import_async')
         path = '/'.join(path)
 
-        params = {
-                'gridrows': json.dumps(gridrows),
-                'client_uid': client.UID(),
-                'batch_uid': batch.UID() if hasattr(batch, 'UID') else '',
-                'client_order_num': self.getClientOrderNumber(),
-                'contact_uid': contact.UID(),
-                }
+        params = {'gridrows': json.dumps(gridrows),
+                  'client_uid': client.UID(),
+                  'batch_uid': batch.UID() if hasattr(batch, 'UID') else '',
+                  'client_order_num': self.getClientOrderNumber(),
+                  'contact_uid': contact.UID(), }
         logger.info('Queue Task: path=%s' % path)
-        logger.debug('Que Task: path=%s, params=%s' % (
-                        path, params))
+        logger.debug('Que Task: path=%s, params=%s' % (path, params))
         task_queue.add(path, method='POST', params=params)
         # Display a portal message
         message = _('${ARs} Analysis requests were queue for creation.',

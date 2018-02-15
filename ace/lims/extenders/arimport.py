@@ -55,7 +55,7 @@ class Vocabulary_ClientLicenceID(object):
         licences = [['', ''], ]
         client = context.aq_parent
         for licence in client.getLicences():
-            licence_types = bsc(portal_type='ClientType',
+            licence_types = bsc(portal_type='ClientLicenceType',
                                 UID=licence['LicenceType'])
             if len(licence_types) == 1:
                 licence_type = licence_types[0].Title
@@ -80,6 +80,7 @@ class ARImportSchemaModifier(object):
 
         dgf = schema['SampleData']
         temp_var = [i for i in dgf.columns]
+        # Not in list - add
         if "ClientReference" not in temp_var:
             temp_var.append("ClientReference")
         if "Strain" not in temp_var:
@@ -92,8 +93,8 @@ class ARImportSchemaModifier(object):
             temp_var.append("ClientLicenceID")
         if "Sampler" not in temp_var:
             temp_var.append("Sampler")
-        if "SamplePoint" in temp_var:
-            temp_var.remove("SamplePoint")
+
+        # in list - remove
         if "SampleMatrix" in temp_var:
             temp_var.remove("SampleMatrix")
         if "ContainerType" in temp_var:
@@ -115,8 +116,8 @@ class ARImportSchemaModifier(object):
         dgf.widget.columns["ClientLicenceID"] = SelectColumn(
                                                     "Client's Licence ID",
                                                     vocabulary=cslid_vocab)
-        if "SamplePoint" in dgf.widget.columns.keys():
-            del dgf.widget.columns["SamplePoint"]
+
+        # in list - remove here aswell
         if "SampleMatrix" in dgf.widget.columns.keys():
             del dgf.widget.columns["SampleMatrix"]
         if "ContainerType" in dgf.widget.columns.keys():
