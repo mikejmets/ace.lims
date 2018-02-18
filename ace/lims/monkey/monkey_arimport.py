@@ -122,6 +122,25 @@ def save_sample_data(self):
                 gridrow['Strain'] = obj[0].UID
         del (row['Strain'])
 
+        if 'Specification' in row:
+            title = row['Specification'].replace('(Lab)', '')
+            title = title.replace('(Client)', '')
+            if title:
+                specs = self.lookup(('AnalysisSpec',), Title=title)
+                for spec in specs:
+                    if '(Lab)' in row['Specification']:
+                        obj = spec.getObject()
+                        parent_pt = obj.aq_parent.portal_type
+                        if parent_pt == 'AnalysisSpecs':
+                            gridrow['Specification'] = obj.UID()
+
+                    if '(Client)' in row['Specification']:
+                        obj = spec.getObject()
+                        parent_pt = obj.aq_parent.portal_type
+                        if parent_pt == 'Client':
+                            gridrow['Specification'] = obj.UID()
+            del (row['Specification'])
+
         # Validation only
         DateSampled = row['DateSampled']
         if len(DateSampled) == 0:
