@@ -97,8 +97,8 @@ class ARImportSchemaModifier(object):
         # in list - remove
         if "SampleMatrix" in temp_var:
             temp_var.remove("SampleMatrix")
-        if "ContainerType" in temp_var:
-            temp_var.remove("ContainerType")
+        # if "ContainerType" in temp_var:
+        #     temp_var.remove("ContainerType")
         if "ReportDryMatter" in temp_var:
             temp_var.remove("ReportDryMatter")
         if "SamplingDate" in temp_var:
@@ -120,8 +120,8 @@ class ARImportSchemaModifier(object):
         # in list - remove here aswell
         if "SampleMatrix" in dgf.widget.columns.keys():
             del dgf.widget.columns["SampleMatrix"]
-        if "ContainerType" in dgf.widget.columns.keys():
-            del dgf.widget.columns["ContainerType"]
+        # if "ContainerType" in dgf.widget.columns.keys():
+        #     del dgf.widget.columns["ContainerType"]
         if "ReportDryMatter" in dgf.widget.columns.keys():
             del dgf.widget.columns["ReportDryMatter"]
 
