@@ -154,13 +154,18 @@ def save_sample_data(self):
             del (row['Specification'])
 
         # Validation only
-        DateSampled = row['DateSampled']
+        DateSampled = '{} {}'.format(row['DateSampled'], row['TimeSampled'])
         if len(DateSampled) == 0:
             errors.append("Row %s: DateSampled is required" % row_nr)
         try:
             DateTime(DateSampled)
+            gridrow['DateSampled'] = '{} {}'.format(row['DateSampled'],
+                                                    row['TimeSampled'])
+            del (row['DateSampled'])
+            del (row['TimeSampled'])
         except:
             errors.append("Row %s: DateSampled format is incorrect" % row_nr)
+
 
         # Validation only
         if 'Sampler' not in row.keys():
