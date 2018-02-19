@@ -111,17 +111,17 @@ def save_sample_data(self):
         gridrow['Lot'] = row['Lot']
         del (row['Lot'])
 
-        gridrow['ReportDryMatter'] = row['ReportasDryMatter']
-        if row['ReportasDryMatter'] == 'Yes' \
-                or row['ReportasDryMatter'] == 1 \
-                or row['ReportasDryMatter'] == '1':
+        gridrow['ReportDryMatter'] = row['ReportDryMatter']
+        if row['ReportDryMatter'] == 'Yes' \
+                or row['ReportDryMatter'] == 1 \
+                or row['ReportDryMatter'] == '1':
             gridrow['ReportDryMatter'] = '1'
-            del row['ReportasDryMatter']
-        elif row['ReportasDryMatter'] == 'No'  \
-                or row['ReportasDryMatter'] == '0' \
-                or row['ReportasDryMatter'] == 0:
+            del row['ReportDryMatter']
+        elif row['ReportDryMatter'] == 'No'  \
+                or row['ReportDryMatter'] == '0' \
+                or row['ReportDryMatter'] == 0:
             gridrow['ReportDryMatter'] = '0'
-            del row['ReportasDryMatter']
+            del row['ReportDryMatter']
 
         gridrow['Strain'] = row['Strain']
         title = row['Strain']
@@ -314,7 +314,7 @@ def save_header_data(self):
     for h, f in [
         # ('File name', 'Filename'),
         # ('No of Samples', 'NrSamples'),
-        ('Client name', 'ClientName'),
+        ('Client Name', 'ClientName'),
         ('Client ID', 'ClientID'),
     ]:
         v = headers.get(h, None)
