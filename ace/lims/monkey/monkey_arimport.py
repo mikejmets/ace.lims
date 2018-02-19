@@ -278,6 +278,8 @@ def workflow_before_validate(self):
         dateSampled = gridrow.get('DateSampled', '')
         try:
             new = DateTime(dateSampled)
+            if DateTime(dateSampled) > DateTime():
+                self.error("Row %s: DateSampled must be a past date" % row_nr)
             ulocalized_time(
                 new, long_format=True, time_only=False, context=self)
         except:
