@@ -111,6 +111,18 @@ def save_sample_data(self):
         gridrow['Lot'] = row['Lot']
         del (row['Lot'])
 
+        gridrow['ReportDryMatter'] = row['ReportasDryMatter']
+        if row['ReportasDryMatter'] == 'Yes' \
+                or row['ReportasDryMatter'] == 1 \
+                or row['ReportasDryMatter'] == '1':
+            gridrow['ReportDryMatter'] = '1'
+            del row['ReportasDryMatter']
+        elif row['ReportasDryMatter'] == 'No'  \
+                or row['ReportasDryMatter'] == '0' \
+                or row['ReportasDryMatter'] == 0:
+            gridrow['ReportDryMatter'] = '0'
+            del row['ReportasDryMatter']
+
         gridrow['Strain'] = row['Strain']
         title = row['Strain']
         if len(title) == 0:
@@ -142,13 +154,18 @@ def save_sample_data(self):
             del (row['Specification'])
 
         # Validation only
-        DateSampled = row['DateSampled']
+        DateSampled = '{} {}'.format(row['DateSampled'], row['TimeSampled'])
         if len(DateSampled) == 0:
             errors.append("Row %s: DateSampled is required" % row_nr)
         try:
             DateTime(DateSampled)
+            gridrow['DateSampled'] = '{} {}'.format(row['DateSampled'],
+                                                    row['TimeSampled'])
+            del (row['DateSampled'])
+            del (row['TimeSampled'])
         except:
             errors.append("Row %s: DateSampled format is incorrect" % row_nr)
+
 
         # Validation only
         if 'Sampler' not in row.keys():
