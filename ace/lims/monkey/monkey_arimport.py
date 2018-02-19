@@ -111,6 +111,18 @@ def save_sample_data(self):
         gridrow['Lot'] = row['Lot']
         del (row['Lot'])
 
+        gridrow['ReportDryMatter'] = row['ReportasDryMatter']
+        if row['ReportasDryMatter'] == 'Yes' \
+                or row['ReportasDryMatter'] == 1 \
+                or row['ReportasDryMatter'] == '1':
+            gridrow['ReportDryMatter'] = '1'
+            del row['ReportasDryMatter']
+        elif row['ReportasDryMatter'] == 'No'  \
+                or row['ReportasDryMatter'] == '0' \
+                or row['ReportasDryMatter'] == 0:
+            gridrow['ReportDryMatter'] = '0'
+            del row['ReportasDryMatter']
+
         gridrow['Strain'] = row['Strain']
         title = row['Strain']
         if len(title) == 0:

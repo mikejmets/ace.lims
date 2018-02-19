@@ -99,8 +99,8 @@ class ARImportSchemaModifier(object):
             temp_var.remove("SampleMatrix")
         # if "ContainerType" in temp_var:
         #     temp_var.remove("ContainerType")
-        if "ReportDryMatter" in temp_var:
-            temp_var.remove("ReportDryMatter")
+        # if "ReportDryMatter" in temp_var:
+        #     temp_var.remove("ReportDryMatter")
         if "SamplingDate" in temp_var:
             temp_var.remove("SamplingDate")
 
@@ -122,8 +122,8 @@ class ARImportSchemaModifier(object):
             del dgf.widget.columns["SampleMatrix"]
         # if "ContainerType" in dgf.widget.columns.keys():
         #     del dgf.widget.columns["ContainerType"]
-        if "ReportDryMatter" in dgf.widget.columns.keys():
-            del dgf.widget.columns["ReportDryMatter"]
+        # if "ReportDryMatter" in dgf.widget.columns.keys():
+        #     del dgf.widget.columns["ReportDryMatter"]
 
         hide_fields = ('ClientReference',
                        'ClientOrderNumber',
