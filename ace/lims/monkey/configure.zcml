@@ -37,13 +37,6 @@
       />
 
   <monkey:patch
-      description="This modifies the workflow_script_import method"
-      class="bika.lims.content.arimport.ARImport"
-      original="workflow_script_import"
-      replacement="ace.lims.monkey.monkey_arimport.workflow_script_import"
-      />
-
-  <monkey:patch
       description="This modifies the analyses folderitem method"
       class="bika.lims.browser.analyses.AnalysesView"
       original="folderitems"
