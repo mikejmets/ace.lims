@@ -27,4 +27,15 @@
         attribute="as_maximum_turnaround_time"
         permission="cmf.ManagePortal"
         />
+
+  <!-- AR Import -->
+  <browser:page
+      for="*"
+      name="ar_import_async"
+      class="ace.lims.browser.arimports.ARImportAsyncView"
+      permission="zope2.View"
+      layer="bika.lims.interfaces.IBikaLIMS"
+    />
+  <!-- /AR Import -->
+
 </configure>
