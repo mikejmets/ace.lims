@@ -8,6 +8,7 @@
 import csv
 import json
 import transaction
+from copy import deepcopy
 from DateTime import DateTime
 from bika.lims import api
 from bika.lims import bikaMessageFactory as _
@@ -15,17 +16,25 @@ from bika.lims import logger
 from bika.lims.browser import ulocalized_time
 from bika.lims.content.analysisrequest import schema as ar_schema
 from bika.lims.content.sample import schema as sample_schema
-from bika.lims.idserver import renameAfterCreation
-from bika.lims.utils import tmpID, getUsers
+from bika.lims.utils.analysisrequest import create_analysisrequest
+# from bika.lims.idserver import renameAfterCreation
+# from bika.lims.utils import tmpID, getUsers
+from bika.lims.utils import getUsers
 from collective.taskqueue.interfaces import ITaskQueue
 from plone import api as ploneapi
-from Products.CMFPlone.utils import _createObjectByType
-from Products.Archetypes.event import ObjectInitializedEvent
+# from Products.CMFPlone.utils import _createObjectByType
+# from Products.Archetypes.event import ObjectInitializedEvent
 from Products.Archetypes.utils import addStatusMessage
 from Products.CMFCore.utils import getToolByName
-from zope import event
+# from zope import event
 from zope.component import queryUtility
 from zope.i18nmessageid import MessageFactory
+
+from collective.progressbar.events import InitialiseProgressBar
+from collective.progressbar.events import ProgressBar
+from collective.progressbar.events import ProgressState
+from collective.progressbar.events import UpdateProgressEvent
+from zope.event import notify
 
 _p = MessageFactory(u"plone")
 
@@ -165,7 +174,6 @@ def save_sample_data(self):
             del (row['TimeSampled'])
         except:
             errors.append("Row %s: DateSampled format is incorrect" % row_nr)
-
 
         # Validation only
         if 'Sampler' not in row.keys():
@@ -361,6 +369,230 @@ def save_header_data(self):
         self.error("Unexpected header fields: %s" % unexpected)
 
     # print 'HEADERS: ClientID={}'.format(self.getClientID())
+
+
+# def workflow_script_import(self):
+#     """Create objects from valid ARImport
+#     """
+#
+#     bsc = getToolByName(self, 'bika_setup_catalog')
+#     workflow = getToolByName(self, 'portal_workflow')
+#     client = self.aq_parent
+#     batch = self.schema['Batch'].get(self)
+#     contact = self.getContact()
+#
+#     title = _p('Submitting AR Import')
+#     profiles = [x.getObject() for x in bsc(portal_type='AnalysisProfile')]
+#
+#     gridrows = self.schema['SampleData'].get(self)
+#     task_queue = queryUtility(ITaskQueue, name='arimport-create')
+#     if task_queue is not None and len(gridrows) > 4:
+#         path = [i for i in client.getPhysicalPath()]
+#         path.append('ar_import_async')
+#         path = '/'.join(path)
+#
+#         params = {'gridrows': json.dumps(gridrows),
+#                   'client_uid': client.UID(),
+#                   'batch_uid': batch.UID() if hasattr(batch, 'UID') else '',
+#                   'client_order_num': self.getClientOrderNumber(),
+#                   'contact_uid': contact.UID(), }
+#         logger.info('Queue Task: path=%s' % path)
+#         logger.debug('Que Task: path=%s, params=%s' % (path, params))
+#         task_queue.add(path, method='POST', params=params)
+#         # Display a portal message
+#         message = _('${ARs} Analysis requests were queue for creation.',
+#                     mapping={'ARs': len(gridrows)})
+#         self.plone_utils.addPortalMessage(message, 'info')
+#         # document has been written to, and redirect() fails here
+#         self.REQUEST.response.write(
+#             '<script>document.location.href="%s"</script>' % (
+#                 client.absolute_url()))
+#         return
+#     row_cnt = 0
+#     for therow in gridrows:
+#         row = therow.copy()
+#         row_cnt += 1
+#         # Create Sample
+#         sample = _createObjectByType('Sample', client, tmpID())
+#         sample.unmarkCreationFlag()
+#         # First convert all row values into something the field can take
+#         sample.edit(**row)
+#         sample._renameAfterCreation()
+#         event.notify(ObjectInitializedEvent(sample))
+#         sample.at_post_create_script()
+#         swe = self.bika_setup.getSamplingWorkflowEnabled()
+#         if swe:
+#             workflow.doActionFor(sample, 'sampling_workflow')
+#         else:
+#             workflow.doActionFor(sample, 'no_sampling_workflow')
+#         part = _createObjectByType('SamplePartition', sample, 'part-1')
+#         part.unmarkCreationFlag()
+#         renameAfterCreation(part)
+#         if swe:
+#             workflow.doActionFor(part, 'sampling_workflow')
+#         else:
+#             workflow.doActionFor(part, 'no_sampling_workflow')
+#         # Container is special... it could be a containertype.
+#         container = get_row_container(row)
+#         if container:
+#             if container.portal_type == 'ContainerType':
+#                 containers = container.getContainers()
+#             # And so we must calculate the best container for this partition
+#             part.edit(Container=containers[0])
+#
+#         # Profiles are titles, profile keys, or UIDS: convert them to UIDs.
+#         newprofiles = []
+#         for title in row['Profiles']:
+#             objects = [x for x in profiles
+#                        if title in (x.getProfileKey(), x.UID(), x.Title())]
+#             for obj in objects:
+#                 newprofiles.append(obj.UID())
+#         row['Profiles'] = newprofiles
+#
+#         # BBB in bika.lims < 3.1.9, only one profile is permitted
+#         # on an AR.  The services are all added, but only first selected
+#         # profile name is stored.
+#         row['Profile'] = newprofiles[0] if newprofiles else None
+#
+#         # Same for analyses
+#         (analyses, errors) = get_row_services(row)
+#         if errors:
+#             for err in errors:
+#                 self.error(err)
+#         newanalyses = set(analyses)
+#         (analyses, errors) = get_row_profile_services(row)
+#         if errors:
+#             for err in errors:
+#                 self.error(err)
+#         newanalyses.update(analyses)
+#         row['Analyses'] = []
+#         # get batch
+#         if batch:
+#             row['Batch'] = batch
+#         # Add AR fields from schema into this row's data
+#         row['ClientReference'] = row['ClientReference']
+#         # row['ClientOrderNumber'] = self.getClientOrderNumber()
+#         row['Contact'] = self.getContact()
+#         if row['DateSampled']:
+#             row['DateSampled'] = convert_date_string(row['DateSampled'])
+#         if row['Sampler']:
+#             row['Sampler'] = lookup_sampler_uid(row['Sampler'])
+#
+#         # Create AR
+#         ar = _createObjectByType("AnalysisRequest", client, tmpID())
+#         ar.setSample(sample)
+#         ar.unmarkCreationFlag()
+#         ar.edit(**row)
+#         ar._renameAfterCreation()
+#         ar.setAnalyses(list(newanalyses))
+#         for analysis in ar.getAnalyses(full_objects=True):
+#             analysis.setSamplePartition(part)
+#         ar.at_post_create_script()
+#         if swe:
+#             workflow.doActionFor(ar, 'sampling_workflow')
+#         else:
+#             workflow.doActionFor(ar, 'no_sampling_workflow')
+#     # document has been written to, and redirect() fails here
+#     self.REQUEST.response.write(
+#         '<script>document.location.href="%s"</script>' % (
+#             self.aq_parent.absolute_url()))
+
+
+def workflow_script_import(self):
+    """Create objects from valid ARImport
+    """
+    bsc = getToolByName(self, 'bika_setup_catalog')
+    client = self.aq_parent
+
+    profiles = [x.getObject() for x in bsc(portal_type='AnalysisProfile')]
+
+    gridrows = self.schema['SampleData'].get(self)
+    task_queue = queryUtility(ITaskQueue, name='arimport-create')
+    batch = self.schema['Batch'].get(self)
+    contact = self.getContact()
+    if task_queue is not None and len(gridrows) > 4:
+        path = [i for i in client.getPhysicalPath()]
+        path.append('ar_import_async')
+        path = '/'.join(path)
+
+        params = {'gridrows': json.dumps(gridrows),
+                  'client_uid': client.UID(),
+                  'batch_uid': batch.UID() if hasattr(batch, 'UID') else '',
+                  'client_order_num': self.getClientOrderNumber(),
+                  'contact_uid': contact.UID(), }
+        logger.info('Queue Task: path=%s' % path)
+        logger.debug('Que Task: path=%s, params=%s' % (path, params))
+        task_queue.add(path, method='POST', params=params)
+        # Display a portal message
+        message = _('${ARs} Analysis requests were queue for creation.',
+                    mapping={'ARs': len(gridrows)})
+        self.plone_utils.addPortalMessage(message, 'info')
+        # document has been written to, and redirect() fails here
+        self.REQUEST.response.write(
+            '<script>document.location.href="%s"</script>' % (
+                client.absolute_url()))
+        return
+
+    title = _('Submitting AR Import')
+    description = _('Creating and initialising objects')
+    bar = ProgressBar(self, self.REQUEST, title, description)
+    notify(InitialiseProgressBar(bar))
+
+    row_cnt = 0
+    for therow in gridrows:
+        row = deepcopy(therow)
+        row_cnt += 1
+
+        # Profiles are titles, profile keys, or UIDS: convert them to UIDs.
+        newprofiles = []
+        for title in row['Profiles']:
+            objects = [x for x in profiles
+                       if title in (x.getProfileKey(), x.UID(), x.Title())]
+            for obj in objects:
+                newprofiles.append(obj.UID())
+        row['Profiles'] = newprofiles
+
+        # Same for analyses
+        newanalyses = set(self.get_row_services(row) +
+                          self.get_row_profile_services(row))
+        # get batch
+        batch = self.schema['Batch'].get(self)
+        if batch:
+            row['Batch'] = batch.UID()
+        # Add AR fields from schema into this row's data
+        row['ClientReference'] = self.getClientReference()
+        row['ClientOrderNumber'] = self.getClientOrderNumber()
+        contact_uid =\
+            self.getContact().UID() if self.getContact() else None
+        row['Contact'] = contact_uid
+        # Creating analysis request from gathered data
+        ar = create_analysisrequest(
+            client,
+            self.REQUEST,
+            row,
+            analyses=list(newanalyses),
+            partitions=None,)
+
+        # Container is special... it could be a containertype.
+        container = self.get_row_container(row)
+        if container:
+            if container.portal_type == 'ContainerType':
+                containers = container.getContainers()
+            # TODO: Since containers don't work as is expected they
+            # should work, I am keeping the old logic for AR import...
+            part = ar.getPartitions()[0]
+            # XXX And so we must calculate the best container for this partition
+            part.edit(Container=containers[0])
+
+        # progress marker update
+        progress_index = float(row_cnt) / len(gridrows) * 100
+        progress = ProgressState(self.REQUEST, progress_index)
+        notify(UpdateProgressEvent(progress))
+
+    # document has been written to, and redirect() fails here
+    self.REQUEST.response.write(
+        '<script>document.location.href="%s"</script>' % (
+            self.absolute_url()))
 
 
 def get_sample_values(self):
