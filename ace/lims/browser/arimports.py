@@ -5,14 +5,12 @@
 # Copyright 2018 by it's authors.
 # Some rights reserved. See LICENSE.rst, CONTRIBUTORS.rst.
 
-from copy import deepcopy
 import json
 from bika.lims import logger
 from bika.lims.browser import BrowserView
-from bika.lims.content.arimport import get_row_container
-from bika.lims.content.arimport import get_row_profile_services
-from bika.lims.content.arimport import get_row_services
+from bika.lims.utils import getUsers
 from bika.lims.utils.analysisrequest import create_analysisrequest
+from copy import deepcopy
 from plone import api as ploneapi
 
 
@@ -58,6 +56,8 @@ class ARImportAsyncView(BrowserView):
             # Same for analyses
             newanalyses = set(get_row_services(row)[0] +
                               get_row_profile_services(row)[0])
+            error_list = set(get_row_services(row)[1] +
+                             get_row_profile_services(row)[1])
             # get batch
             # batch = self.schema['Batch'].get(self)
             if batch:
@@ -126,3 +126,58 @@ Bika LIMS
             raise smtplib.SMTPRecipientsRefused(
                         'Recipient address rejected by server')
         logger.info('AR Import Completion emailed to %s' % to_email)
+
+
+def get_row_container(row):
+    """Return a sample container
+    """
+    bsc = ploneapi.portal.get_tool('bika_setup_catalog')
+    val = row.get('Container', False)
+    if val:
+        brains = bsc(portal_type='Container', UID=row['Container'])
+        if brains:
+            brains[0].getObject()
+        brains = bsc(portal_type='ContainerType', UID=row['Container'])
+        if brains:
+            # XXX Cheating.  The calculation of capacity vs. volume  is not done.
+            return brains[0].getObject()
+    return None
+
+
+def get_row_services(row):
+    """Return a list of services which are referenced in Analyses.
+    values may be UID, Title or Keyword.
+    """
+    bsc = ploneapi.portal.get_tool('bika_setup_catalog')
+    services = set()
+    errors = []
+    for val in row.get('Analyses', []):
+        brains = bsc(portal_type='AnalysisService', getKeyword=val)
+        if not brains:
+            brains = bsc(portal_type='AnalysisService', title=val)
+        if not brains:
+            brains = bsc(portal_type='AnalysisService', UID=val)
+        if brains:
+            services.add(brains[0].UID)
+        else:
+            errors.append("Invalid analysis specified: %s" % val)
+    return list(services), errors
+
+
+def get_row_profile_services(row):
+    """Return a list of services which are referenced in profiles
+    values may be UID, Title or ProfileKey.
+    """
+    bsc = ploneapi.portal.get_tool('bika_setup_catalog')
+    services = set()
+    errors = []
+    profiles = [x.getObject() for x in bsc(portal_type='AnalysisProfile')]
+    for val in row.get('Profiles', []):
+        objects = [x for x in profiles
+                   if val in (x.getProfileKey(), x.UID(), x.Title())]
+        if objects:
+            for service in objects[0].getService():
+                services.add(service.UID())
+        else:
+            errors.append("Invalid analysis specified: %s" % val)
+    return list(services), errors
