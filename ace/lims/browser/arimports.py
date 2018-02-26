@@ -198,46 +198,50 @@ def process_row_ar_create(request, row, row_cnt, client, profiles, batch_uid,
     newprofiles = []
     error_list = []
     # ar_list = []
-    for title in row['Profiles']:
-        objects = [x for x in profiles
-                   if title in (x.getProfileKey(), x.UID(), x.Title())]
-        for obj in objects:
-            newprofiles.append(obj.UID())
-    row['Profiles'] = newprofiles
+    try:
+        for title in row['Profiles']:
+            objects = [x for x in profiles
+                       if title in (x.getProfileKey(), x.UID(), x.Title())]
+            for obj in objects:
+                newprofiles.append(obj.UID())
+        row['Profiles'] = newprofiles
 
-    # Same for analyses
-    newanalyses = set(get_row_services(row)[0] +
-                      get_row_profile_services(row)[0])
-    errors = set(get_row_services(row)[1] + get_row_profile_services(row)[1])
-    for err in errors:
-        error_list.append(err)
-    # get batch
-    # batch = self.schema['Batch'].get(self)
-    row['Batch'] = batch_uid
-    # Add AR fields from schema into this row's data
-    row['ClientReference'] = client_ref
-    row['ClientOrderNumber'] = client_order_num
-    row['Contact'] = contact_uid
-    # Creating analysis request from gathered data
-    ar = create_analysisrequest(
-        client,
-        request,
-        row,
-        analyses=list(newanalyses),
-        partitions=None,)
+        # Same for analyses
+        newanalyses = set(get_row_services(row)[0] +
+                          get_row_profile_services(row)[0])
+        errors = set(get_row_services(row)[1] + get_row_profile_services(row)[1])
+        for err in errors:
+            error_list.append(err)
+        # get batch
+        # batch = self.schema['Batch'].get(self)
+        row['Batch'] = batch_uid
+        # Add AR fields from schema into this row's data
+        row['ClientReference'] = client_ref
+        row['ClientOrderNumber'] = client_order_num
+        row['Contact'] = contact_uid
+        # Creating analysis request from gathered data
+        ar = create_analysisrequest(
+            client,
+            request,
+            row,
+            analyses=list(newanalyses),
+            partitions=None,)
 
-    # ar_list.append(ar.getId())
-    logger.info('Created AR %s' % ar.getId())
+        # ar_list.append(ar.getId())
+        logger.info('Created AR %s' % ar.getId())
 
-    # Container is special... it could be a containertype.
-    container = get_row_container(row)
-    if container:
-        if container.portal_type == 'ContainerType':
-            containers = container.getContainers()
-        # TODO: Since containers don't work as is expected they
-        # should work, I am keeping the old logic for AR import...
-        part = ar.getPartitions()[0]
-        # XXX And so we must calculate the best container for this partition
-        part.edit(Container=containers[0])
-    logger.info('Ending Processing row: {} ******************'.format(row_cnt))
+        # Container is special... it could be a containertype.
+        container = get_row_container(row)
+        if container:
+            if container.portal_type == 'ContainerType':
+                containers = container.getContainers()
+            # TODO: Since containers don't work as is expected they
+            # should work, I am keeping the old logic for AR import...
+            part = ar.getPartitions()[0]
+            # XXX And so we must calculate the best container for this partition
+            part.edit(Container=containers[0])
+        logger.info('Ending Processing row: {} ******************'.format(row_cnt))
+    except Exception as e:
+        logger.info('An error has occured in process_row_ar_create')
+        logger.info('The error is: {}'.format(e))
     return ar.getId(), error_list
