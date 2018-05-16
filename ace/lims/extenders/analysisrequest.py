@@ -1,22 +1,16 @@
-import sys
 from archetypes.schemaextender.interfaces import IOrderableSchemaExtender
 from archetypes.schemaextender.interfaces import ISchemaModifier
 from bika.lims import bikaMessageFactory as _
-from bika.lims.browser.widgets import SelectionWidget as BikaSelectionWidget
 from bika.lims.browser.widgets import ReferenceWidget as BikaReferenceWidget
-from bika.lims.browser.fields import ProxyField
-from bika.lims.fields import ExtReferenceField, ExtStringField
+from bika.lims.fields import ExtReferenceField, ExtStringField, ExtUIDReferenceField, ExtProxyField
 from bika.lims.interfaces import IAnalysisRequest
-from bika.lims.permissions import EditARContact
-from bika.lims.permissions import SampleSample
-from Products.Archetypes.atapi import StringField
 from Products.Archetypes.public import *
-from Products.Archetypes.references import HoldingReference
 from Products.CMFCore import permissions
 from zope.component import adapts
 from zope.interface import implements
 
-class StrainField(ExtReferenceField):
+
+class StrainField(ExtProxyField):
     """A computed field which sets and gets a value from Sample
     """
     required = True
@@ -30,6 +24,7 @@ class StrainField(ExtReferenceField):
         sample = instance.getSample()
         if sample and value:
             sample.Schema()['Strain'].set(sample, value)
+
 
 class LotField(ExtStringField):
     """A computed field which sets and gets a value from Sample
@@ -48,6 +43,7 @@ class LotField(ExtStringField):
         sample = instance.getSample()
         if sample and value:
             return sample.Schema()['Lot'].set(sample, value)
+
 
 class CultivationBatchField(ExtStringField):
     """A computed field which sets and gets a value from Sample
@@ -219,6 +215,7 @@ class AnalysisRequestSchemaExtender(object):
     def getFields(self):
         return self.fields
 
+
 class AnalysisRequestSchemaModifier(object):
     adapts(IAnalysisRequest)
     implements(ISchemaModifier)
@@ -230,47 +227,42 @@ class AnalysisRequestSchemaModifier(object):
         """
         """
 
-        hide_fields = (
-                'SubGroup', 
-                'SamplingRound',
-                #'Specification',
-                #'ClientOrderNumber',
-                'AdHoc',
-                'InvoiceExclude',
-                'EnvironmentalConditions',
-                'SampleCondition'
-            )
+        hide_fields = ('SubGroup',
+                       'SamplingRound',
+                       # 'Specification',
+                       # 'ClientOrderNumber',
+                       'AdHoc',
+                       'InvoiceExclude',
+                       'EnvironmentalConditions',
+                       'SampleCondition')
+
         for fn in hide_fields:
             if fn in schema:
                 schema[fn].widget.visible = {
-                'add': 'invisible',
-                'edit': 'invisible',
-                'view': 'invisible'}
+                    'add': 'invisible',
+                    'edit': 'invisible',
+                    'view': 'invisible'}
                 schema[fn].required = False
 
         schema['ClientLicenceID'].required = True
 
-        sampler_fields = (
-                'Sampler', 
-                'DateSampled',
-                'SampleType',
-            )
-        states = [
-                'sample_registered',
-                'to_be_sampled',
-                'sample_due',
-                'sample_received',
-                'to_be_verified',
-                ]
+        sampler_fields = ('Sampler',
+                          'DateSampled',
+                          'SampleType',)
+        states = ['sample_registered',
+                  'to_be_sampled',
+                  'sample_due',
+                  'sample_received',
+                  'to_be_verified', ]
+
         for fn in sampler_fields:
             if fn in schema:
-                for state in  states:
+                for state in states:
                     if state == 'to_be_verified':
-                        if  fn == 'SampleType':
-                            schema[fn].widget.visible[state] = {'view': 'visible','edit': 'visible'}
+                        if fn == 'SampleType':
+                            schema[fn].widget.visible[state] = {'view': 'visible', 'edit': 'visible'}
                         continue
-                    schema[fn].widget.visible[state] = {'view': 'visible','edit': 'visible'}
+                    schema[fn].widget.visible[state] = {'view': 'visible', 'edit': 'visible'}
 
         schema.moveField("Lot", after="CultivationBatch")
         return schema
-

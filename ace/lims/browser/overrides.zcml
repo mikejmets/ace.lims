@@ -20,6 +20,22 @@
     />
 
     <browser:page
+        for="bika.lims.interfaces.IAnalysisRequestsFolder"
+        name="base_view"
+        class="ace.lims.browser.analysisrequest.analysisrequests.AnalysisRequestsView"
+        permission="bika.lims.ManageAnalysisRequests"
+        layer="bika.lims.interfaces.IBikaLIMS"
+    />
+
+    <browser:page
+        for="bika.lims.interfaces.IAnalysisRequestsFolder"
+        name="folderitem"
+        class="ace.lims.browser.analysisrequest.analysisrequests.AnalysisRequestsView"
+        permission="bika.lims.ManageAnalysisRequests"
+        layer="bika.lims.interfaces.IBikaLIMS"
+    />
+
+    <browser:page
       for="bika.lims.interfaces.IAnalysisRequest"
       name="manage_results"
       class="ace.lims.browser.analysisrequest.manage_results.AnalysisRequestManageResultsView"

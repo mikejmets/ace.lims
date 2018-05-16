@@ -16,9 +16,14 @@ def setupVarious(context):
         except:
             pass
 
+    def addColumn(cat, col):
+        # noinspection PyBroadException
+        try:
+            cat.addColumn(col)
+        except:
+            pass
 
     portal = getSite()
-    
     setup_default_permissions(portal)
 
     bika_setup = portal._getOb('bika_setup')
@@ -37,6 +42,16 @@ def setupVarious(context):
     addIndex(bc, 'getLot', 'FieldIndex')
     addIndex(bc, 'getCultivationBatch', 'FieldIndex')
 
+    addColumn(bc, 'getStrain')
+    addColumn(bc, 'getLot')
+    addColumn(bc, 'getCultivationBatch')
+    # at.setCatalogsByType('Strain', ['bika_catalog_analysisrequest_listing', ])
+    # # update bika_catalog_analysisrequest_listing
+    # import pdb; pdb.set_trace()
+    # bcal = getToolByName(portal, 'bika_catalog_analysisrequest_listing')
+    # addIndex(bcal, 'getStrain', 'FieldIndex')
+    # addIndex(bcal, 'getLot', 'FieldIndex')
+    # addIndex(bcal, 'getCultivationBatch', 'FieldIndex')
 
 def uninstall(context):
     """Uninstall script"""
