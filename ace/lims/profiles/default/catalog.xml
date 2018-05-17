@@ -1,3 +1,9 @@
 <?xml version="1.0"?>
 <object name="portal_catalog" meta_type="Plone Catalog Tool">
 </object>
+<!--
+<object name="bika_setup_catalog" meta_type="BikaSetupCatalog">
+ <index name="getStrain" meta_type="FieldIndex"> <indexed_attr value="getStrain"/> </index>
+ <column value="getStrain"/>
+</object>
+-->

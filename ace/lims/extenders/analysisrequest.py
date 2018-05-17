@@ -10,12 +10,16 @@ from zope.component import adapts
 from zope.interface import implements
 
 from plone.indexer import indexer
+from Products.CMFCore.utils import getToolByName
 
 
 @indexer(IAnalysisRequest)
 def getStrain(instance):
-    import pdb; pdb.set_trace()
-    return 'hello'
+    sample = instance.getSample()
+    if sample:
+        bsc = getToolByName(instance, 'bika_setup_catalog')
+        strain = bsc(UID=instance.getSample()['Strain'])[0].Title
+        return strain
 
 
 class StrainField(ExtReferenceField):

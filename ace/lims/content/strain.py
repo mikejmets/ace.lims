@@ -1,10 +1,12 @@
 from AccessControl import ClassSecurityInfo
 from Products.Archetypes.public import *
 from bika.lims.content.bikaschema import BikaSchema
-from ace.lims  import PROJECTNAME
+from ace.lims import PROJECTNAME
 from ace.lims.interfaces import IStrain
 from zope.interface import implements
 from ace.lims import aceMessageFactory as _
+from plone.indexer import indexer
+
 
 schema = BikaSchema.copy() + Schema((
     StringField(
@@ -39,8 +41,3 @@ class Strain(BaseContent):
 
 
 registerType(Strain, PROJECTNAME)
-
-@indexer(IStrain)
-def getStrain(instance):
-    import pdb; pdb.set_trace()
-    return 'hello'
