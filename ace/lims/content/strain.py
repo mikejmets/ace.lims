@@ -39,3 +39,8 @@ class Strain(BaseContent):
 
 
 registerType(Strain, PROJECTNAME)
+
+@indexer(IStrain)
+def getStrain(instance):
+    import pdb; pdb.set_trace()
+    return 'hello'

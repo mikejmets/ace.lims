@@ -2,28 +2,36 @@ from archetypes.schemaextender.interfaces import IOrderableSchemaExtender
 from archetypes.schemaextender.interfaces import ISchemaModifier
 from bika.lims import bikaMessageFactory as _
 from bika.lims.browser.widgets import ReferenceWidget as BikaReferenceWidget
-from bika.lims.fields import ExtReferenceField, ExtStringField, ExtUIDReferenceField, ExtProxyField
+from bika.lims.fields import ExtReferenceField, ExtStringField
 from bika.lims.interfaces import IAnalysisRequest
 from Products.Archetypes.public import *
 from Products.CMFCore import permissions
 from zope.component import adapts
 from zope.interface import implements
 
+from plone.indexer import indexer
 
-class StrainField(ExtProxyField):
+
+@indexer(IAnalysisRequest)
+def getStrain(instance):
+    import pdb; pdb.set_trace()
+    return 'hello'
+
+
+class StrainField(ExtReferenceField):
     """A computed field which sets and gets a value from Sample
     """
     required = True
 
-    def get(self, instance):
-        sample = instance.getSample()
-        if sample:
-            return sample.Schema()['Strain'].get(sample)
+    # def get(self, instance):
+    #     sample = instance.getSample()
+    #     if sample:
+    #         return sample.Schema()['Strain'].get(sample)
 
-    def set(self, instance, value):
-        sample = instance.getSample()
-        if sample and value:
-            sample.Schema()['Strain'].set(sample, value)
+    # def set(self, instance, value):
+    #     sample = instance.getSample()
+    #     if sample and value:
+    #         sample.Schema()['Strain'].set(sample, value)
 
 
 class LotField(ExtStringField):

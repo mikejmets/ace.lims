@@ -23,28 +23,28 @@ def setupVarious(context):
         except:
             pass
 
-    portal = getSite()
-    setup_default_permissions(portal)
+    # portal = getSite()
+    # setup_default_permissions(portal)
 
-    bika_setup = portal._getOb('bika_setup')
-    for obj_id in ( 'bika_strains',
-                  ):
-            obj = bika_setup._getOb(obj_id)
-            obj.unmarkCreationFlag()
-            obj.reindexObject()
+    # bika_setup = portal._getOb('bika_setup')
+    # for obj_id in ( 'bika_strains',
+    #               ):
+    #         obj = bika_setup._getOb(obj_id)
+    #         obj.unmarkCreationFlag()
+    #         obj.reindexObject()
 
-    # update bika_setup_catalog
-    at = getToolByName(portal, 'archetype_tool')
-    at.setCatalogsByType('Strain', ['bika_setup_catalog', ])
-    # update bika_catalog
-    bc = getToolByName(portal, 'bika_catalog')
-    addIndex(bc, 'getStrain', 'FieldIndex')
-    addIndex(bc, 'getLot', 'FieldIndex')
-    addIndex(bc, 'getCultivationBatch', 'FieldIndex')
+    # # update bika_setup_catalog
+    # at = getToolByName(portal, 'archetype_tool')
+    # at.setCatalogsByType('Strain', ['bika_setup_catalog', ])
+    # # update bika_catalog
+    # bc = getToolByName(portal, 'bika_catalog')
+    # addIndex(bc, 'getStrain', 'FieldIndex')
+    # addIndex(bc, 'getLot', 'FieldIndex')
+    # addIndex(bc, 'getCultivationBatch', 'FieldIndex')
 
-    addColumn(bc, 'getStrain')
-    addColumn(bc, 'getLot')
-    addColumn(bc, 'getCultivationBatch')
+    # addColumn(bc, 'getStrain')
+    # addColumn(bc, 'getLot')
+    # addColumn(bc, 'getCultivationBatch')
     # at.setCatalogsByType('Strain', ['bika_catalog_analysisrequest_listing', ])
     # # update bika_catalog_analysisrequest_listing
     # import pdb; pdb.set_trace()
@@ -52,6 +52,7 @@ def setupVarious(context):
     # addIndex(bcal, 'getStrain', 'FieldIndex')
     # addIndex(bcal, 'getLot', 'FieldIndex')
     # addIndex(bcal, 'getCultivationBatch', 'FieldIndex')
+
 
 def uninstall(context):
     """Uninstall script"""
