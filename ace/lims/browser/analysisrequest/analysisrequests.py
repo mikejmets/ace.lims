@@ -100,11 +100,11 @@ class AnalysisRequestsView(ARV):
                 "title": _("Sample Type"),
                 "sortable": True,
                 "toggle": True}),
-            ("getStrain", {
-                "title": _("Strain"),
-                "sortable": True,
-                "index": "getStrain",
-                "toggle": True}),
+            # ("getStrain", {
+            #     "title": _("Strain"),
+            #     "sortable": True,
+            #     "index": "getStrain",
+            #     "toggle": True}),
             ("getClientSampleID", {
                 "title": _("Client SID"),
                 "toggle": True}),
@@ -240,11 +240,6 @@ class AnalysisRequestsView(ARV):
             "url": "workflow_action?action=print_stickers"
         }
 
-        sample_and_receive = {
-            "id": "sample_and_receive",
-            "title": _("Sample & Receive"),
-            "url": "workflow_action?action=sample_and_receive"}
-
         self.review_states = [
             {
                 "id": "default",
@@ -265,7 +260,7 @@ class AnalysisRequestsView(ARV):
                     {"id": "cancel"},
                     {"id": "reinstate"},
                 ],
-                "custom_transitions": [print_stickers, sample_and_receive],
+                "custom_transitions": [print_stickers],
                 "columns": self.columns.keys(),
             }, {
                 "id": "to_be_sampled",
@@ -279,7 +274,7 @@ class AnalysisRequestsView(ARV):
                     {"id": "submit"},
                     {"id": "cancel"},
                 ],
-                "custom_transitions": [print_stickers, sample_and_receive],
+                "custom_transitions": [print_stickers],
                 "columns": self.columns.keys()
             }, {
                 "id": "to_be_preserved",
@@ -293,7 +288,7 @@ class AnalysisRequestsView(ARV):
                     {"id": "preserve"},
                     {"id": "cancel"},
                 ],
-                "custom_transitions": [print_stickers, sample_and_receive],
+                "custom_transitions": [print_stickers],
                 "columns": self.columns.keys(),
             }, {
                 "id": "scheduled_sampling",
@@ -307,7 +302,7 @@ class AnalysisRequestsView(ARV):
                     {"id": "sample"},
                     {"id": "cancel"},
                 ],
-                "custom_transitions": [print_stickers, sample_and_receive],
+                "custom_transitions": [print_stickers],
                 "columns": self.columns.keys(),
             }, {
                 "id": "sample_due",
@@ -326,7 +321,7 @@ class AnalysisRequestsView(ARV):
                     {"id": "cancel"},
                     {"id": "reinstate"},
                 ],
-                "custom_transitions": [print_stickers, sample_and_receive],
+                "custom_transitions": [print_stickers],
                 "columns": self.columns.keys(),
             }, {
                 "id": "sample_received",
@@ -341,7 +336,7 @@ class AnalysisRequestsView(ARV):
                     {"id": "cancel"},
                     {"id": "reinstate"},
                 ],
-                "custom_transitions": [print_stickers, sample_and_receive],
+                "custom_transitions": [print_stickers],
                 "columns": self.columns.keys(),
             }, {
                 "id": "to_be_verified",
@@ -358,7 +353,7 @@ class AnalysisRequestsView(ARV):
                     {"id": "cancel"},
                     {"id": "reinstate"},
                 ],
-                "custom_transitions": [print_stickers, sample_and_receive],
+                "custom_transitions": [print_stickers],
                 "columns": self.columns.keys(),
             }, {
                 "id": "verified",
@@ -372,7 +367,7 @@ class AnalysisRequestsView(ARV):
                     {"id": "publish"},
                     {"id": "cancel"},
                 ],
-                "custom_transitions": [print_stickers, sample_and_receive],
+                "custom_transitions": [print_stickers],
                 "columns": self.columns.keys(),
             }, {
                 "id": "published",
@@ -417,7 +412,7 @@ class AnalysisRequestsView(ARV):
                     {"id": "cancel"},
                     {"id": "reinstate"},
                 ],
-                "custom_transitions": [print_stickers, sample_and_receive],
+                "custom_transitions": [print_stickers],
                 "columns": self.columns.keys(),
             }, {
                 "id": "cancelled",
@@ -452,7 +447,7 @@ class AnalysisRequestsView(ARV):
                     "sort_order": "descending",
                 },
                 "transitions": [],
-                "custom_transitions": [print_stickers, sample_and_receive],
+                "custom_transitions": [print_stickers],
                 "columns": self.columns.keys(),
             }, {
                 "id": "rejected",
@@ -488,7 +483,7 @@ class AnalysisRequestsView(ARV):
                     {"id": "prepublish"},
                     {"id": "cancel"},
                 ],
-                "custom_transitions": [print_stickers, sample_and_receive],
+                "custom_transitions": [print_stickers],
                 "columns": self.columns.keys(),
             }, {
                 "id": "unassigned",
@@ -510,10 +505,21 @@ class AnalysisRequestsView(ARV):
                     {"id": "prepublish"},
                     {"id": "cancel"},
                 ],
-                "custom_transitions": [print_stickers, sample_and_receive],
+                "custom_transitions": [print_stickers],
                 "columns": self.columns.keys(),
             },
         ]
+        if SamplingWorkflowEnabled:
+            sample_and_receive = {
+                "id": "sample_and_receive",
+                "title": _("Sample & Receive"),
+                "url": "workflow_action?action=sample_and_receive"}
+
+            sample_and_receive_tabs = ['default', 'to_be_sampled']
+
+            for i in self.review_states:
+                if i['id'] in sample_and_receive_tabs:
+                    i['custom_transitions'].append(sample_and_receive)
 
     def folderitem(self, obj, item, index):
         # Additional info from AnalysisRequest to be added in the item
@@ -549,7 +555,6 @@ class AnalysisRequestsView(ARV):
         else:
             item["getAnalysesNum"] = ""
 
-        import pdb; pdb.set_trace()
         # if item['getStrain'] == '':
         #     bsc = getToolByName(self.context, 'bika_setup_catalog')
         #     strains = bsc(UID=obj.getObject().getSample()['Strain'])

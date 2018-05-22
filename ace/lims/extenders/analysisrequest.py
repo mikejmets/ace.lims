@@ -13,13 +13,13 @@ from plone.indexer import indexer
 from Products.CMFCore.utils import getToolByName
 
 
-@indexer(IAnalysisRequest)
-def getStrain(instance):
-    sample = instance.getSample()
-    if sample:
-        bsc = getToolByName(instance, 'bika_setup_catalog')
-        strain = bsc(UID=instance.getSample()['Strain'])[0].Title
-        return strain
+# @indexer(IAnalysisRequest)
+# def getStrain(instance):
+#     sample = instance.getSample()
+#     if sample:
+#         bsc = getToolByName(instance, 'bika_setup_catalog')
+#         strain = bsc(UID=instance.getSample()['Strain'])[0].Title
+#         return strain
 
 
 class StrainField(ExtReferenceField):
@@ -27,15 +27,15 @@ class StrainField(ExtReferenceField):
     """
     required = True
 
-    # def get(self, instance):
-    #     sample = instance.getSample()
-    #     if sample:
-    #         return sample.Schema()['Strain'].get(sample)
+    def get(self, instance):
+        sample = instance.getSample()
+        if sample:
+            return sample.Schema()['Strain'].get(sample)
 
-    # def set(self, instance, value):
-    #     sample = instance.getSample()
-    #     if sample and value:
-    #         sample.Schema()['Strain'].set(sample, value)
+    def set(self, instance, value):
+        sample = instance.getSample()
+        if sample and value:
+            sample.Schema()['Strain'].set(sample, value)
 
 
 class LotField(ExtStringField):

@@ -15,7 +15,9 @@
 
   <five:registerPackage package="." initialize=".initialize" />
 
+  <!--
   <adapter name="getStrain" factory=".extenders.analysisrequest.getStrain"/>
+  -->
 
   <browser:resourceDirectory
     name="ace.lims"

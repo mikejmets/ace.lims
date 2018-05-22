@@ -27,6 +27,7 @@ def setupVarious(context):
     setup_default_permissions(portal)
 
     bika_setup = portal._getOb('bika_setup')
+    import pdb; pdb.set_trace()
     for obj_id in ( 'bika_strains',
                   ):
             obj = bika_setup._getOb(obj_id)
@@ -38,22 +39,39 @@ def setupVarious(context):
     at.setCatalogsByType('Strain', ['bika_setup_catalog', ])
     # update bika_catalog
     bc = getToolByName(portal, 'bika_catalog')
-    addIndex(bc, 'getStrain', 'FieldIndex')
-    addIndex(bc, 'getLot', 'FieldIndex')
-    addIndex(bc, 'getCultivationBatch', 'FieldIndex')
+    addIndex(bc, 'Strain', 'FieldIndex')  # Does not work - Index does not have a value
+    addIndex(bc, 'Lot', 'FieldIndex')  # works
+    addIndex(bc, 'CultivationBatch', 'FieldIndex')  # works
 
-    addColumn(bc, 'getStrain')
-    addColumn(bc, 'getLot')
-    addColumn(bc, 'getCultivationBatch')
+    addColumn(bc, 'Strain')
+    addColumn(bc, 'Lot')
+    addColumn(bc, 'CultivationBatch')
+
+    bcal = getToolByName(portal, 'bika_catalog_analysisrequest_listing')
+    addIndex(bcal, 'Strain', 'FieldIndex')
+    addIndex(bcal, 'Lot', 'FieldIndex')
+    addIndex(bcal, 'CultivationBatch', 'FieldIndex')
+    addColumn(bcal, 'Strain')
+    addColumn(bcal, 'Lot')
+    addColumn(bcal, 'CultivationBatch')
+
+
+    # addIndex(bc, 'getStrain', 'FieldIndex')
+    # addIndex(bc, 'getLot', 'FieldIndex')
+    # addIndex(bc, 'getCultivationBatch', 'FieldIndex')
+
+    # addColumn(bc, 'getStrain')
+    # addColumn(bc, 'getLot')
+    # addColumn(bc, 'getCultivationBatch')
     # at.setCatalogsByType('Strain', ['bika_catalog_analysisrequest_listing', ])
     # update bika_catalog_analysisrequest_listing
-    bcal = getToolByName(portal, 'bika_catalog_analysisrequest_listing')
-    addIndex(bcal, 'getStrain', 'FieldIndex')
-    addIndex(bcal, 'getLot', 'FieldIndex')
-    addIndex(bcal, 'getCultivationBatch', 'FieldIndex')
-    addColumn(bcal, 'getStrain')
-    addColumn(bcal, 'getLot')
-    addColumn(bcal, 'getCultivationBatch')
+    # bcal = getToolByName(portal, 'bika_catalog_analysisrequest_listing')
+    # addIndex(bcal, 'getStrain', 'FieldIndex')
+    # addIndex(bcal, 'getLot', 'FieldIndex')
+    # addIndex(bcal, 'getCultivationBatch', 'FieldIndex')
+    # addColumn(bcal, 'getStrain')
+    # addColumn(bcal, 'getLot')
+    # addColumn(bcal, 'getCultivationBatch')
 
 
 def uninstall(context):
