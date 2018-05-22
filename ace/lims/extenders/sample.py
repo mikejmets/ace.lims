@@ -9,6 +9,15 @@ from Products.CMFCore import permissions
 from Products.CMFCore.utils import getToolByName
 from zope.component import adapts
 from zope.interface import implements
+from plone.indexer import indexer
+
+
+@indexer(ISample)
+def getStrain(instance):
+    if instance['Strain']:
+        bsc = getToolByName(instance, 'bika_setup_catalog')
+        strain = bsc(UID=instance['Strain'])[0].Title
+        return strain
 
 
 class SampleSchemaExtender(object):

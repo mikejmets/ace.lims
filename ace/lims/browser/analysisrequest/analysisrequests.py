@@ -100,11 +100,11 @@ class AnalysisRequestsView(ARV):
                 "title": _("Sample Type"),
                 "sortable": True,
                 "toggle": True}),
-            # ("getStrain", {
-            #     "title": _("Strain"),
-            #     "sortable": True,
-            #     "index": "getStrain",
-            #     "toggle": True}),
+            ("getStrain", {
+                "title": _("Strain"),
+                "sortable": True,
+                "index": "getStrain",
+                "toggle": True}),
             ("getClientSampleID", {
                 "title": _("Client SID"),
                 "toggle": True}),
@@ -555,10 +555,9 @@ class AnalysisRequestsView(ARV):
         else:
             item["getAnalysesNum"] = ""
 
-        # if item['getStrain'] == '':
-        #     bsc = getToolByName(self.context, 'bika_setup_catalog')
-        #     strains = bsc(UID=obj.getObject().getSample()['Strain'])
-        #     item['getStrain'] = strains[0].Title
+        bc = getToolByName(self.context, 'bika_catalog')
+        sample_brain = bc(id=item['getSample'], portal_type='Sample')[0]
+        item['getStrain'] = sample_brain.getStrain
         # Progress
         num_verified = 0
         num_submitted = 0

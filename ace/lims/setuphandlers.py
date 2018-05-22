@@ -39,39 +39,13 @@ def setupVarious(context):
     at.setCatalogsByType('Strain', ['bika_setup_catalog', ])
     # update bika_catalog
     bc = getToolByName(portal, 'bika_catalog')
-    addIndex(bc, 'Strain', 'FieldIndex')  # Does not work - Index does not have a value
-    addIndex(bc, 'Lot', 'FieldIndex')  # works
-    addIndex(bc, 'CultivationBatch', 'FieldIndex')  # works
+    addIndex(bc, 'getStrain', 'FieldIndex')
+    addIndex(bc, 'Lot', 'FieldIndex')
+    addIndex(bc, 'CultivationBatch', 'FieldIndex')
 
-    addColumn(bc, 'Strain')
+    addColumn(bc, 'getStrain')
     addColumn(bc, 'Lot')
     addColumn(bc, 'CultivationBatch')
-
-    bcal = getToolByName(portal, 'bika_catalog_analysisrequest_listing')
-    addIndex(bcal, 'Strain', 'FieldIndex')
-    addIndex(bcal, 'Lot', 'FieldIndex')
-    addIndex(bcal, 'CultivationBatch', 'FieldIndex')
-    addColumn(bcal, 'Strain')
-    addColumn(bcal, 'Lot')
-    addColumn(bcal, 'CultivationBatch')
-
-
-    # addIndex(bc, 'getStrain', 'FieldIndex')
-    # addIndex(bc, 'getLot', 'FieldIndex')
-    # addIndex(bc, 'getCultivationBatch', 'FieldIndex')
-
-    # addColumn(bc, 'getStrain')
-    # addColumn(bc, 'getLot')
-    # addColumn(bc, 'getCultivationBatch')
-    # at.setCatalogsByType('Strain', ['bika_catalog_analysisrequest_listing', ])
-    # update bika_catalog_analysisrequest_listing
-    # bcal = getToolByName(portal, 'bika_catalog_analysisrequest_listing')
-    # addIndex(bcal, 'getStrain', 'FieldIndex')
-    # addIndex(bcal, 'getLot', 'FieldIndex')
-    # addIndex(bcal, 'getCultivationBatch', 'FieldIndex')
-    # addColumn(bcal, 'getStrain')
-    # addColumn(bcal, 'getLot')
-    # addColumn(bcal, 'getCultivationBatch')
 
 
 def uninstall(context):
