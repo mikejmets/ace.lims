@@ -15,15 +15,15 @@ class StrainField(ExtReferenceField):
     """
     required = True
 
-    # def get(self, instance):
-    #     sample = instance.getSample()
-    #     if sample:
-    #         return sample.Schema()['Strain'].get(sample)
+    def get(self, instance):
+        sample = instance.getSample()
+        if sample:
+            return sample.Schema()['Strain'].get(sample)
 
-    # def set(self, instance, value):
-    #     sample = instance.getSample()
-    #     if sample and value:
-    #         sample.Schema()['Strain'].set(sample, value)
+    def set(self, instance, value):
+        sample = instance.getSample()
+        if sample and value:
+            sample.Schema()['Strain'].set(sample, value)
 
 
 class LotField(ExtStringField):

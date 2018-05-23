@@ -6,18 +6,8 @@ from bika.lims.browser.widgets import ReferenceWidget as bikaReferenceWidget
 from bika.lims.interfaces import ISample
 from Products.Archetypes.public import *
 from Products.CMFCore import permissions
-from Products.CMFCore.utils import getToolByName
 from zope.component import adapts
 from zope.interface import implements
-from plone.indexer import indexer
-
-
-@indexer(ISample)
-def getStrain(instance):
-    if instance['Strain']:
-        bsc = getToolByName(instance, 'bika_setup_catalog')
-        strain = bsc(UID=instance['Strain'])[0].Title
-        return strain
 
 
 class SampleSchemaExtender(object):
@@ -68,7 +58,7 @@ class SampleSchemaExtender(object):
             write_permission=permissions.ModifyPortalContent,
             widget=StringWidget(
                 label=_("Lot"),
-                description= "",
+                description="",
                 visible={'view': 'visible',
                          'edit': 'visible',
                          'header_table': 'visible',
@@ -84,7 +74,7 @@ class SampleSchemaExtender(object):
             write_permission=permissions.ModifyPortalContent,
             widget=StringWidget(
                 label=_("Cultivation Batch"),
-                description= "",
+                description="",
                 visible={'view': 'visible',
                          'edit': 'visible',
                          'header_table': 'visible',

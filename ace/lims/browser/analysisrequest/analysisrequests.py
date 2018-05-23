@@ -100,11 +100,18 @@ class AnalysisRequestsView(ARV):
                 "title": _("Sample Type"),
                 "sortable": True,
                 "toggle": True}),
-            ("getStrain", {
-                "title": _("Strain"),
-                "sortable": True,
-                "index": "getStrain",
-                "toggle": True}),
+            # ("getStrain", {
+            #     "title": _("Strain"),
+            #     "sortable": True,
+            #     "toggle": True}),
+            # ("Lot", {
+            #     "title": _("Lot"),
+            #     "sortable": True,
+            #     "toggle": True}),
+            # ("CultivationBatch", {
+            #     "title": _("CultivationBatch"),
+            #     "sortable": True,
+            #     "toggle": True}),
             ("getClientSampleID", {
                 "title": _("Client SID"),
                 "toggle": True}),
@@ -555,9 +562,11 @@ class AnalysisRequestsView(ARV):
         else:
             item["getAnalysesNum"] = ""
 
-        bc = getToolByName(self.context, 'bika_catalog')
-        sample_brain = bc(id=item['getSample'], portal_type='Sample')[0]
-        item['getStrain'] = sample_brain.getStrain
+        # bc = getToolByName(self.context, 'bika_catalog')
+        # sample_brain = bc(id=item['getSample'], portal_type='Sample')[0]
+        # item['getStrain'] = sample_brain.getStrain
+        # item['Lot'] = sample_brain.Lot
+        # item['CultivationBatch'] = sample_brain.CultivationBatch
         # Progress
         num_verified = 0
         num_submitted = 0

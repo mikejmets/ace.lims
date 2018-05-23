@@ -27,7 +27,6 @@ def setupVarious(context):
     setup_default_permissions(portal)
 
     bika_setup = portal._getOb('bika_setup')
-    import pdb; pdb.set_trace()
     for obj_id in ( 'bika_strains',
                   ):
             obj = bika_setup._getOb(obj_id)
