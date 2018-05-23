@@ -9,8 +9,21 @@ from Products.CMFCore import permissions
 from zope.component import adapts
 from zope.interface import implements
 
+from archetypes.schemaextender.field import ExtensionField
+from bika.lims.browser.fields import ProxyField
 
-class StrainField(ExtReferenceField):
+# @indexer(IAnalysisRequest)
+# def StrainTitle(instance):
+#     import pdb; pdb.set_trace()
+#     sample = instance.getSample()
+#     if sample:
+#         return 'Helo'
+
+class ExtProxyField(ExtensionField, ProxyField):
+    "Field extender"
+
+
+class StrainField(ExtProxyField):
     """A computed field which sets and gets a value from Sample
     """
     required = True
@@ -72,9 +85,10 @@ class AnalysisRequestSchemaExtender(object):
         StrainField(
             'Strain',
             required=True,
+            proxy="context.getSample()",
             allowed_types=['Strain'],
-            relationship='SampleTypeStrain',
-            format='select',
+            relationship='AnalysisRequestStrain',
+            # format='select',
             widget=BikaReferenceWidget(
                 label="Strain",
                 render_own_label=True,

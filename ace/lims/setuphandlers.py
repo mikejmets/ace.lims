@@ -47,6 +47,16 @@ def setupVarious(context):
     addColumn(bc, 'CultivationBatch')
 
 
+    # # update bika_catalog_analysisrequest_listing
+    # bc = getToolByName(portal, 'bika_catalog_analysisrequest_listing')
+    # addIndex(bc, 'StrainTitle', 'FieldIndex')
+    # addIndex(bc, 'Lot', 'FieldIndex')
+    # addIndex(bc, 'CultivationBatch', 'FieldIndex')
+
+    # addColumn(bc, 'StrainTitle')
+    # addColumn(bc, 'Lot')
+    # addColumn(bc, 'CultivationBatch')
+
 def uninstall(context):
     """Uninstall script"""
     if context.readDataFile('acelims_uninstall.txt') is None:

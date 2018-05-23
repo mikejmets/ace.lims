@@ -8,6 +8,7 @@ from Products.Archetypes.public import *
 from Products.CMFCore import permissions
 from zope.component import adapts
 from zope.interface import implements
+from Products.Archetypes.references import HoldingReference
 
 
 class SampleSchemaExtender(object):
@@ -19,8 +20,9 @@ class SampleSchemaExtender(object):
             'Strain',
             required=True,
             allowed_types=('Strain'),
-            relationship='SampleTypeStrain',
-            format='select',
+            relationship='SampleStrain',
+            # format='select',
+            referenceClass=HoldingReference,
             widget=bikaReferenceWidget(
                 label="Strain",
                 render_own_label=True,
