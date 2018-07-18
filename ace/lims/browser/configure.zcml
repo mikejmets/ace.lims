@@ -7,7 +7,7 @@
     <plone:static
             directory="stickers"
             type="stickers"
-            name="ace-stickers"
+            name="cannabis-stickers"
     />
 
     <include package=".coc"/>
