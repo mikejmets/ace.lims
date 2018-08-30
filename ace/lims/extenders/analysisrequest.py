@@ -6,14 +6,12 @@ from bika.lims.browser.widgets import SelectionWidget as BikaSelectionWidget
 from bika.lims.fields import ExtReferenceField, ExtStringField
 from bika.lims.interfaces import IAnalysisRequest
 from Products.Archetypes.public import *
+from Products.Archetypes.interfaces.vocabulary import IVocabulary
+from Products.Archetypes.utils import DisplayList
 from Products.CMFCore import permissions
+from Products.CMFCore.utils import getToolByName
 from zope.component import adapts
 from zope.interface import implements
-
-from Products.Archetypes.interfaces.vocabulary import IVocabulary
-from Products.DataGridField import SelectColumn
-from Products.CMFCore.utils import getToolByName
-from Products.Archetypes.utils import DisplayList
 
 
 class StrainField(ExtReferenceField):
@@ -82,6 +80,9 @@ class Vocabulary_LicenceType(object):
         """
         bsc = getToolByName(context, 'portal_catalog')
         licences = [['', ''], ]
+        # NOTE: Can only be be added within a client, gives error if an AR
+        # is added outside a client. Maybe we should take that code out
+        # Business rule Client Licences: Client Licences reside with a client
         client = context.getClient()
         for licence in client.Licences:
             licence_types = bsc(

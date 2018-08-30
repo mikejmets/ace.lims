@@ -7,16 +7,14 @@ from bika.lims.fields import ExtensionField
 from bika.lims.interfaces import IClient
 from bika.lims.vocabularies import CatalogVocabulary
 from Products.Archetypes.public import *
-# from Products.CMFCore import permissions
-from zope.component import adapts
-from zope.interface import implements
-
+from Products.Archetypes.interfaces.vocabulary import IVocabulary
 from Products.DataGridField import Column
 from Products.DataGridField import DataGridField
 from Products.DataGridField import DataGridWidget
 from Products.DataGridField import SelectColumn
-
-from Products.Archetypes.interfaces.vocabulary import IVocabulary
+# from Products.CMFCore import permissions
+from zope.component import adapts
+from zope.interface import implements
 
 
 class ExtDataGridField(ExtensionField, DataGridField):
@@ -37,21 +35,6 @@ class Vocabulary_LicenceType(object):
         vocabulary = CatalogVocabulary(self)
         vocabulary.catalog = 'portal_catalog'
         return vocabulary(allow_blank=True, portal_type='ClientLicenceType')
-        # portal = api.portal.get()
-        # bsc = getToolByName(portal, 'portal_catalog')
-        # licences = [['', ''], ]
-        # client = context.aq_parent
-        # for licence in client.getLicences():
-        #     licence_types = bsc(portal_type='ClientLicenceType',
-        #                         UID=licence['LicenceType'])
-        #     if len(licence_types) == 1:
-        #         licence_type = licence_types[0].Title
-        #         longstring = '{},{LicenceID},{LicenceNumber},{Authority}'
-        #         id_value = longstring.format(licence_type, **licence)
-        #         value = licence_type
-        #         licences.append([id_value, value])
-
-        # return DisplayList(licences)
 
 
 class ClientSchemaExtender(object):
@@ -112,7 +95,6 @@ class ClientSchemaModifier(object):
     def fiddle(self, schema):
         dgf = schema['Licences']
         cslid_vocab = Vocabulary_LicenceType()
-        dgf.widget.columns["LicenceType"] = SelectColumn(
-                                                    "Licence Type",
-                                                    vocabulary=cslid_vocab)
+        dgf.widget.columns["LicenceType"] = SelectColumn("Licence Type",
+                                                         vocabulary=cslid_vocab)
         return schema
