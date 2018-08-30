@@ -2,12 +2,18 @@ from archetypes.schemaextender.interfaces import IOrderableSchemaExtender
 from archetypes.schemaextender.interfaces import ISchemaModifier
 from bika.lims import bikaMessageFactory as _
 from bika.lims.browser.widgets import ReferenceWidget as BikaReferenceWidget
+from bika.lims.browser.widgets import SelectionWidget as BikaSelectionWidget
 from bika.lims.fields import ExtReferenceField, ExtStringField
 from bika.lims.interfaces import IAnalysisRequest
 from Products.Archetypes.public import *
 from Products.CMFCore import permissions
 from zope.component import adapts
 from zope.interface import implements
+
+from Products.Archetypes.interfaces.vocabulary import IVocabulary
+from Products.DataGridField import SelectColumn
+from Products.CMFCore.utils import getToolByName
+from Products.Archetypes.utils import DisplayList
 
 
 class StrainField(ExtReferenceField):
@@ -62,6 +68,31 @@ class CultivationBatchField(ExtStringField):
         sample = instance.getSample()
         if sample and value:
             return sample.Schema()['CultivationBatch'].set(sample, value)
+
+
+class Vocabulary_LicenceType(object):
+    implements(IVocabulary)
+
+    def getDisplayList(self, context):
+        """ returns an object of class DisplayList as defined in
+            Products.Archetypes.utils.
+
+            The instance of the content is given as parameter.
+            Return a list of Client Licence Types
+        """
+        bsc = getToolByName(context, 'portal_catalog')
+        licences = [['', ''], ]
+        client = context.getClient()
+        for licence in client.Licences:
+            licence_types = bsc(
+                    portal_type='ClientLicenceType',
+                    UID=licence['LicenceType'])
+            if len(licence_types) == 1:
+                licence_type = licence_types[0].Title
+                id_value = '{},{LicenceID},{LicenceNumber},{Authority}'.format(licence_type, **licence)
+                value = licence_type
+                licences.append([id_value, value])
+        return DisplayList(licences)
 
 
 class AnalysisRequestSchemaExtender(object):
@@ -200,6 +231,38 @@ class AnalysisRequestSchemaExtender(object):
             ),
         ),
 
+        ExtStringField(
+            'ClientLicenceID',
+            mode="rw",
+            read_permission=permissions.View,
+            write_permission=permissions.ModifyPortalContent,
+            vocabulary='Vocabulary_LicenceType',
+            acquire=True,
+            widget=BikaSelectionWidget(
+                format="select",
+                label=_("Client's Licence"),
+                description=_("Client's Licence appropriate to this AR"),
+                visible={
+                    'edit': 'visible',
+                    'view': 'visible',
+                    'add': 'edit',
+                    'header_table': 'visible',
+                    'sample_registered': {'view': 'visible', 'edit': 'visible', 'add': 'edit'},
+                    'to_be_sampled': {'view': 'visible', 'edit': 'visible'},
+                    'sampled': {'view': 'visible', 'edit': 'visible'},
+                    'to_be_preserved': {'view': 'visible', 'edit': 'visible'},
+                    'sample_due': {'view': 'visible', 'edit': 'visible'},
+                    'sample_prep': {'view': 'visible', 'edit': 'invisible'},
+                    'sample_received': {'view': 'visible', 'edit': 'invisible'},
+                    'attachment_due': {'view': 'visible', 'edit': 'invisible'},
+                    'to_be_verified': {'view': 'visible', 'edit': 'invisible'},
+                    'verified': {'view': 'visible', 'edit': 'invisible'},
+                    'published': {'view': 'visible', 'edit': 'invisible'},
+                    'invalid': {'view': 'visible', 'edit': 'invisible'},
+                },
+                render_own_label=True,
+            ),
+        ),
 
     ]
 
@@ -226,6 +289,8 @@ class AnalysisRequestSchemaModifier(object):
     def fiddle(self, schema):
         """
         """
+        csid = schema['ClientLicenceID']
+        csid.vocabulary = Vocabulary_LicenceType()
 
         hide_fields = ('SubGroup',
                        'SamplingRound',
