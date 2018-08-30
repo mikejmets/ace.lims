@@ -9,6 +9,8 @@
     <adapter name='ace.lims' factory=".batch.BatchSchemaModifier" />
     <adapter name='ace.lims' factory=".sample.SampleSchemaExtender" />
     <adapter name='ace.lims' factory=".sample.SampleSchemaModifier" />
+    <adapter name='ace.lims' factory=".client.ClientSchemaExtender" />
+    <adapter name='ace.lims' factory=".client.ClientSchemaModifier" />
 
     <adapter name='ace.lims' factory=".arimport.ARImportSchemaModifier" />
     <adapter name='ace.lims' factory=".arreport.ARReportSchemaExtender" />

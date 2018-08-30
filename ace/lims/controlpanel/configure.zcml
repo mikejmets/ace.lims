@@ -11,4 +11,13 @@
       permission="bika.lims.ManageBika"
       layer="ace.lims.interfaces.IACELIMS"
     />
+
+    <browser:page
+      for="ace.lims.interfaces.IClientLicenceTypes"
+      name="folder_view"
+      class=".bika_clientlicencetypes.ClientLicenceTypesView"
+      permission="bika.lims.ManageBika"
+      layer="bika.lims.interfaces.IBikaLIMS"
+    />
+
 </configure>

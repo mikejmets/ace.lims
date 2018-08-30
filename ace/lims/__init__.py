@@ -15,6 +15,9 @@ def initialize(context):
     # Do not delete this next import for flake8!!
     # If it is not imported here, Strain is an invalid content type
     from ace.lims.content.strain import Strain
+    from ace.lims.content.clientlicencetype import ClientLicenceType
+
+    from ace.lims.controlpanel.bika_clientlicencetypes import ClientLicenceTypes
 
     content_types, constructors, ftis = process_types(
         listTypes(PROJECTNAME),
