@@ -325,16 +325,16 @@ class AnalysisRequestPublishView(ARPV):
                 for h in headers[:-1]:
                     row.append('')
                 row_dict = cat_dict_in[key] 
-                if len(row_dict.get('converted_units', [])) > 0:
-                    for unit in row_dict['converted_units']:
-                        idx = headers.index(unit['unit'])
-                        row[idx] = unit['ars']
-                if row_dict['include_original']:
-                    unit = row_dict['unit']
-                    if unit is None or len(unit) == 0:
-                        unit = 'Result'
-                    idx = headers.index(unit)
-                    row[idx] = row_dict['ars']
+                # if len(row_dict.get('converted_units', [])) > 0:
+                #     for unit in row_dict['converted_units']:
+                #         idx = headers.index(unit['unit'])
+                #         row[idx] = unit['ars']
+                # if row_dict['include_original']:
+                #     unit = row_dict['unit']
+                #     if unit is None or len(unit) == 0:
+                #         unit = 'Result'
+                #     idx = headers.index(unit)
+                #     row[idx] = row_dict['ars']
                 if len(row_dict.get('limits_units', [])) > 0:
                     for unit in row_dict['limits_units']:
                         idx = headers.index(unit['unit'])
@@ -803,7 +803,8 @@ class AnalysisRequestDigester(ARD):
              strain = strains[0].Title
 
         mme_id = state_id = ''
-        client_licence_id = ar.getClientLicenceID().split(',')
+        # client_licence_id = ar.getClientLicenceID().split(',')
+        client_licence_id = ar.ClientLicenceID.split(',')
         if len(client_licence_id) == 4:
             mme_id = client_licence_id[1] #LicenceID
             state_id = client_licence_id[2] #LicenceNumber
@@ -977,7 +978,8 @@ class AnalysisRequestDigester(ARD):
 
         return {'obj': lab,
                 'title': to_utf8(lab.Title()),
-                'lab_licence_id': to_utf8(lab.getLaboratoryLicenceID()),
+                # 'lab_licence_id': to_utf8(lab.getLaboratoryLicenceID()),
+                'lab_licence_id': to_utf8(lab.LaboratoryLicenceID),
                 'url': to_utf8(lab.getLabURL()),
                 'phone': to_utf8(lab.getPhone()),
                 'address': to_utf8(self._lab_address(lab)),

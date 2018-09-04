@@ -57,8 +57,8 @@ class COC(BrowserView):
         ars = []
         for item in self.items:
             ar = item[0]
-            client_state_id_lst = \
-                    ar.getClientLicenceID().split(',')
+            # client_state_id_lst = ar.getClientLicenceID().split(',')
+            client_state_id_lst = ar.ClientLicenceID.split(',')
             sample = ar.getSample()
             client_reference =  ar.getClientReference()
             adict = {
