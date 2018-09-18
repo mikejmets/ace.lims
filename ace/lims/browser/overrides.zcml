@@ -3,6 +3,7 @@
         xmlns:browser="http://namespaces.zope.org/browser"
         i18n_domain="ace.lims">
 
+    <!--
     <browser:page
       for="bika.lims.interfaces.IAnalysisRequest"
       name="publish"
@@ -66,5 +67,5 @@
       permission="bika.lims.ViewResults"
       layer="bika.lims.interfaces.IBikaLIMS"
     />
-
+    -->
 </configure>
