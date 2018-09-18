@@ -1,7 +1,7 @@
 from ace.lims.utils import attachCSV, createPdf, isOutOfRange
-from ace.lims.vocabularies import  getACEARReportTemplates
+from ace.lims.vocabularies import getACEARReportTemplates
 from bika.lims import api
-from bika.lims import bikaMessageFactory as _, t
+from bika.lims import bikaMessageFactory as _
 from bika.lims import logger
 from bika.lims.browser.analysisrequest.publish import \
     AnalysisRequestPublishView as ARPV
@@ -9,8 +9,8 @@ from bika.lims.browser.analysisrequest.publish import \
     AnalysisRequestDigester as ARD
 from bika.lims.browser import BrowserView, ulocalized_time
 from bika.lims.idserver import renameAfterCreation
-from bika.lims.idserver import generateUniqueId
-from bika.lims.interfaces import IResultOutOfRange
+# from bika.lims.idserver import generateUniqueId
+# from bika.lims.interfaces import IResultOutOfRange
 from bika.lims.utils import to_utf8, encode_header, attachPdf
 # from bika.lims.utils import convert_unit
 from bika.lims.utils import dicts_to_dict
@@ -19,24 +19,26 @@ from DateTime import DateTime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.Utils import formataddr
-from plone import api as ploneapi
+# from plone import api as ploneapi
 from plone.app.content.browser.interfaces import IFolderContentsView
-from plone.resource.utils import  queryResourceDirectory
+from plone.resource.utils import queryResourceDirectory
 from Products.CMFCore.WorkflowCore import WorkflowException
 from Products.CMFCore.utils import getToolByName
-from Products.CMFPlone.utils import safe_unicode, _createObjectByType
+# from Products.CMFPlone.utils import safe_unicode, _createObjectByType
+from Products.CMFPlone.utils import _createObjectByType
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from smtplib import SMTPServerDisconnected, SMTPRecipientsRefused
 from zope.interface import implements
-from zope.component import getAdapters
+# from zope.component import getAdapters
 
 
 import App
 import StringIO
 import csv
-import os, traceback
+import os
+import traceback
 import tempfile
-import time
+
 
 class AnalysisRequestPublishView(ARPV):
     implements(IFolderContentsView)
@@ -50,19 +52,18 @@ class AnalysisRequestPublishView(ARPV):
         self._ars = [self.context]
         self._digester = AnalysisRequestDigester()
 
-
     def __call__(self):
         if self.context.portal_type == 'AnalysisRequest':
             self._ars = [self.context]
-        elif self.context.portal_type == 'AnalysisRequestsFolder' \
-            and self.request.get('items',''):
+        elif self.context.portal_type in ('AnalysisRequestsFolder', 'Client') \
+                and self.request.get('items', ''):
             uids = self.request.get('items').split(',')
             uc = getToolByName(self.context, 'uid_catalog')
             self._ars = [obj.getObject() for obj in uc(UID=uids)]
         else:
-            #Do nothing
-            self.destination_url = self.request.get_header("referer",
-                                   self.context.absolute_url())
+            # Do nothing
+            self.destination_url = self.request.get_header(
+                "referer", self.context.absolute_url())
 
         # Group ARs by client
         groups = {}
@@ -75,9 +76,7 @@ class AnalysisRequestPublishView(ARPV):
         self._arsbyclient = [group for group in groups.values()]
 
         # Report may want to print current date
-        self.current_date = ulocalized_time(DateTime(),
-                                            long_format=True,
-                                            context=self.context)
+        self.current_date = self.ulocalized_time(DateTime(), long_format=True)
 
         # Do publish?
         if self.request.form.get('publish', '0') == '1':
@@ -86,29 +85,29 @@ class AnalysisRequestPublishView(ARPV):
             return self.template()
 
     def getReportTemplate(self):
-        """ Returns the html template for the current ar and moves to
-            the next ar to be processed. Uses the selected template
-            specified in the request ('template' parameter)
+        """Returns the html template for the current ar and moves to
+        the next ar to be processed. Uses the selected template
+        specified in the request ('template' parameter)
         """
-        reptemplate = ""
         embedt = ""
         try:
             embedt, reptemplate = self._renderTemplate()
         except:
             tbex = traceback.format_exc()
             arid = self._ars[self._current_ar_index].id
-            reptemplate = "<div class='error-report'>%s - %s '%s':<pre>%s</pre></div>" % (arid, _("Unable to load the template"), embedt, tbex)
+            reptemplate = \
+                "<div class='error-report'>%s - %s '%s':<pre>%s</pre></div>" \
+                % (arid, _("Unable to load the template"), embedt, tbex)
         self._nextAnalysisRequest()
         return reptemplate
 
     def getReportStyle(self):
-        """ Returns the css style to be used for the current template.
-            If the selected template is 'default.pt', this method will
-            return the content from 'default.css'. If no css file found
-            for the current template, returns empty string
+        """Returns the css style to be used for the current template.
+        If the selected template is 'default.pt', this method will
+        return the content from 'default.css'. If no css file found
+        for the current template, returns empty string
         """
         template = self.request.form.get('template', self._DEFAULT_TEMPLATE)
-        #template = 'default.pt'
         content = ''
         if template.find(':') >= 0:
             prefix, template = template.split(':')
@@ -125,8 +124,8 @@ class AnalysisRequestPublishView(ARPV):
         return content
 
     def _renderTemplate(self):
-        """ Returns the html template to be rendered in accordance with the
-            template specified in the request ('template' parameter)
+        """Returns the html template to be rendered in accordance with the
+        template specified in the request ('template' parameter)
         """
         templates_dir = 'templates/reports'
         embedt = self.request.form.get('template', self._DEFAULT_TEMPLATE)
@@ -134,7 +133,6 @@ class AnalysisRequestPublishView(ARPV):
             prefix, template = embedt.split(':')
             templates_dir = queryResourceDirectory('reports', prefix).directory
             embedt = template
-        this_dir = os.path.dirname(os.path.abspath(__file__))
         embed = ViewPageTemplateFile(os.path.join(templates_dir, embedt))
         return embedt, embed(self)
 
@@ -144,16 +142,13 @@ class AnalysisRequestPublishView(ARPV):
         return getACEARReportTemplates()
 
     def getAnalysisRequest(self, analysisrequest=None):
-        """ Returns the dict for the Analysis Request specified. If no AR set,
-            returns the current analysis request
+        """Returns the dict for the Analysis Request specified. If no AR set,
+        returns the current analysis request
         """
-        #return self._ar_data(analysisrequest) if analysisrequest \
-        #        else self._ar_data(self._ars[self._current_ar_index])
         if analysisrequest:
             return self._digester(analysisrequest)
         else:
-            folder = self._ars[self._current_ar_index]
-            return self._digester(folder)
+            return self._digester(self._ars[self._current_ar_index])
 
     def format_address(self, address):
         if address:
@@ -173,7 +168,6 @@ class AnalysisRequestPublishView(ARPV):
     def publishFromHTML(self, aruid, results_html):
         # The AR can be published only and only if allowed
         uc = getToolByName(self.context, 'uid_catalog')
-        #ars = uc(UID=aruid)
         ars = [p.getObject() for p in uc(UID=aruid)]
         if not ars or len(ars) != 1:
             return []
@@ -210,7 +204,7 @@ class AnalysisRequestPublishView(ARPV):
         lab = ar.bika_setup.laboratory
 
         # BIKA Cannabis hack.  Create the CSV they desire here now
-        #csvdata = self.create_cannabis_csv(ars)
+        # csvdata = self.create_cannabis_csv(ars)
         csvdata = self.create_metrc_csv(ars)
         pdf_fn = to_utf8(ar.getId())
         if pdf_report:
@@ -235,7 +229,7 @@ class AnalysisRequestPublishView(ARPV):
             renameAfterCreation(report)
             # Set blob properties for fields containing file data
             fld = report.getField('Pdf')
-            fld.get(report).setFilename(pdf_fn+ ".pdf")
+            fld.get(report).setFilename(pdf_fn + ".pdf")
             fld.get(report).setContentType('application/pdf')
             fld = report.getField('CSV')
             fld.get(report).setFilename(pdf_fn + ".csv")
@@ -244,7 +238,7 @@ class AnalysisRequestPublishView(ARPV):
             # Set status to prepublished/published/republished
             status = wf.getInfoFor(ar, 'review_state')
             transitions = {'verified': 'publish',
-                           'published' : 'republish'}
+                           'published': 'republish'}
             transition = transitions.get(status, 'prepublish')
             try:
                 wf.doActionFor(ar, transition)
@@ -263,31 +257,6 @@ class AnalysisRequestPublishView(ARPV):
             msg_txt = MIMEText(results_html, _subtype='html')
             mime_msg.attach(msg_txt)
 
-            to = []
-            #mngrs = ar.getResponsible()
-            #for mngrid in mngrs['ids']:
-            #    name = mngrs['dict'][mngrid].get('name', '')
-            #    email = mngrs['dict'][mngrid].get('email', '')
-            #    if (email != ''):
-            #        to.append(formataddr((encode_header(name), email)))
-
-            #if len(to) > 0:
-            #    # Send the email to the managers
-            #    mime_msg['To'] = ','.join(to)
-            #    attachPdf(mime_msg, pdf_report, pdf_fn)
-
-            #    # BIKA Cannabis hack.  Create the CSV they desire here now
-            #    fn = pdf_fn
-            #    attachCSV(mime_msg,csvdata,fn)
-
-            #    try:
-            #        host = getToolByName(ar, 'MailHost')
-            #        host.send(mime_msg.as_string(), immediate=True)
-            #    except SMTPServerDisconnected as msg:
-            #        logger.warn("SMTPServerDisconnected: %s." % msg)
-            #    except SMTPRecipientsRefused as msg:
-            #        raise WorkflowException(str(msg))
-
         # Send report to recipients
         recips = self.get_recipients(ar)
         for recip in recips:
@@ -304,7 +273,7 @@ class AnalysisRequestPublishView(ARPV):
             mime_msg = MIMEMultipart('related')
             mime_msg['Subject'] = self.get_mail_subject(ar)[0]
             mime_msg['From'] = formataddr(
-            (encode_header(lab.getName()), lab.getEmailAddress()))
+                (encode_header(lab.getName()), lab.getEmailAddress()))
             mime_msg.preamble = 'This is a multi-part MIME message.'
             msg_txt = MIMEText(results_html, _subtype='html')
             mime_msg.attach(msg_txt)
@@ -336,31 +305,6 @@ class AnalysisRequestPublishView(ARPV):
                 logger.warn("SMTPServerDisconnected: %s." % msg)
             except SMTPRecipientsRefused as msg:
                 raise WorkflowException(str(msg))
-
-        # BC-284 Moved this functionality in a seperate add-on
-        # Save file on the filesystem
-        #folder = os.environ.get('COAs_FOLDER', '')
-        #if len(folder) != 0:
-        #    client_path = '{}/{}/'.format(folder, ar.getClientID())
-        #    if not os.path.exists(client_path):
-        #        os.makedirs(client_path)
-
-        #    today = ulocalized_time(DateTime(),
-        #                            long_format=0,
-        #                            context=self.context)
-        #    today_path = '{}{}/'.format(client_path, today)
-        #    if not os.path.exists(today_path):
-        #        os.makedirs(today_path)
-
-        #    fname = '{}{}.pdf'.format(today_path, pdf_fn)
-        #    f = open(fname, 'w')
-        #    f.write(pdf_report)
-        #    f.close()
-
-        #    csvname = '{}{}.csv'.format(today_path, pdf_fn)
-        #    fcsv = open(csvname, 'w')
-        #    fcsv.write(csvdata)
-        #    fcsv.close()
 
         return [ar]
 
@@ -418,15 +362,15 @@ class AnalysisRequestPublishView(ARPV):
                                                  context=self.context)
 
             client_sampleid = to_utf8(ar.getClientSampleID())
-            as_keyword = ''
+            # as_keyword = ''
             result = ''
             is_in_range = 'True'
             unit_and_ar_id = ''
-            sample_type_uid = ar.getSampleType().UID()
-            bsc = getToolByName(self, 'bika_setup_catalog')
-            analysis_specs = bsc(portal_type='AnalysisSpec',
-                          getSampleTypeUID=sample_type_uid)
-            dmk = ar.bika_setup.getResultsDecimalMark()
+            # sample_type_uid = ar.getSampleType().UID()
+            # bsc = getToolByName(self, 'bika_setup_catalog')
+            # analysis_specs = bsc(portal_type='AnalysisSpec',
+            #              getSampleTypeUID=sample_type_uid)
+            # dmk = ar.bika_setup.getResultsDecimalMark()
 
             lines = []
             analyses = ar.getAnalyses(full_objects=True)
@@ -434,8 +378,8 @@ class AnalysisRequestPublishView(ARPV):
                 service = analysis.getAnalysisService()
                 if service.getHidden():
                     continue
-                specification =  analysis.getResultsRange()
-                result =  analysis.getFormattedResult(html=False)
+                specification = analysis.getResultsRange()
+                result = analysis.getFormattedResult(html=False)
                 if not specification:
                     rr = dicts_to_dict(analysis.aq_parent.getResultsRange(), 'keyword')
                     specification = rr.get(analysis.getKeyword(), None)
@@ -451,53 +395,54 @@ class AnalysisRequestPublishView(ARPV):
                     else:
                         outofrange, acceptable = \
                             isOutOfRange(result, minimum, maximum, error)
-                        if outofrange == False:
+                        if outofrange is False:
                             is_in_range = True
-                        elif outofrange == True:
+                        elif outofrange is True:
                             is_in_range = False
 
                 unit = service.getUnit()
                 unit = '({})-'.format(unit) if unit else ''
                 unit_and_ar_id = '{}{}'.format(unit, ar_id)
 
-                #Check unit conversion
-                if sample_type_uid:
-                    i = 0
-                    new_text = []
-                    hide_original = False
-                    an_dict = {'converted_units': []}
-                    # for unit_conversion in service.getUnitConversions():
-                    #     if unit_conversion.get('SampleType') and \
-                    #        unit_conversion.get('Unit') and \
-                    #        unit_conversion.get('SampleType') == sample_type_uid:
-                    #         i += 1
-                    #         new = dict({})
-                    #         conv = ploneapi.content.get(
-                    #                             UID=unit_conversion['Unit'])
-                    #         unit_and_ar_id = '({})-{}'.format(
-                    #                                 conv.converted_unit, ar_id)
-                    #         result = convert_unit(
-                    #                         analysis.getResult(),
-                    #                         conv.formula,
-                    #                         analysis.getPrecision())
-                    #         break
+                # #Check unit conversion
+                # if sample_type_uid:
+                #     i = 0
+                #     new_text = []
+                #     hide_original = False
+                #     an_dict = {'converted_units': []}
+                #     # for unit_conversion in service.getUnitConversions():
+                #     #     if unit_conversion.get('SampleType') and \
+                #     #        unit_conversion.get('Unit') and \
+                #     #        unit_conversion.get('SampleType') == sample_type_uid:
+                #     #         i += 1
+                #     #         new = dict({})
+                #     #         conv = ploneapi.content.get(
+                #     #                             UID=unit_conversion['Unit'])
+                #     #         unit_and_ar_id = '({})-{}'.format(
+                #     #                                 conv.converted_unit, ar_id)
+                #     #         result = convert_unit(
+                #     #                         analysis.getResult(),
+                #     #                         conv.formula,
+                #     #                         analysis.getPrecision())
+                #     #         break
 
                 line = {'date_published': date_published,
                         'client_sampleid': client_sampleid,
                         'as_keyword': service.getShortTitle(),
                         'result': result,
                         'is_in_range': is_in_range,
-                        'unit_and_ar_id' : unit_and_ar_id,
+                        'unit_and_ar_id': unit_and_ar_id,
                         }
                 lines.append(line)
 
             for l in lines:
                 writer.writerow([l['date_published'], l['client_sampleid'],
-                                l['as_keyword'], l['result'],
-                                l['is_in_range'], l['unit_and_ar_id'],
-                                ])
+                                 l['as_keyword'], l['result'],
+                                 l['is_in_range'], l['unit_and_ar_id'],
+                                 ])
 
         return output.getvalue()
+
 
 class AnalysisRequestDigester(ARD):
 
@@ -505,14 +450,14 @@ class AnalysisRequestDigester(ARD):
         # cheating
         self.context = ar
         self.request = ar.REQUEST
-        #self._cache = {}
+        # self._cache = {}
 
         # if AR was previously digested, use existing data (if exists)
         verified = wasTransitionPerformed(ar, 'verify')
         if not overwrite and verified:
             # Prevent any error related with digest
             data = ar.getDigest() if hasattr(ar, 'getDigest') else {}
-            if False: #data:
+            if False:  # data:
                 # Check if the department managers have changed since
                 # verification:
                 saved_managers = data.get('managers', {})
@@ -546,73 +491,74 @@ class AnalysisRequestDigester(ARD):
         """ Creates an ar dict, accessible from the view and from each
             specific template.
         """
-        #if ar.UID() in self._cache['_ar_data']:
+        # if ar.UID() in self._cache['_ar_data']:
         #    return self._cache['_ar_data'][ar.UID()]
-        #Not sure why the following 2 lines are need, doing ar.getStrain or ar.getSample().getStrain does not work
+        # Not sure why the following 2 lines are need, doing ar.getStrain or ar.getSample().getStrain does not work
         bsc = getToolByName(self.context, 'bika_setup_catalog')
         strain = ''
         strains = bsc(UID=ar.getSample()['Strain'])
         if strains:
-             strain = strains[0].Title
+            strain = strains[0].Title
 
         mme_id = state_id = ''
         # client_licence_id = ar.getClientLicenceID().split(',')
         client_licence_id = ar.ClientLicenceID.split(',')
         if len(client_licence_id) == 4:
-            mme_id = client_licence_id[1] #LicenceID
-            state_id = client_licence_id[2] #LicenceNumber
+            mme_id = client_licence_id[1]  # LicenceID
+            state_id = client_licence_id[2]  # LicenceNumber
         data = {'obj': ar,
                 'id': ar.getId(),
-                #'client_order_num': ar.getClientOrderNumber(),
+                # 'client_order_num': ar.getClientOrderNumber(),
                 'client_reference': ar.getClientReference(),
                 'client_sampleid': ar.getClientSampleID(),
-                #'adhoc': ar.getAdHoc(),
-                #'composite': ar.getComposite(),
-                #'report_drymatter': ar.getReportDryMatter(),
-                #'invoice_exclude': ar.getInvoiceExclude(),
+                # 'adhoc': ar.getAdHoc(),
+                # 'composite': ar.getComposite(),
+                # 'report_drymatter': ar.getReportDryMatter(),
+                # 'invoice_exclude': ar.getInvoiceExclude(),
                 'sampling_date': ulocalized_time(
                     ar.getSamplingDate(), long_format=1, context=self.context),
                 'date_received': ulocalized_time(
                     ar.getDateReceived(), long_format=1, context=self.context),
-                #'member_discount': ar.getMemberDiscount(),
+                # 'member_discount': ar.getMemberDiscount(),
                 'date_sampled': ulocalized_time(
                     ar.getDateSampled(), long_format=1, context=self.context),
                 'date_published': ulocalized_time(
                     DateTime(), long_format=1, context=self.context),
-                #'invoiced': ar.getInvoiced(),
-                #'late': ar.getLate(),
-                #'subtotal': ar.getSubtotal(),
-                #'vat_amount': ar.getVATAmount(),
-                #'totalprice': ar.getTotalPrice(),
+                # 'invoiced': ar.getInvoiced(),
+                # 'late': ar.getLate(),
+                # 'subtotal': ar.getSubtotal(),
+                # 'vat_amount': ar.getVATAmount(),
+                # 'totalprice': ar.getTotalPrice(),
                 'invalid': ar.isInvalid(),
                 'url': ar.absolute_url(),
                 'remarks': to_utf8(ar.getRemarks().replace('\n', '').replace("===", "<br/>")),
                 'footer': to_utf8(self.context.bika_setup.getResultFooter()),
                 'prepublish': False,
                 'published': False,
-                #'child_analysisrequest': None,
-                #'parent_analysisrequest': None,
-                #'resultsinterpretation':ar.getResultsInterpretation(),
-                'lot': ar['Lot'],#To be fixed
-                'strain': strain, # To be fixed
+                # 'child_analysisrequest': None,
+                # 'parent_analysisrequest': None,
+                # 'resultsinterpretation':ar.getResultsInterpretation(),
+                'lot': ar['Lot'],  # To be fixed
+                'strain': strain,  # To be fixed
                 'cultivation_batch': ar['CultivationBatch'],
-                #'resultsinterpretation':ar.getResultsInterpretation(),
+                # 'resultsinterpretation':ar.getResultsInterpretation(),
                 'ar_attachments': self._get_ar_attachments(ar),
                 'an_attachments': self._get_an_attachments(ar),
                 'attachment_src': None,
                 'attachment_width': None,
                 'attachment_height': None,
                 'mme_id': mme_id,
-                'state_id': state_id,}
+                'state_id': state_id,
+                }
 
         # Sub-objects
-        #excludearuids.append(ar.UID())
-        #puid = ar.getRawParentAnalysisRequest()
-        #if puid and puid not in excludearuids:
-        #    data['parent_analysisrequest'] = self._ar_data(ar.getParentAnalysisRequest(), excludearuids)
-        #cuid = ar.getRawChildAnalysisRequest()
-        #if cuid and cuid not in excludearuids:
-        #    data['child_analysisrequest'] = self._ar_data(ar.getChildAnalysisRequest(), excludearuids)
+        # excludearuids.append(ar.UID())
+        # puid = ar.getRawParentAnalysisRequest()
+        # if puid and puid not in excludearuids:
+        #     data['parent_analysisrequest'] = self._ar_data(ar.getParentAnalysisRequest(), excludearuids)
+        # cuid = ar.getRawChildAnalysisRequest()
+        # if cuid and cuid not in excludearuids:
+        #     data['child_analysisrequest'] = self._ar_data(ar.getChildAnalysisRequest(), excludearuids)
 
         wf = getToolByName(ar, 'portal_workflow')
         allowed_states = ['verified', 'published']
@@ -622,75 +568,75 @@ class AnalysisRequestDigester(ARD):
 
         data['contact'] = self._contact_data(ar)
         data['client'] = self._client_data(ar)
-        #data['sample'] = self._sample_data(ar)
+        # data['sample'] = self._sample_data(ar)
         data['product'] = self._sample_type(ar).get('title', '')
-        #data['batch'] = self._batch_data(ar)
-        #data['specifications'] = self._specs_data(ar)
-        #data['analyses'] = self._analyses_data(ar, ['verified', 'published'])
-        #data['qcanalyses'] = self._qcanalyses_data(ar, ['verified', 'published'])
-        #data['points_of_capture'] = sorted(set([an['point_of_capture'] for an in data['analyses']]))
-        #data['categories'] = sorted(set([an['category'] for an in data['analyses']]))
-        #data['hasblanks'] = len([an['reftype'] for an in data['qcanalyses'] if an['reftype'] == 'b']) > 0
-        #data['hascontrols'] = len([an['reftype'] for an in data['qcanalyses'] if an['reftype'] == 'c']) > 0
-        #data['hasduplicates'] = len([an['reftype'] for an in data['qcanalyses'] if an['reftype'] == 'd']) > 0
+        # data['batch'] = self._batch_data(ar)
+        # data['specifications'] = self._specs_data(ar)
+        # data['analyses'] = self._analyses_data(ar, ['verified', 'published'])
+        # data['qcanalyses'] = self._qcanalyses_data(ar, ['verified', 'published'])
+        # data['points_of_capture'] = sorted(set([an['point_of_capture'] for an in data['analyses']]))
+        # data['categories'] = sorted(set([an['category'] for an in data['analyses']]))
+        # data['hasblanks'] = len([an['reftype'] for an in data['qcanalyses'] if an['reftype'] == 'b']) > 0
+        # data['hascontrols'] = len([an['reftype'] for an in data['qcanalyses'] if an['reftype'] == 'c']) > 0
+        # data['hasduplicates'] = len([an['reftype'] for an in data['qcanalyses'] if an['reftype'] == 'd']) > 0
         # Attachment src/link
         attachments = ar.getAttachment()
         for attachment in attachments:
             if attachment.getReportOption() != 'r':
                 continue
-            filename = attachment.getAttachmentFile().filename 
+            filename = attachment.getAttachmentFile().filename
             extension = filename.split('.')[-1]
-            if extension in ['png', 'jpg', 'jpeg']: #Check other image extensions
-                file_url =  attachment.absolute_url()
+            if extension in ['png', 'jpg', 'jpeg']:  # Check other image extensions
+                file_url = attachment.absolute_url()
                 data['attachment_src'] = '{}/at_download/AttachmentFile'.format(file_url)
                 [width, height] = attachment.getAttachmentFile().getSize()
-                maxwidth = 248 # 80% of 310px
+                maxwidth = 248  # 80% of 310px
                 maxheight = 100
-                resize_ratio = min(maxwidth/float(width), maxheight/float(height))
-                data['attachment_width'] = width*resize_ratio
-                data['attachment_height'] = height*resize_ratio
+                resize_ratio = min(maxwidth / float(width), maxheight / float(height))
+                data['attachment_width'] = width * resize_ratio
+                data['attachment_height'] = height * resize_ratio
                 break
 
         # Categorize analyses
-        #data['categorized_analyses'] = {}
+        # data['categorized_analyses'] = {}
         data['department_analyses'] = {}
-        #for an in data['analyses']:
-        #    poc = an['point_of_capture']
-        #    cat = an['category']
-        #    pocdict = data['categorized_analyses'].get(poc, {})
-        #    catlist = pocdict.get(cat, [])
-        #    catlist.append(an)
-        #    pocdict[cat] = catlist
-        #    data['categorized_analyses'][poc] = pocdict
+        # for an in data['analyses']:
+        #     poc = an['point_of_capture']
+        #     cat = an['category']
+        #     pocdict = data['categorized_analyses'].get(poc, {})
+        #     catlist = pocdict.get(cat, [])
+        #     catlist.append(an)
+        #     pocdict[cat] = catlist
+        #     data['categorized_analyses'][poc] = pocdict
 
-        #    # Group by department too
-        #    anobj = an['obj']
-        #    dept = anobj.getService().getDepartment() if anobj.getService() else None
-        #    if dept:
-        #        dept = dept.UID()
-        #        dep = data['department_analyses'].get(dept, {})
-        #        dep_pocdict = dep.get(poc, {})
-        #        dep_catlist = dep_pocdict.get(cat, [])
-        #        dep_catlist.append(an)
-        #        dep_pocdict[cat] = dep_catlist
-        #        dep[poc] = dep_pocdict
-        #        data['department_analyses'][dept] = dep
+        #     # Group by department too
+        #     anobj = an['obj']
+        #     dept = anobj.getService().getDepartment() if anobj.getService() else None
+        #     if dept:
+        #         dept = dept.UID()
+        #         dep = data['department_analyses'].get(dept, {})
+        #         dep_pocdict = dep.get(poc, {})
+        #         dep_catlist = dep_pocdict.get(cat, [])
+        #         dep_catlist.append(an)
+        #         dep_pocdict[cat] = dep_catlist
+        #         dep[poc] = dep_pocdict
+        #         data['department_analyses'][dept] = dep
 
         # Categorize qcanalyses
-        #data['categorized_qcanalyses'] = {}
-        #for an in data['qcanalyses']:
-        #    qct = an['reftype']
-        #    poc = an['point_of_capture']
-        #    cat = an['category']
-        #    qcdict = data['categorized_qcanalyses'].get(qct, {})
-        #    pocdict = qcdict.get(poc, {})
-        #    catlist = pocdict.get(cat, [])
-        #    catlist.append(an)
-        #    pocdict[cat] = catlist
-        #    qcdict[poc] = pocdict
-        #    data['categorized_qcanalyses'][qct] = qcdict
+        # data['categorized_qcanalyses'] = {}
+        # for an in data['qcanalyses']:
+        #     qct = an['reftype']
+        #     poc = an['point_of_capture']
+        #     cat = an['category']
+        #     qcdict = data['categorized_qcanalyses'].get(qct, {})
+        #     pocdict = qcdict.get(poc, {})
+        #     catlist = pocdict.get(cat, [])
+        #     catlist.append(an)
+        #     pocdict[cat] = catlist
+        #     qcdict[poc] = pocdict
+        #     data['categorized_qcanalyses'][qct] = qcdict
 
-        #data['reporter'] = self._reporter_data(ar)
+        # data['reporter'] = self._reporter_data(ar)
         data['managers'] = self._managers_data(ar)
 
         portal = self.context.portal_url.getPortalObject()
@@ -698,7 +644,7 @@ class AnalysisRequestDigester(ARD):
                           'url': portal.absolute_url()}
         data['laboratory'] = self._lab_data()
 
-        #results interpretation
+        # results interpretation
         ri = {}
         if (ar.getResultsInterpretationByDepartment(None)):
             ri[''] = ar.getResultsInterpretationByDepartment(None)
@@ -707,7 +653,7 @@ class AnalysisRequestDigester(ARD):
             ri[dept.Title()] = ar.getResultsInterpretationByDepartment(dept)
         data['resultsinterpretationdepts'] = ri
 
-        #self._cache['_ar_data'][ar.UID()] = data
+        # self._cache['_ar_data'][ar.UID()] = data
         return data
 
     def _lab_data(self):
@@ -719,7 +665,7 @@ class AnalysisRequestDigester(ARD):
         signature = None
         lab_manager = ''
         if len(labcontacts) == 1:
-            labcontact = api.get_object(labcontact[0])
+            labcontact = api.get_object(labcontacts[0])
             lab_manager_name = to_utf8(self.user_fullname(labcontact.getUsername()))
             lab_manager_job_title = to_utf8(labcontact.getJobTitle())
             lab_manager = '{} {}'.format(lab_manager_name, lab_manager_job_title)
@@ -727,7 +673,6 @@ class AnalysisRequestDigester(ARD):
             if labcontact.getSignature():
                 signature_url = labcontact.getSignature().absolute_url()
                 signature = '{}/Signature'.format(signature_url)
-
 
         return {'obj': lab,
                 'title': to_utf8(lab.Title()),
@@ -744,8 +689,7 @@ class AnalysisRequestDigester(ARD):
                 'logo': "%s/logo_print.png" % portal.absolute_url(),
                 'lab_manager': to_utf8(lab_manager),
                 'signature': signature,
-                'today':ulocalized_time(DateTime(),
-                                        long_format=0,
-                                        context=self.context),
+                'today': ulocalized_time(DateTime(),
+                                         long_format=0,
+                                         context=self.context),
                 }
-
