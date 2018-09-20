@@ -2,7 +2,7 @@
         xmlns="http://namespaces.zope.org/zope"
         xmlns:browser="http://namespaces.zope.org/browser"
         i18n_domain="ace.lims">
-
+    <!-- AR Listing Folder -->
     <browser:page
         for="bika.lims.interfaces.IAnalysisRequestsFolder"
         name="base_view"
@@ -11,7 +11,9 @@
         layer="bika.lims.interfaces.IBikaLIMS"
     />
 
-    <!--
+    <!-- End AR Listing Folder -->
+
+    <!-- AR Publishing -->
     <browser:page
       for="bika.lims.interfaces.IAnalysisRequest"
       name="publish"
@@ -28,6 +30,8 @@
       layer="bika.lims.interfaces.IBikaLIMS"
     />
 
+    <!-- End AR Publishing -->
+    <!--
     <browser:page
         for="bika.lims.interfaces.IAnalysisRequestsFolder"
         name="folderitem"
