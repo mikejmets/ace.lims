@@ -19,6 +19,7 @@
              tal:attributes="src view/icon"
              style="height:32px;width:auto;"/>
         <span tal:content="python:view.context.translate(view.title)"/>
+        <!--
           <span tal:condition="python:checkPermission('Add portal content', context)"
                 style="padding-left:0.5em;display:inline-block;">
           <form method="GET" class="form-inline" action="ar_add">
@@ -37,6 +38,7 @@
             </button>
           </form>
         </span>
+        -->
       </h1>
     </metal:content-title>
 
