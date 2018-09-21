@@ -60,6 +60,7 @@
 }
 #report table#section-info td#lab-info {
     width:80mm;
+    float: right !important;
 }
 #report #section-alert {
     padding:20px;

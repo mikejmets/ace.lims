@@ -667,14 +667,18 @@ class AnalysisRequestDigester(ARD):
 
         lab = self.context.bika_setup.laboratory
         sv = lab.getSupervisor()
-        sv = sv.getFullname() if sv else ""
+        sv_fullname = sv.getFullname() if sv else ""
+        sv_email = sv.getEmailAddress() if sv else ""
+        sv_mphone = sv.getMobilePhone() if sv else ""
         return {'obj': lab,
                 'title': to_utf8(lab.Title()),
                 'url': to_utf8(lab.getLabURL()),
                 'phone': to_utf8(lab.getPhone()),
                 'email': to_utf8(lab.getEmailAddress()),
                 'lab_licence_id': to_utf8(lab.LaboratoryLicenceID),
-                'supervisor': to_utf8(sv),
+                'supervisor': to_utf8(sv_fullname),
+                'supervisor_email': to_utf8(sv_email),
+                'supervisor_mphone': to_utf8(sv_mphone),
                 'address': to_utf8(self._lab_address(lab)),
                 'confidence': lab.getConfidence(),
                 'accredited': lab.getLaboratoryAccredited(),
@@ -691,3 +695,14 @@ class AnalysisRequestDigester(ARD):
                 'accreditation_body': to_utf8(lab.getAccreditationBody()),
                 'accreditation_logo': lab.getAccreditationBodyLogo(),
                 'logo': "%s/logo_print.png" % portal.absolute_url()}
+
+    def _contact_data(self, ar):
+        data = {}
+        contact = ar.getContact()
+        if contact:
+            data = {'obj': contact,
+                    'fullname': to_utf8(contact.getFullname()),
+                    'email': to_utf8(contact.getEmailAddress()),
+                    'mobile_phone': to_utf8(contact.getMobilePhone()) if contact else '',
+                    'pubpref': contact.getPublicationPreference()}
+        return data

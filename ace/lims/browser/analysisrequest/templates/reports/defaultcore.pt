@@ -65,32 +65,25 @@
 
   <!-- Address and Lab info -->
   <div id="section-info">
-    <div id="accreditation-logo"
-         tal:condition="python:laboratory['accredited']==True">
-      <img tal:condition="laboratory/accreditation_logo"
-           tal:attributes="src laboratory/accreditation_logo/absolute_url"/>
-      <img tal:condition="not:laboratory/accreditation_logo"
-           tal:attributes="src string:${portal/url}/++resource++bika.lims.images/AccreditationBodyLogo.png"/>
-    </div>
     <table>
       <tr>
         <td id="client-info">
           <table>
                     <tr tal:condition="python:contact.get('fullname','') != ''"><td id="client-contact" tal:content="python:contact.get('fullname','')"></td></tr>
-            <tr><td id="client-name" tal:content="client/name"></td></tr>
-            <tr><td id="client-address" tal:content="structure client/address"></td></tr>
             <tr tal:condition="python:contact.get('email','') != ''">
               <td id="client-email">
                 <a tal:content="contact/email"
                    tal:attributes="url python:'mailto:%s' % contact['email'];"></a>
               </td>
             </tr>
-            <tr tal:condition="client/phone">
-              <td id="client-phone">
-                <span i18n:translate="">Phone</span>:
-                <span tal:content="client/phone"></span>
+            <tr tal:condition="python:contact.get('mobile_phone','') != ''">
+              <td id="contact-phone">
+                <span i18n:translate="">Mobile Phone</span>:
+                <span tal:content="contact/mobile_phone"></span>
               </td>
             </tr>
+            <tr><td id="client-name" tal:content="client/name"></td></tr>
+            <tr><td id="client-address" tal:content="structure client/address"></td></tr>
             <tr tal:condition="client/fax">
               <td id="client-fax">
                 <span i18n:translate="">Fax</span>:
@@ -99,9 +92,10 @@
             </tr>
           </table>
         </td>
-        <td id="lab-info">
+        <td id="lab-info" style="float: right">
           <table>
             <tr><td id="lab-title" tal:content='laboratory/title'></td></tr>
+            <tr><td id="lab-lab_licence_id" tal:content='laboratory/lab_licence_id'></td></tr>
             <tr><td id="lab-address" tal:content='structure laboratory/address'></td></tr>
 
             <tr tal:condition="laboratory/url">
@@ -113,6 +107,10 @@
             <tr tal:condition="laboratory/supervisor">
               <td id="lab-supervisor">
                 <a tal:content="python:'Supervisor: ' + laboratory.get('supervisor')"></a>
+                <span style="display:block;padding-left: 63px;">
+                <a style="display:block" tal:content="python:laboratory.get('supervisor_email')"></a>
+                <a style="display:block" tal:content="python:laboratory.get('supervisor_mphone')"></a>
+                </span>
               </td>
             </tr>
           </table>
@@ -121,6 +119,7 @@
     </table>
   </div>
 
+  <div class="" style="text-align: center;"> <h1>CERTIFICATE OF ANALYSIS</h1> </div>
   <!-- Alert section (invalidated ar, etc.) -->
   <div id="section-alert" tal:condition="analysisrequest/invalid">
     <h1 i18n:translate="">This Analysis Request has been invalidated due to erroneously published results</h1>
@@ -136,7 +135,6 @@
   </div>
   <!-- Summary section -->
   <div id="section-summary">
-    <h1 i18n:translate="">Summary</h1>
     <table>
       <tr>
         <td class="label" i18n:translate="">Request ID</td>
@@ -442,14 +440,7 @@
   </div>
   <!-- Discreeter section -->
   <div id="section-discreeter">
-    <div id="discreeter-outofrange" i18n:translate="">* Result out of client specified range.</div>
-    <div tal:condition="analysisrequest/invoice_exclude" i18n:translate="">Not invoiced</div>
-    <div tal:condition="laboratory/accredited" i18n:translate="">Methods included in the <tal:block replace="laboratory/accreditation_body" i18n:name="accreditation_body"/> schedule of Accreditation for this Laboratory. Analysis remarks are not accredited</div>
-    <div i18n:translate="">Analysis results relate only to the samples tested.</div>
-    <div i18n:translate="">This document shall not be reproduced except in full, without the written approval of <tal:block replace="laboratory/title" i18n:name="name_lab"/></div>
-    <div tal:define="confidence_level laboratory/confidence"
-         tal:condition="confidence_level" i18n:translate="">Test results are at a <tal:block replace="confidence_level" i18n:name="lab_confidence"/>% confidence level</div>
-    <div tal:condition="python:contact.get('pubpref','') != '' and 'email' in contact['pubpref']" i18n:translate="">Methods of analysis available by clicking on the 'Request' link</div>
+      <div class="footer" tal:content="structure analysisrequest/footer"></div>
   </div>
 
   <!--
