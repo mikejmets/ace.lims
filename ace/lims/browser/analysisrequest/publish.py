@@ -500,19 +500,21 @@ class AnalysisRequestDigester(ARD):
         if strains:
             strain = strains[0].Title
 
-        mme_id = state_id = ''
+        client_lic_type = client_lic_id = lic_number = issuing_auth = ''
         # client_licence_id = ar.getClientLicenceID().split(',')
         client_licence_id = ar.ClientLicenceID.split(',')
         if len(client_licence_id) == 4:
-            mme_id = client_licence_id[1]  # LicenceID
-            state_id = client_licence_id[2]  # LicenceNumber
+            client_lic_type = client_licence_id[0]  # LicenceType
+            client_lic_id = client_licence_id[1]  # LicenceID
+            lic_number = client_licence_id[2]  # LicenceNumber
+            issuing_auth = client_licence_id[3]  # Issuing Authority
         data = {'obj': ar,
                 'id': ar.getId(),
-                 'client_order_num': ar.getClientOrderNumber(),
+                'client_order_num': ar.getClientOrderNumber(),
                 'client_reference': ar.getClientReference(),
                 'client_sampleid': ar.getClientSampleID(),
-                 'adhoc': ar.getAdHoc(),
-                 'composite': ar.getComposite(),
+                'adhoc': ar.getAdHoc(),
+                'composite': ar.getComposite(),
                 'invoice_exclude': ar.getInvoiceExclude(),
                 'sampling_date': ulocalized_time(ar.getSamplingDate(),
                                                  long_format=1,
@@ -541,8 +543,10 @@ class AnalysisRequestDigester(ARD):
                 'lot': ar['Lot'],  # To be fixed
                 'strain': strain,  # To be fixed
                 'cultivation_batch': ar['CultivationBatch'],
-                'mme_id': mme_id,
-                'state_id': state_id,
+                'issuing_auth': issuing_auth,
+                'client_lic_type': client_lic_type,
+                'client_lic_id': client_lic_id,
+                'lic_number': lic_number,
                 'published': False,
                 }
 

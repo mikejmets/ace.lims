@@ -84,12 +84,10 @@
             </tr>
             <tr><td id="client-name" tal:content="client/name"></td></tr>
             <tr><td id="client-address" tal:content="structure client/address"></td></tr>
-            <tr tal:condition="client/fax">
-              <td id="client-fax">
-                <span i18n:translate="">Fax</span>:
-                <span tal:content="client/fax"></span>
-              </td>
-            </tr>
+            <tr><td class="client-licences" tal:content="analysisrequest/client_lic_type"></td></tr>
+            <tr><td class="client-licences" tal:content="analysisrequest/client_lic_id"></td></tr>
+            <tr><td class="client-licences" tal:content="analysisrequest/lic_number"></td></tr>
+            <tr><td class="client-licences" tal:content="analysisrequest/issuing_auth"></td></tr>
           </table>
         </td>
         <td id="lab-info" style="float: right">
@@ -457,7 +455,6 @@
     <table>
       <tr>
         <td class='footer-discreeter'>
-          <div class="footer" tal:content="structure analysisrequest/footer"></div>
           <div class="page-number">Page <span class="page-current-num"></span> of <span class="page-total-count"></span></div>
         </td>
         <td class='barcode-container'>
