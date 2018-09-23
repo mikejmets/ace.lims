@@ -211,3 +211,6 @@
 .address span{
     padding: 2px;
 }
+.whiteborder{
+    border: 3px solid #fff !important;
+}

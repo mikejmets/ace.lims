@@ -233,7 +233,6 @@ class AnalysisRequestPublishView(ARPV):
             CSV=csvdata,
             Html=results_html,
         )
-        import pdb; pdb.set_trace()
         fld = report.getField('Pdf')
         fld.get(report).setFilename(fn + ".pdf")
         fld.get(report).setContentType('application/pdf')
@@ -716,3 +715,29 @@ class AnalysisRequestDigester(ARD):
                     'mobile_phone': to_utf8(contact.getMobilePhone()) if contact else '',
                     'pubpref': contact.getPublicationPreference()}
         return data
+
+    def _managers_data(self, ar):
+        managers = {'ids': [], 'dict': {}}
+        departments = {}
+        ar_mngrs = ar.getResponsible()
+        for id in ar_mngrs['ids']:
+            new_depts = ar_mngrs['dict'][id]['departments'].split(',')
+            if id in managers['ids']:
+                for dept in new_depts:
+                    if dept not in departments[id]:
+                        departments[id].append(dept)
+            else:
+                departments[id] = new_depts
+                managers['ids'].append(id)
+                managers['dict'][id] = ar_mngrs['dict'][id]
+
+        mngrs = departments.keys()
+        for mngr in mngrs:
+            final_depts = ''
+            for dept in departments[mngr]:
+                if final_depts:
+                    final_depts += ', '
+                final_depts += to_utf8(dept)
+            managers['dict'][mngr]['departments'] = final_depts
+
+        return managers

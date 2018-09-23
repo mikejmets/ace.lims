@@ -165,8 +165,8 @@
         </td>
       </tr>
       <tr>
-        <td style="border: 3px solid #fff" i18n:translate=""></td>
-        <td style="border: 3px solid #fff"></td>
+        <td class="whiteborder" i18n:translate=""></td>
+        <td class="whiteborder"></td>
       </tr>
       <tr tal:condition="python: batch">
         <td class="label" i18n:translate="">Client Batch ID</td>
@@ -197,8 +197,8 @@
         <td tal:content="specifications/title|nothing"></td>
       </tr>
       <tr>
-        <td style="border: 3px solid #fff" i18n:translate=""></td>
-        <td style="border: 3px solid #fff"></td>
+        <td class="whiteborder" i18n:translate=""></td>
+        <td class="whiteborder"></td>
       </tr>
       <tr>
         <td class="label" i18n:translate="">Date Received</td>
@@ -225,6 +225,11 @@
     </table>
   </div>
 
+  <!-- Discreeter section -->
+  <div id="section-discreeter">
+      <br />
+      <div class="footer" tal:content="structure analysisrequest/footer"></div>
+  </div>
   <!-- Results section -->
   <div id="section-results">
     <h1 i18n:translate="">Results</h1>
@@ -456,10 +461,6 @@
         </tal:manager>
       </td>
     </table>
-  </div>
-  <!-- Discreeter section -->
-  <div id="section-discreeter">
-      <div class="footer" tal:content="structure analysisrequest/footer"></div>
   </div>
 
   <!--
