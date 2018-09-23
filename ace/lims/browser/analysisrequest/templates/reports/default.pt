@@ -47,15 +47,7 @@
        For the total count, use the "page-total-count" class.
      -->
   <div id="section-header" class='page-header'>
-    <div id='barcode-container'>
-      <div class='barcode'
-           data-code='code128'
-           data-showHRI='false'
-           data-barHeight='15'
-           data-addQuietZone='true'
-           tal:attributes="data-id analysisrequest/id">
-      </div>
-    </div>
+    <div style="float:right">COA ID is generated on publication</div>
     <div id='lab-logo'>
       <a tal:attributes="href laboratory/url">
         <img tal:attributes="src laboratory/logo"/>
@@ -487,13 +479,7 @@
           <div class="page-number">Page <span class="page-current-num"></span> of <span class="page-total-count"></span></div>
         </td>
         <td class='barcode-container'>
-          <div class='barcode'
-               data-code='code128'
-               data-showHRI='false'
-               data-barHeight='12'
-               data-addQuietZone='true'
-               tal:attributes="data-id analysisrequest/id">
-          </div>
+            <div style="float:right">COA ID is generated on publication</div>
         </td>
       </tr>
     </table>

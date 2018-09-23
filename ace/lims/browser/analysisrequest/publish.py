@@ -191,13 +191,13 @@ class AnalysisRequestPublishView(ARPV):
         # Create the pdf report (will always be attached to the AR)
         # we must supply the file ourself so that createPdf leaves it alone.
         pdf_fn = tempfile.mktemp(suffix=".pdf")
-        pdf_report = createPdf(htmlreport=results_html, outfile=pdf_fn)
 
         # PDF written to debug file
         if debug_mode:
             logger.debug("Writing PDF for %s to %s" % (ar.Title(), pdf_fn))
         else:
-            os.remove(pdf_fn)
+            if os.path.exists(pdf_fn):
+                os.remove(pdf_fn)
 
         recipients = []
         contact = ar.getContact()
@@ -206,56 +206,62 @@ class AnalysisRequestPublishView(ARPV):
         # BIKA Cannabis hack.  Create the CSV they desire here now
         # csvdata = self.create_cannabis_csv(ars)
         csvdata = self.create_metrc_csv(ars)
-        pdf_fn = to_utf8(ar.getId())
-        if pdf_report:
-            if contact:
-                recipients = [{
-                    'UID': contact.UID(),
-                    'Username': to_utf8(contact.getUsername()),
-                    'Fullname': to_utf8(contact.getFullname()),
-                    'EmailAddress': to_utf8(contact.getEmailAddress()),
-                    'PublicationModes': contact.getPublicationPreference()
-                }]
-            reportid = ar.generateUniqueId('ARReport')
-            report = _createObjectByType("ARReport", ar, reportid)
-            report.edit(
-                AnalysisRequest=ar.UID(),
-                Pdf=pdf_report,
-                CSV=csvdata,
-                Html=results_html,
-                Recipients=recipients
-            )
-            report.unmarkCreationFlag()
-            renameAfterCreation(report)
-            # Set blob properties for fields containing file data
-            fld = report.getField('Pdf')
-            fld.get(report).setFilename(pdf_fn + ".pdf")
-            fld.get(report).setContentType('application/pdf')
-            fld = report.getField('CSV')
-            fld.get(report).setFilename(pdf_fn + ".csv")
-            fld.get(report).setContentType('text/csv')
+        if contact:
+            recipients = [{
+                'UID': contact.UID(),
+                'Username': to_utf8(contact.getUsername()),
+                'Fullname': to_utf8(contact.getFullname()),
+                'EmailAddress': to_utf8(contact.getEmailAddress()),
+                'PublicationModes': contact.getPublicationPreference()
+            }]
+        reportid = ar.generateUniqueId('ARReport')
+        report = _createObjectByType("ARReport", ar, reportid)
+        report.edit(
+            AnalysisRequest=ar.UID(),
+        )
+        report.unmarkCreationFlag()
+        renameAfterCreation(report)
+        fn = report.getId()
+        reports_link = "<a href='{}'>{}</a>".format(ar.absolute_url(), fn)
+        coa_nr_text = 'COA ID is generated on publication'
+        results_html = results_html.replace(coa_nr_text, reports_link)
+        # Create the pdf report for the supplied HTML.
+        pdf_report = createPdf(results_html, False)
+        report.edit(
+            Pdf=pdf_report,
+            Recipients=recipients,
+            CSV=csvdata,
+            Html=results_html,
+        )
+        import pdb; pdb.set_trace()
+        fld = report.getField('Pdf')
+        fld.get(report).setFilename(fn + ".pdf")
+        fld.get(report).setContentType('application/pdf')
+        fld = report.getField('CSV')
+        fld.get(report).setFilename(fn + ".csv")
+        fld.get(report).setContentType('text/csv')
 
-            # Set status to prepublished/published/republished
-            status = wf.getInfoFor(ar, 'review_state')
-            transitions = {'verified': 'publish',
-                           'published': 'republish'}
-            transition = transitions.get(status, 'prepublish')
-            try:
-                wf.doActionFor(ar, transition)
-            except WorkflowException:
-                pass
+        # Set status to prepublished/published/republished
+        status = wf.getInfoFor(ar, 'review_state')
+        transitions = {'verified': 'publish',
+                       'published': 'republish'}
+        transition = transitions.get(status, 'prepublish')
+        try:
+            wf.doActionFor(ar, transition)
+        except WorkflowException:
+            pass
 
-            # compose and send email.
-            # The managers of the departments for which the current AR has
-            # at least one AS must receive always the pdf report by email.
-            # https://github.com/bikalabs/Bika-LIMS/issues/1028
-            mime_msg = MIMEMultipart('related')
-            mime_msg['Subject'] = self.get_mail_subject(ar)[0]
-            mime_msg['From'] = formataddr(
-                (encode_header(lab.getName()), lab.getEmailAddress()))
-            mime_msg.preamble = 'This is a multi-part MIME message.'
-            msg_txt = MIMEText(results_html, _subtype='html')
-            mime_msg.attach(msg_txt)
+        # compose and send email.
+        # The managers of the departments for which the current AR has
+        # at least one AS must receive always the pdf report by email.
+        # https://github.com/bikalabs/Bika-LIMS/issues/1028
+        mime_msg = MIMEMultipart('related')
+        mime_msg['Subject'] = self.get_mail_subject(ar)[0]
+        mime_msg['From'] = formataddr(
+            (encode_header(lab.getName()), lab.getEmailAddress()))
+        mime_msg.preamble = 'This is a multi-part MIME message.'
+        msg_txt = MIMEText(results_html, _subtype='html')
+        mime_msg.attach(msg_txt)
 
         # Send report to recipients
         recips = self.get_recipients(ar)
