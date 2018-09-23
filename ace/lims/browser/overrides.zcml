@@ -29,8 +29,17 @@
       permission="bika.lims.ManageAnalysisRequests"
       layer="bika.lims.interfaces.IBikaLIMS"
     />
-
     <!-- End AR Publishing -->
+
+    <!-- Published Results -->
+    <browser:page
+      for="bika.lims.interfaces.IAnalysisRequest"
+      name="published_results"
+      class="ace.lims.browser.analysisrequest.published_results.AnalysisRequestPublishedResults"
+      permission="bika.lims.ManageAnalysisRequests"
+      layer="bika.lims.interfaces.IBikaLIMS"
+    />
+
     <!--
     <browser:page
         for="bika.lims.interfaces.IAnalysisRequestsFolder"
@@ -45,14 +54,6 @@
       name="manage_results"
       class="ace.lims.browser.analysisrequest.manage_results.AnalysisRequestManageResultsView"
       permission="bika.lims.EditResults"
-      layer="bika.lims.interfaces.IBikaLIMS"
-    />
-
-    <browser:page
-      for="bika.lims.interfaces.IAnalysisRequest"
-      name="published_results"
-      class="ace.lims.browser.analysisrequest.published_results.AnalysisRequestPublishedResults"
-      permission="bika.lims.ManageAnalysisRequests"
       layer="bika.lims.interfaces.IBikaLIMS"
     />
 

@@ -22,7 +22,7 @@ class AnalysisRequestPublishedResults(ARPR):
         self.context = context
         self.request = request
 
-        self.catalog = "bika_catalog"
+        self.catalog = "portal_catalog"
         self.contentFilter = {'portal_type': 'ARReport',
                               'sort_order': 'reverse'}
         self.context_actions = {}
