@@ -18,7 +18,7 @@ from bika.lims.browser.bika_listing import BikaListingView
 class AnalysisRequestPublishedResults(ARPR):
 
     def __init__(self, context, request):
-        BikaListingView.__init__(self, context, request)
+        super(AnalysisRequestPublishedResults, self).__init__(context, request)
         self.context = context
         self.request = request
 
@@ -33,6 +33,7 @@ class AnalysisRequestPublishedResults(ARPR):
             self.portal_url)
         self.title = self.context.translate(_("Published results"))
         self.columns = {
+            'COANR': {'title': _('COA NR')},
             'Date': {'title': _('Date')},
             'PublishedBy': {'title': _('Published By')},
             'Recipients': {'title': _('Recipients')},
@@ -44,6 +45,7 @@ class AnalysisRequestPublishedResults(ARPR):
              'title': 'All',
              'contentFilter': {},
              'columns': [
+                 'COANR',
                  'Date',
                  'PublishedBy',
                  'Recipients',
@@ -56,6 +58,7 @@ class AnalysisRequestPublishedResults(ARPR):
 
     def folderitem(self, obj, item, index):
 
+        item['COANR'] = obj.id
         item['PublishedBy'] = self.user_fullname(obj.Creator())
 
         # Formatted creation date of report
