@@ -191,13 +191,13 @@ class AnalysisRequestPublishView(ARPV):
         # Create the pdf report (will always be attached to the AR)
         # we must supply the file ourself so that createPdf leaves it alone.
         pdf_fn = tempfile.mktemp(suffix=".pdf")
-        pdf_report = createPdf(htmlreport=results_html, outfile=pdf_fn)
 
         # PDF written to debug file
         if debug_mode:
             logger.debug("Writing PDF for %s to %s" % (ar.Title(), pdf_fn))
         else:
-            os.remove(pdf_fn)
+            if os.path.exists(pdf_fn):
+                os.remove(pdf_fn)
 
         recipients = []
         contact = ar.getContact()
@@ -206,56 +206,61 @@ class AnalysisRequestPublishView(ARPV):
         # BIKA Cannabis hack.  Create the CSV they desire here now
         # csvdata = self.create_cannabis_csv(ars)
         csvdata = self.create_metrc_csv(ars)
-        pdf_fn = to_utf8(ar.getId())
-        if pdf_report:
-            if contact:
-                recipients = [{
-                    'UID': contact.UID(),
-                    'Username': to_utf8(contact.getUsername()),
-                    'Fullname': to_utf8(contact.getFullname()),
-                    'EmailAddress': to_utf8(contact.getEmailAddress()),
-                    'PublicationModes': contact.getPublicationPreference()
-                }]
-            reportid = ar.generateUniqueId('ARReport')
-            report = _createObjectByType("ARReport", ar, reportid)
-            report.edit(
-                AnalysisRequest=ar.UID(),
-                Pdf=pdf_report,
-                CSV=csvdata,
-                Html=results_html,
-                Recipients=recipients
-            )
-            report.unmarkCreationFlag()
-            renameAfterCreation(report)
-            # Set blob properties for fields containing file data
-            fld = report.getField('Pdf')
-            fld.get(report).setFilename(pdf_fn + ".pdf")
-            fld.get(report).setContentType('application/pdf')
-            fld = report.getField('CSV')
-            fld.get(report).setFilename(pdf_fn + ".csv")
-            fld.get(report).setContentType('text/csv')
+        if contact:
+            recipients = [{
+                'UID': contact.UID(),
+                'Username': to_utf8(contact.getUsername()),
+                'Fullname': to_utf8(contact.getFullname()),
+                'EmailAddress': to_utf8(contact.getEmailAddress()),
+                'PublicationModes': contact.getPublicationPreference()
+            }]
+        reportid = ar.generateUniqueId('ARReport')
+        report = _createObjectByType("ARReport", ar, reportid)
+        report.edit(
+            AnalysisRequest=ar.UID(),
+        )
+        report.unmarkCreationFlag()
+        renameAfterCreation(report)
+        fn = report.getId()
+        reports_link = "<a href='{}'>{}</a>".format(ar.absolute_url(), fn)
+        coa_nr_text = 'COA ID is generated on publication'
+        results_html = results_html.replace(coa_nr_text, reports_link)
+        # Create the pdf report for the supplied HTML.
+        pdf_report = createPdf(results_html, False)
+        report.edit(
+            Pdf=pdf_report,
+            Recipients=recipients,
+            CSV=csvdata,
+            Html=results_html,
+        )
+        fld = report.getField('Pdf')
+        fld.get(report).setFilename(fn + ".pdf")
+        fld.get(report).setContentType('application/pdf')
+        fld = report.getField('CSV')
+        fld.get(report).setFilename(fn + ".csv")
+        fld.get(report).setContentType('text/csv')
 
-            # Set status to prepublished/published/republished
-            status = wf.getInfoFor(ar, 'review_state')
-            transitions = {'verified': 'publish',
-                           'published': 'republish'}
-            transition = transitions.get(status, 'prepublish')
-            try:
-                wf.doActionFor(ar, transition)
-            except WorkflowException:
-                pass
+        # Set status to prepublished/published/republished
+        status = wf.getInfoFor(ar, 'review_state')
+        transitions = {'verified': 'publish',
+                       'published': 'republish'}
+        transition = transitions.get(status, 'prepublish')
+        try:
+            wf.doActionFor(ar, transition)
+        except WorkflowException:
+            pass
 
-            # compose and send email.
-            # The managers of the departments for which the current AR has
-            # at least one AS must receive always the pdf report by email.
-            # https://github.com/bikalabs/Bika-LIMS/issues/1028
-            mime_msg = MIMEMultipart('related')
-            mime_msg['Subject'] = self.get_mail_subject(ar)[0]
-            mime_msg['From'] = formataddr(
-                (encode_header(lab.getName()), lab.getEmailAddress()))
-            mime_msg.preamble = 'This is a multi-part MIME message.'
-            msg_txt = MIMEText(results_html, _subtype='html')
-            mime_msg.attach(msg_txt)
+        # compose and send email.
+        # The managers of the departments for which the current AR has
+        # at least one AS must receive always the pdf report by email.
+        # https://github.com/bikalabs/Bika-LIMS/issues/1028
+        mime_msg = MIMEMultipart('related')
+        mime_msg['Subject'] = self.get_mail_subject(ar)[0]
+        mime_msg['From'] = formataddr(
+            (encode_header(lab.getName()), lab.getEmailAddress()))
+        mime_msg.preamble = 'This is a multi-part MIME message.'
+        msg_txt = MIMEText(results_html, _subtype='html')
+        mime_msg.attach(msg_txt)
 
         # Send report to recipients
         recips = self.get_recipients(ar)
@@ -487,78 +492,158 @@ class AnalysisRequestDigester(ARD):
         logger.info("=========== new data for %s created." % ar)
         return data
 
-    def _ar_data(self, ar, excludearuids=[]):
+    def _ar_data(self, ar, excludearuids=None):
         """ Creates an ar dict, accessible from the view and from each
             specific template.
         """
-        # if ar.UID() in self._cache['_ar_data']:
-        #    return self._cache['_ar_data'][ar.UID()]
-        # Not sure why the following 2 lines are need, doing ar.getStrain or ar.getSample().getStrain does not work
+        if not excludearuids:
+            excludearuids = []
+        bs = ar.bika_setup
         bsc = getToolByName(self.context, 'bika_setup_catalog')
         strain = ''
         strains = bsc(UID=ar.getSample()['Strain'])
         if strains:
             strain = strains[0].Title
 
-        mme_id = state_id = ''
+        client_lic_type = client_lic_id = lic_number = issuing_auth = ''
         # client_licence_id = ar.getClientLicenceID().split(',')
         client_licence_id = ar.ClientLicenceID.split(',')
         if len(client_licence_id) == 4:
-            mme_id = client_licence_id[1]  # LicenceID
-            state_id = client_licence_id[2]  # LicenceNumber
+            client_lic_type = client_licence_id[0]  # LicenceType
+            client_lic_id = client_licence_id[1]  # LicenceID
+            lic_number = client_licence_id[2]  # LicenceNumber
+            issuing_auth = client_licence_id[3]  # Issuing Authority
         data = {'obj': ar,
                 'id': ar.getId(),
-                # 'client_order_num': ar.getClientOrderNumber(),
+                'client_order_num': ar.getClientOrderNumber(),
                 'client_reference': ar.getClientReference(),
                 'client_sampleid': ar.getClientSampleID(),
-                # 'adhoc': ar.getAdHoc(),
-                # 'composite': ar.getComposite(),
-                # 'report_drymatter': ar.getReportDryMatter(),
-                # 'invoice_exclude': ar.getInvoiceExclude(),
-                'sampling_date': ulocalized_time(
-                    ar.getSamplingDate(), long_format=1, context=self.context),
-                'date_received': ulocalized_time(
-                    ar.getDateReceived(), long_format=1, context=self.context),
-                # 'member_discount': ar.getMemberDiscount(),
+                'adhoc': ar.getAdHoc(),
+                'composite': ar.getComposite(),
+                'invoice_exclude': ar.getInvoiceExclude(),
+                'sampling_date': ulocalized_time(ar.getSamplingDate(),
+                                                 long_format=1,
+                                                 context=self.context),
+                'date_received': ulocalized_time(ar.getDateReceived(),
+                                                 long_format=1),
+                'member_discount': ar.getMemberDiscount(),
                 'date_sampled': ulocalized_time(
-                    ar.getDateSampled(), long_format=1, context=self.context),
-                'date_published': ulocalized_time(
-                    DateTime(), long_format=1, context=self.context),
-                # 'invoiced': ar.getInvoiced(),
-                # 'late': ar.getLate(),
-                # 'subtotal': ar.getSubtotal(),
-                # 'vat_amount': ar.getVATAmount(),
-                # 'totalprice': ar.getTotalPrice(),
+                    ar.getDateSampled(), long_format=1),
+                'date_published': ulocalized_time(DateTime(), long_format=1),
+                'invoiced': ar.getInvoiced(),
+                'late': ar.getLate(),
+                'subtotal': ar.getSubtotal(),
+                'vat_amount': ar.getVATAmount(),
+                'totalprice': ar.getTotalPrice(),
                 'invalid': ar.isInvalid(),
                 'url': ar.absolute_url(),
-                'remarks': to_utf8(ar.getRemarks().replace('\n', '').replace("===", "<br/>")),
-                'footer': to_utf8(self.context.bika_setup.getResultFooter()),
+                'remarks': to_utf8(ar.getRemarks()),
+                'footer': to_utf8(bs.getResultFooter()),
                 'prepublish': False,
-                'published': False,
                 # 'child_analysisrequest': None,
                 # 'parent_analysisrequest': None,
-                # 'resultsinterpretation':ar.getResultsInterpretation(),
+                # 'resultsinterpretation': ar.getResultsInterpretation(),
+                'ar_attachments': self._get_ar_attachments(ar),
+                'an_attachments': self._get_an_attachments(ar),
                 'lot': ar['Lot'],  # To be fixed
                 'strain': strain,  # To be fixed
                 'cultivation_batch': ar['CultivationBatch'],
-                # 'resultsinterpretation':ar.getResultsInterpretation(),
-                'ar_attachments': self._get_ar_attachments(ar),
-                'an_attachments': self._get_an_attachments(ar),
-                'attachment_src': None,
-                'attachment_width': None,
-                'attachment_height': None,
-                'mme_id': mme_id,
-                'state_id': state_id,
+                'issuing_auth': issuing_auth,
+                'client_lic_type': client_lic_type,
+                'client_lic_id': client_lic_id,
+                'lic_number': lic_number,
+                'published': False,
                 }
 
         # Sub-objects
         # excludearuids.append(ar.UID())
         # puid = ar.getRawParentAnalysisRequest()
         # if puid and puid not in excludearuids:
-        #     data['parent_analysisrequest'] = self._ar_data(ar.getParentAnalysisRequest(), excludearuids)
+        #     data['parent_analysisrequest'] = self._ar_data(
+        #         ar.getParentAnalysisRequest(), excludearuids)
         # cuid = ar.getRawChildAnalysisRequest()
         # if cuid and cuid not in excludearuids:
-        #     data['child_analysisrequest'] = self._ar_data(ar.getChildAnalysisRequest(), excludearuids)
+        #     data['child_analysisrequest'] = self._ar_data(
+        #         ar.getChildAnalysisRequest(), excludearuids)
+
+        wf = ar.portal_workflow
+        allowed_states = ['verified', 'published']
+        data['prepublish'] = wf.getInfoFor(ar,
+                                           'review_state') not in allowed_states
+
+        data['contact'] = self._contact_data(ar)
+        data['client'] = self._client_data(ar)
+        data['sample'] = self._sample_data(ar)
+        data['batch'] = self._batch_data(ar)
+        data['specifications'] = self._specs_data(ar)
+        data['analyses'] = self._analyses_data(ar, ['verified', 'published'])
+        data['hasinterimfields'] = len(
+            [an['interims'] for an in data['analyses'] if
+             len(an['interims']) > 0]) > 0
+        data['qcanalyses'] = self._qcanalyses_data(ar,
+                                                   ['verified', 'published'])
+        data['points_of_capture'] = sorted(
+            set([an['point_of_capture'] for an in data['analyses']]))
+        data['categories'] = sorted(
+            set([an['category'] for an in data['analyses']]))
+        data['haspreviousresults'] = len(
+            [an['previous_results'] for an in data['analyses'] if
+             an['previous_results']]) > 0
+        data['hasblanks'] = len([an['reftype'] for an in data['qcanalyses'] if
+                                 an['reftype'] == 'b']) > 0
+        data['hascontrols'] = len([an['reftype'] for an in data['qcanalyses'] if
+                                   an['reftype'] == 'c']) > 0
+        data['hasduplicates'] = len(
+            [an['reftype'] for an in data['qcanalyses'] if
+             an['reftype'] == 'd']) > 0
+
+        # Categorize analyses
+        data['categorized_analyses'] = {}
+        data['department_analyses'] = {}
+        for an in data['analyses']:
+            poc = an['point_of_capture']
+            cat = an['category']
+            pocdict = data['categorized_analyses'].get(poc, {})
+            catlist = pocdict.get(cat, [])
+            catlist.append(an)
+            pocdict[cat] = catlist
+            data['categorized_analyses'][poc] = pocdict
+
+            # Group by department too
+            anobj = an['obj']
+            dept = anobj.getDepartment()
+            if dept:
+                dept = dept.UID()
+                dep = data['department_analyses'].get(dept, {})
+                dep_pocdict = dep.get(poc, {})
+                dep_catlist = dep_pocdict.get(cat, [])
+                dep_catlist.append(an)
+                dep_pocdict[cat] = dep_catlist
+                dep[poc] = dep_pocdict
+                data['department_analyses'][dept] = dep
+
+        # Categorize qcanalyses
+        data['categorized_qcanalyses'] = {}
+        for an in data['qcanalyses']:
+            qct = an['reftype']
+            poc = an['point_of_capture']
+            cat = an['category']
+            qcdict = data['categorized_qcanalyses'].get(qct, {})
+            pocdict = qcdict.get(poc, {})
+            catlist = pocdict.get(cat, [])
+            catlist.append(an)
+            pocdict[cat] = catlist
+            qcdict[poc] = pocdict
+            data['categorized_qcanalyses'][qct] = qcdict
+
+        data['reporter'] = self._reporter_data(ar)
+        data['managers'] = self._managers_data(ar)
+
+        portal = self.context.portal_url.getPortalObject()
+        data['portal'] = {'obj': portal,
+                          'url': portal.absolute_url()}
+        data['laboratory'] = self._lab_data()
+        data['product'] = self._sample_type(ar).get('title', '')
 
         wf = getToolByName(ar, 'portal_workflow')
         allowed_states = ['verified', 'published']
@@ -566,102 +651,17 @@ class AnalysisRequestDigester(ARD):
         if wf.getInfoFor(ar, 'review_state') == 'published':
             data['published'] = True
 
-        data['contact'] = self._contact_data(ar)
-        data['client'] = self._client_data(ar)
-        # data['sample'] = self._sample_data(ar)
-        data['product'] = self._sample_type(ar).get('title', '')
-        # data['batch'] = self._batch_data(ar)
-        # data['specifications'] = self._specs_data(ar)
-        # data['analyses'] = self._analyses_data(ar, ['verified', 'published'])
-        # data['qcanalyses'] = self._qcanalyses_data(ar, ['verified', 'published'])
-        # data['points_of_capture'] = sorted(set([an['point_of_capture'] for an in data['analyses']]))
-        # data['categories'] = sorted(set([an['category'] for an in data['analyses']]))
-        # data['hasblanks'] = len([an['reftype'] for an in data['qcanalyses'] if an['reftype'] == 'b']) > 0
-        # data['hascontrols'] = len([an['reftype'] for an in data['qcanalyses'] if an['reftype'] == 'c']) > 0
-        # data['hasduplicates'] = len([an['reftype'] for an in data['qcanalyses'] if an['reftype'] == 'd']) > 0
-        # Attachment src/link
-        attachments = ar.getAttachment()
-        for attachment in attachments:
-            if attachment.getReportOption() != 'r':
-                continue
-            filename = attachment.getAttachmentFile().filename
-            extension = filename.split('.')[-1]
-            if extension in ['png', 'jpg', 'jpeg']:  # Check other image extensions
-                file_url = attachment.absolute_url()
-                data['attachment_src'] = '{}/at_download/AttachmentFile'.format(file_url)
-                [width, height] = attachment.getAttachmentFile().getSize()
-                maxwidth = 248  # 80% of 310px
-                maxheight = 100
-                resize_ratio = min(maxwidth / float(width), maxheight / float(height))
-                data['attachment_width'] = width * resize_ratio
-                data['attachment_height'] = height * resize_ratio
-                break
-
-        # Categorize analyses
-        # data['categorized_analyses'] = {}
-        data['department_analyses'] = {}
-        # for an in data['analyses']:
-        #     poc = an['point_of_capture']
-        #     cat = an['category']
-        #     pocdict = data['categorized_analyses'].get(poc, {})
-        #     catlist = pocdict.get(cat, [])
-        #     catlist.append(an)
-        #     pocdict[cat] = catlist
-        #     data['categorized_analyses'][poc] = pocdict
-
-        #     # Group by department too
-        #     anobj = an['obj']
-        #     dept = anobj.getService().getDepartment() if anobj.getService() else None
-        #     if dept:
-        #         dept = dept.UID()
-        #         dep = data['department_analyses'].get(dept, {})
-        #         dep_pocdict = dep.get(poc, {})
-        #         dep_catlist = dep_pocdict.get(cat, [])
-        #         dep_catlist.append(an)
-        #         dep_pocdict[cat] = dep_catlist
-        #         dep[poc] = dep_pocdict
-        #         data['department_analyses'][dept] = dep
-
-        # Categorize qcanalyses
-        # data['categorized_qcanalyses'] = {}
-        # for an in data['qcanalyses']:
-        #     qct = an['reftype']
-        #     poc = an['point_of_capture']
-        #     cat = an['category']
-        #     qcdict = data['categorized_qcanalyses'].get(qct, {})
-        #     pocdict = qcdict.get(poc, {})
-        #     catlist = pocdict.get(cat, [])
-        #     catlist.append(an)
-        #     pocdict[cat] = catlist
-        #     qcdict[poc] = pocdict
-        #     data['categorized_qcanalyses'][qct] = qcdict
-
-        # data['reporter'] = self._reporter_data(ar)
-        data['managers'] = self._managers_data(ar)
-
-        portal = self.context.portal_url.getPortalObject()
-        data['portal'] = {'obj': portal,
-                          'url': portal.absolute_url()}
-        data['laboratory'] = self._lab_data()
-
         # results interpretation
-        ri = {}
-        if (ar.getResultsInterpretationByDepartment(None)):
-            ri[''] = ar.getResultsInterpretationByDepartment(None)
-        depts = ar.getDepartments()
-        for dept in depts:
-            ri[dept.Title()] = ar.getResultsInterpretationByDepartment(dept)
-        data['resultsinterpretationdepts'] = ri
+        data = self._set_results_interpretation(ar, data)
 
-        # self._cache['_ar_data'][ar.UID()] = data
         return data
 
     def _lab_data(self):
-        portal = self.context.portal_url.getPortalObject()
-        lab = self.context.bika_setup.laboratory
-        supervisor = lab.getSupervisor()
+        portal = getToolByName(self.context, 'portal_url').getPortalObject()
         bsc = getToolByName(self.context, "bika_setup_catalog")
-        labcontacts = bsc(portal_type="LabContact", id=supervisor)
+        lab = self.context.bika_setup.laboratory
+        sv = lab.getSupervisor()
+        labcontacts = bsc(portal_type="LabContact", id=sv)
         signature = None
         lab_manager = ''
         if len(labcontacts) == 1:
@@ -674,14 +674,21 @@ class AnalysisRequestDigester(ARD):
                 signature_url = labcontact.getSignature().absolute_url()
                 signature = '{}/Signature'.format(signature_url)
 
+        lab = self.context.bika_setup.laboratory
+        sv = lab.getSupervisor()
+        sv_fullname = sv.getFullname() if sv else ""
+        sv_email = sv.getEmailAddress() if sv else ""
+        sv_mphone = sv.getMobilePhone() if sv else ""
         return {'obj': lab,
                 'title': to_utf8(lab.Title()),
-                # 'lab_licence_id': to_utf8(lab.getLaboratoryLicenceID()),
-                'lab_licence_id': to_utf8(lab.LaboratoryLicenceID),
                 'url': to_utf8(lab.getLabURL()),
                 'phone': to_utf8(lab.getPhone()),
-                'address': to_utf8(self._lab_address(lab)),
                 'email': to_utf8(lab.getEmailAddress()),
+                'lab_licence_id': to_utf8(lab.LaboratoryLicenceID),
+                'supervisor': to_utf8(sv_fullname),
+                'supervisor_email': to_utf8(sv_email),
+                'supervisor_mphone': to_utf8(sv_mphone),
+                'address': to_utf8(self._lab_address(lab)),
                 'confidence': lab.getConfidence(),
                 'accredited': lab.getLaboratoryAccredited(),
                 'accreditation_body': to_utf8(lab.getAccreditationBody()),
@@ -692,4 +699,45 @@ class AnalysisRequestDigester(ARD):
                 'today': ulocalized_time(DateTime(),
                                          long_format=0,
                                          context=self.context),
-                }
+                'confidence': lab.getConfidence(),
+                'accredited': lab.getLaboratoryAccredited(),
+                'accreditation_body': to_utf8(lab.getAccreditationBody()),
+                'accreditation_logo': lab.getAccreditationBodyLogo(),
+                'logo': "%s/logo_print.png" % portal.absolute_url()}
+
+    def _contact_data(self, ar):
+        data = {}
+        contact = ar.getContact()
+        if contact:
+            data = {'obj': contact,
+                    'fullname': to_utf8(contact.getFullname()),
+                    'email': to_utf8(contact.getEmailAddress()),
+                    'mobile_phone': to_utf8(contact.getMobilePhone()) if contact else '',
+                    'pubpref': contact.getPublicationPreference()}
+        return data
+
+    def _managers_data(self, ar):
+        managers = {'ids': [], 'dict': {}}
+        departments = {}
+        ar_mngrs = ar.getResponsible()
+        for id in ar_mngrs['ids']:
+            new_depts = ar_mngrs['dict'][id]['departments'].split(',')
+            if id in managers['ids']:
+                for dept in new_depts:
+                    if dept not in departments[id]:
+                        departments[id].append(dept)
+            else:
+                departments[id] = new_depts
+                managers['ids'].append(id)
+                managers['dict'][id] = ar_mngrs['dict'][id]
+
+        mngrs = departments.keys()
+        for mngr in mngrs:
+            final_depts = ''
+            for dept in departments[mngr]:
+                if final_depts:
+                    final_depts += ', '
+                final_depts += to_utf8(dept)
+            managers['dict'][mngr]['departments'] = final_depts
+
+        return managers
