@@ -150,14 +150,6 @@ class AnalysisRequestPublishView(ARPV):
         else:
             return self._digester(self._ars[self._current_ar_index])
 
-    def format_address(self, address):
-        if address:
-            _keys = ['address', 'city', 'district', 'state', 'zip', 'country']
-            _list = ["<span>%s </span>" % address.get(v) for v in _keys
-                     if address.get(v)]
-            return ''.join(_list)
-        return ''
-
     def sorted_by_sort_key(self, category_keys):
         """ Sort categories via catalog lookup on title. """
         bsc = getToolByName(self.context, "bika_setup_catalog")
